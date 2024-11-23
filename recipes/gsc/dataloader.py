@@ -1,3 +1,9 @@
+'''
+Descripttion: Dataloader for Google Speech Commands v1/2
+version: 
+Author: Shimin Zhang
+Date: 2024-11-22 23:24:52
+'''
 import os
 import os.path
 import urllib.request
@@ -15,23 +21,6 @@ from torchaudio_augmentations import PolarityInversion
 from torchaudio_augmentations import RandomApply
 from torchaudio_augmentations import Reverb
 
-
-def get_keywords(version, if_command, split_dir):
-    # excluded _background_noise_ folder
-    all_classes = [keyword for keyword in os.listdir(split_dir) if keyword != '_background_noise_']
-    if version == 1:
-        if if_command:
-            keywords = {'stop': 0, 'go': 1, 'yes': 2, 'no': 3, 'up': 4, 'down': 5, 'left': 6, 'right': 7, 'on': 8, 'off': 9}
-        else:
-            keywords = {value: index for index, value in enumerate(all_classes)}
-    elif version == 2:
-        if if_command:
-            keywords = {'stop': 0, 'go': 1, 'yes': 2, 'no': 3, 'up': 4, 'down': 5, 'left': 6, 'right': 7, 'on': 8, 'off': 9,
-                        'backward': 10, 'forward': 11, 'Follow': 12, 'Learn': 13}
-        else:
-            keywords = {value: index for index, value in enumerate(all_classes)}
-    
-    return keywords
 
 def is_audio_file(filename):
     AUDIO_EXTENSIONS = ['.wav', '.WAV']  # check extensions
@@ -112,7 +101,37 @@ def make_dataset(gcommands_fold, out_path):
     move_files(gcommands_fold, valid_fold, validation_path)
     create_train_fold(gcommands_fold, train_fold, test_fold)
 
-def index_commands(split_dir, categ_to_idx):
+def get_keywords(version, if_command, split_dir):
+    '''
+    brief: Generate keywords dict with class index
+    param {} version
+    param {} if_command: if use a subset of the full categories as commands
+    param {} split_dir
+    return {}
+    '''
+    # excluded _background_noise_ folder
+    all_classes = [keyword for keyword in os.listdir(split_dir) if keyword != '_background_noise_']
+    if version == 1:
+        if if_command:
+            keywords = {'stop': 0, 'go': 1, 'yes': 2, 'no': 3, 'up': 4, 'down': 5, 'left': 6, 'right': 7, 'on': 8, 'off': 9}
+        else:
+            keywords = {value: index for index, value in enumerate(all_classes)}
+    elif version == 2:
+        if if_command:
+            keywords = {'stop': 0, 'go': 1, 'yes': 2, 'no': 3, 'up': 4, 'down': 5, 'left': 6, 'right': 7, 'on': 8, 'off': 9,
+                        'backward': 10, 'forward': 11, 'Follow': 12, 'Learn': 13}
+        else:
+            keywords = {value: index for index, value in enumerate(all_classes)}
+    
+    return keywords
+
+def match_sample_category(split_dir, categ_to_idx):
+    '''
+    brief: set dataloader format
+    param {} split_dir
+    param {} categ_to_idx: the dict obtained from get_keywords()
+    return {} [[sample1_path, categ_idx], [sample2_path, categ_idx], ...]
+    '''
     spects = []
     all_classes = [keyword for keyword in os.listdir(split_dir) if keyword != '_background_noise_']
     for command in sorted(all_classes):
@@ -133,7 +152,7 @@ class datasets(data.Dataset):
         self.split = split
         self.split_dir = f'/datasets/kws/google_speech_command_{version}/processed/{split}'
         self.class_index = get_keywords(version, if_command, self.split_dir)
-        self.spects = index_commands(self.split_dir, self.class_index)
+        self.spects = match_sample_category(self.split_dir, self.class_index)
         self.aug = aug
         self.aug_paras = aug_paras
 
@@ -144,10 +163,16 @@ class datasets(data.Dataset):
         return spect, command_index
 
     def __len__(self):
-        
+
         return len(self.spects)
 
     def frontend(self, path, aug=True):
+        '''
+        brief: filterbank with 40 mel_bins, augmentation on training set and 0-pad samples that T<98
+        param {} path
+        param {boolean} aug
+        return {}
+        '''
         x, _ = torchaudio.load(path)
         if aug and self.split == "train":
             min_snr, max_snr, p_noise = self.aug_paras
