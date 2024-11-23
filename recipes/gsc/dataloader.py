@@ -12,7 +12,8 @@ import shutil
 
 import torch
 import torchaudio
-import torch.utils.data as data
+from torch.utils.data import Dataset, DataLoader
+
 from torchaudio_augmentations import ComposeMany
 from torchaudio_augmentations import Gain
 from torchaudio_augmentations import Noise
@@ -145,27 +146,27 @@ def match_sample_category(split_dir, categ_to_idx):
     return spects
 
 
-class datasets(data.Dataset):
-    def __init__(self, split, version, if_command=True, aug=False, aug_paras=[0.0001, 0.9, 0.1]):
+class Datasets(Dataset):
+    def __init__(self, split, version, if_command=True, aug=False, aug_params=[0.0001, 0.9, 0.1]):
         check_data_process(version)
         self.split = split
         self.split_dir = f'/datasets/kws/google_speech_command_{version}/processed/{split}'
         self.class_index = get_keywords(version, if_command, self.split_dir)
         self.spects = match_sample_category(self.split_dir, self.class_index)
         self.aug = aug
-        self.aug_paras = aug_paras
+        self.aug_params = aug_params
 
     def __getitem__(self, index):
-        path, command_index = self.spects[index]
-        spect = self.frontend(path, self.aug)
+        path, target = self.spects[index]
+        spect = self.frontend(path)
         
-        return spect, command_index
+        return spect, target
 
     def __len__(self):
 
         return len(self.spects)
 
-    def frontend(self, path, aug=True):
+    def frontend(self, path):
         '''
         brief: filterbank with 40 mel_bins, augmentation on training set and 0-pad samples that T<98
         param {} path
@@ -173,13 +174,11 @@ class datasets(data.Dataset):
         return {}
         '''
         x, _ = torchaudio.load(path)
-        if aug and self.split == "train":
+        if self.aug and self.split == "train":
             min_snr, max_snr, p_noise = self.aug_paras
             x = self.augmentation(x, min_snr, max_snr, p_noise).squeeze(0)
         
         x = torchaudio.compliance.kaldi.fbank(x, num_mel_bins=40)
-        if x.shape[0] > 98:
-            print(path)
         x = self.pad_seq(x)
 
         return x
@@ -207,10 +206,10 @@ class datasets(data.Dataset):
 
 
 if __name__ == "__main__":
-    train_dataset = datasets(split="train", version=2, if_command=True, aug=False)
+    train_dataset = Datasets(split="train", version=2, if_command=True, aug=False)
     
-    train_loader = data.DataLoader(train_dataset, batch_size=256, shuffle=True, 
-                                   num_workers=1, pin_memory='cpu', sampler=None)
+    train_loader = DataLoader(train_dataset, batch_size=256, shuffle=True, 
+                              num_workers=1, pin_memory='cpu', sampler=None)
     
-    for ids, (spect, target) in enumerate(train_loader):
+    for idx, (spect, target) in enumerate(train_loader):
         print(spect.shape, target.shape)
