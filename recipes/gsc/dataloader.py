@@ -16,9 +16,7 @@ from torchaudio_augmentations import RandomApply
 from torchaudio_augmentations import Reverb
 
 
-AUDIO_EXTENSIONS = [
-    '.wav', '.WAV',
-]
+AUDIO_EXTENSIONS = ['.wav', '.WAV']
 
 def get_keywords(version, if_command, split_dir):
     # excluded _background_noise_ folder
