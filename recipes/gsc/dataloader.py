@@ -11,7 +11,6 @@ import tarfile
 import shutil
 
 import torch
-import torch.nn as nn
 import torchaudio
 import torch.utils.data as data
 from torchaudio_augmentations import ComposeMany
