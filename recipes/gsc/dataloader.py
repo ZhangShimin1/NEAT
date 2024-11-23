@@ -16,8 +16,6 @@ from torchaudio_augmentations import RandomApply
 from torchaudio_augmentations import Reverb
 
 
-AUDIO_EXTENSIONS = ['.wav', '.WAV']  # check extensions
-
 def get_keywords(version, if_command, split_dir):
     # excluded _background_noise_ folder
     all_classes = [keyword for keyword in os.listdir(split_dir) if keyword != '_background_noise_']
@@ -36,6 +34,8 @@ def get_keywords(version, if_command, split_dir):
     return keywords
 
 def is_audio_file(filename):
+    AUDIO_EXTENSIONS = ['.wav', '.WAV']  # check extensions
+
     return any(filename.endswith(extension) for extension in AUDIO_EXTENSIONS)
 
 def check_data_process(version):
@@ -123,6 +123,7 @@ def index_commands(split_dir, categ_to_idx):
                     path = os.path.join(root, fname)
                     item = (path, categ_to_idx.get(command, 0))
                     spects.append(item)
+    
     return spects
 
 
@@ -143,6 +144,7 @@ class datasets(data.Dataset):
         return spect, command_index
 
     def __len__(self):
+        
         return len(self.spects)
 
     def frontend(self, path, aug=True):
