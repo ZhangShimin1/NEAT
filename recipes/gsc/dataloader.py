@@ -21,7 +21,6 @@ from torchaudio_augmentations import PolarityInversion
 from torchaudio_augmentations import RandomApply
 from torchaudio_augmentations import Reverb
 
-#1
 def is_audio_file(filename):
     AUDIO_EXTENSIONS = ['.wav', '.WAV']  # check extensions
 
