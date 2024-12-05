@@ -41,7 +41,7 @@ class SMLP_eg(nn.Module):
             if i in args.recurrent_layer:
                 # Add a recurrent layer using ElementWiseRecurrentContainer
                 recurrent_node = neuron.LIFNode(tau=2., surrogate_function=surrogate.ATan(), step_mode='s', backend='torch')
-                recurrent_layer = layer.ElementWiseRecurrentContainer(recurrent_node, element_wise_function=element_wise_add)
+                recurrent_layer = layer.LinearRecurrentContainer(recurrent_node, out_features, out_features)
                 layers.append(recurrent_layer)
             else:
                 layers.append(neuron.LIFNode(tau=2., surrogate_function=surrogate.ATan(), step_mode='m', backend='cupy'))
