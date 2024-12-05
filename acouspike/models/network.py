@@ -19,9 +19,6 @@ class ModelArgs(Serializable):
     recurrent_layer: list = (0, 1)  # Index of layers that will be recurrent
 
 
-def element_wise_add(x, y):
-    return x + y
-
 class SMLP_eg(nn.Module):
     def __init__(self, args: ModelArgs):
         super().__init__()
