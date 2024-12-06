@@ -11,6 +11,7 @@ import torch.nn as nn
 
 from spikingjelly.activation_based import layer, neuron, surrogate
 
+
 class BaseNet(nn.Module):
     def __init__(self, in_dim, out_dim, model_config):
         super().__init__()
