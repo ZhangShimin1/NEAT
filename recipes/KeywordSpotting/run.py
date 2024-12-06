@@ -189,8 +189,8 @@ class Trainer:
             test_batch_acc.append(acc)
         test_acc = np.mean(test_batch_acc)
         test_loss = np.mean(test_batch_loss)
-        print(f"Test ending: Loss: {test_loss}, Acc: {test_acc}")
-        
+        print(f"Testing results: Loss: {test_loss}, Acc: {test_acc}")
+
         return test_loss, test_acc
 
     def training_step(self, batch, i):
