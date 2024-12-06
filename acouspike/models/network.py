@@ -11,6 +11,10 @@ import torch.nn as nn
 
 from spikingjelly.activation_based import layer, neuron, surrogate
 
+@dataclass
+class NeuronArgs(Serializable):
+    tau: float = 2.
+    v_threshold: float = 1.
 
 class BaseNet(nn.Module):
     def __init__(self, in_dim, out_dim, model_config):
@@ -30,6 +34,7 @@ class BaseNet(nn.Module):
         input_layer = layer.Linear(in_dim, self.num_hidden_units[0], bias=False)
         layers.append(input_layer)
         layers.append(neuron.LIFNode(tau=self.tau, v_threshold=self.v_threshold, surrogate_function=surrogate.ATan(), step_mode='s', backend='torch'))
+
 
         # Hidden layers
         for i in range(1, self.num_hidden_layers):
