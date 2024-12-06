@@ -8,7 +8,7 @@ data:
   if_spk: False  # for SHD
 
 trainer:
-  num_train_epochs: 100
+  num_train_epochs: 1
   seed: 202412
   device: "cuda:0"
   output_dir: "exp/"
