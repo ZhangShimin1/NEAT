@@ -5,7 +5,7 @@ data:
   aug: True
   version: 1
   if_command: True
-  if_spk: False  # for SHD
+  if_spk: False 
 
 trainer:
   num_train_epochs: 1
