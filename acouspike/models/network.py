@@ -1,5 +1,5 @@
 '''
-Description: Network architectures
+Description: Baseline network configurations
 version: 
 Author: Shimin Zhang
 Date: 2024-11-23 13:41:44
