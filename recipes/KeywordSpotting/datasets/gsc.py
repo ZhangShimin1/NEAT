@@ -21,6 +21,7 @@ from torchaudio_augmentations import PolarityInversion
 from torchaudio_augmentations import RandomApply
 from torchaudio_augmentations import Reverb
 
+
 def is_audio_file(filename):
     AUDIO_EXTENSIONS = ['.wav', '.WAV']  # check extensions
 
@@ -174,7 +175,7 @@ class Datasets(Dataset):
         '''
         x, _ = torchaudio.load(path)
         if self.aug and self.split == "train":
-            min_snr, max_snr, p_noise = self.aug_paras
+            min_snr, max_snr, p_noise = self.aug_params
             x = self.augmentation(x, min_snr, max_snr, p_noise).squeeze(0)
         
         x = torchaudio.compliance.kaldi.fbank(x, num_mel_bins=40)
