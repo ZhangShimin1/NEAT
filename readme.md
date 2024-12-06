@@ -1,1 +1,1 @@
-# our SNN library for auditroy processing starts from here ~
+## Auditory porcessing by Spiking Neural Networks
