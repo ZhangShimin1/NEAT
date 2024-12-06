@@ -11,11 +11,6 @@ import torch.nn as nn
 
 from spikingjelly.activation_based import layer, neuron, surrogate
 
-@dataclass
-class NeuronArgs(Serializable):
-    tau: float = 2.
-    v_threshold: float = 1.
-
 class BaseNet(nn.Module):
     def __init__(self, in_dim, out_dim, model_config):
         super().__init__()
