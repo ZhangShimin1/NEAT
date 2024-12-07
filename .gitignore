@@ -1,0 +1,14 @@
+# Ignore Python cache directories
+__pycache__/
+
+# Ignore all .log files
+*.log
+
+# Ignore environment files
+.env
+
+# Ignore ONNX files
+*.onnx
+
+# Ignore all folders named exp
+**/exp/
