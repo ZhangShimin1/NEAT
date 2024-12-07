@@ -1,35 +1,36 @@
 data: 
   dataset: "gsc"
-  batch_size: 128
-  num_workers: 4
-  aug: True
-  version: 1
+  aug: False
+  version: 2
   if_command: True
-  if_spk: False  # for SHD
+  if_spk: False
+
 
 trainer:
-  num_train_epochs: 1
+  num_train_epochs: 10
   seed: 202412
-  device: "cuda:0"
   output_dir: "exp/"
-  optimizer: 
-    type: "adam"
-    params:
-      learning_rate: 0.001
-  scheduler:
-    type: "step"
-    params: 
-      step_size: 30
-      gamma: 0.1
+  optim: adam
+  dataloader_num_workers: 4
+  per_device_train_batch_size: 512
+  eval_batch_size: 256
+  learning_rate: 0.001
+  lr_scheduler_type: cosine_with_min_lr_schedule_with_warmup
+  warmup_ratio: 0.0
+  warmup_steps: 1000
+  cosine_with_min_lr_schedule_with_warmup_num_cycles: 0.5
+  cosine_with_min_lr_schedule_with_warmup_initial_lr: 0.001
+  cosine_with_min_lr_schedule_with_warmup_min_lr: 0.0001
+  metric_for_best_model: "test_accuracy"
 
 model:
   network:
     num_hidden_layers: 3
-    num_hidden_units: [64, 256, 128]
+    num_hidden_units: [64, 256, 64]
     recurrent_layer: [0, 1]
 
   neuron:
-    surrogate_gradient: "atan"
-    reset: "hard"
-    tau: 2.
+    surrogate_gradient: "sigmoid"
+    reset: "soft"
+    tau: 5.
     v_threshold: 1.
