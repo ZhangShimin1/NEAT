@@ -99,7 +99,7 @@ class LSTMNet(nn.Module):
         self.output_layer = layer.Linear(self.hidden_dim, out_dim, bias=False)
 
     def forward(self, x):  # T, B, F
-        x = x.permute(1, 0, 2)
+        # x = x.permute(1, 0, 2)
         x = self.input_layer(x)
         x, _ = self.lstm(x)
         x = self.output_layer(x)
