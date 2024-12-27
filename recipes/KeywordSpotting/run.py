@@ -11,7 +11,7 @@ import importlib
 from src.audiozen.logger import init_logging_logger
 from src.audiozen.trainer import Trainer as BaseTrainer
 from src.audiozen.trainer_args import TrainingArgs
-from acouspike.models.network import BaseNet, ModelArgs
+from acouspike.models.network import *
 from simple_parsing import Serializable, parse
 
 from spikingjelly.activation_based.functional import reset_net
@@ -123,7 +123,7 @@ def run(args: Args):
 
 
     # Initialize model
-    model = BaseNet(in_dim, out_dim, args.model)
+    model = LSTMNet(in_dim, out_dim, args.model)
 
     # Initialize trainer
     trainer = Trainer(

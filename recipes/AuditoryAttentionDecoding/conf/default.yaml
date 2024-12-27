@@ -1,19 +1,17 @@
-data: 
-  dataset: "gsc"
-  aug: False
-  version: 2
-  if_command: True
-  if_spk: False
-
+data:
+  dataset: "DTU"
+  mode: "WS"  # within subject or cross trial
+  window: "1s"
 
 trainer:
-  num_train_epochs: 10
+  num_train_epochs: 100
   seed: 202412
   output_dir: "exp/"
   optim: adam
   dataloader_num_workers: 4
-  per_device_train_batch_size: 512
-  eval_batch_size: 256
+  per_device_train_batch_size: 64
+  eval_batch_size: 1
+  eval_epoch_interval: 10
   learning_rate: 0.001
   lr_scheduler_type: cosine_with_min_lr_schedule_with_warmup
   warmup_ratio: 0.0
@@ -25,12 +23,12 @@ trainer:
 
 model:
   network:
-    num_hidden_layers: 3
-    num_hidden_units: [64, 256, 64]
-    recurrent_layer: [0, 1]
+    num_hidden_layers: 2
+    num_hidden_units: [512, 512]
+    recurrent_layer: []
 
   neuron:
-    surrogate_gradient: "sigmoid"
-    reset: "soft"
-    tau: 5.
+    surrogate_gradient: "atan"
+    reset: "hard"
+    tau: 2.
     v_threshold: 1.
