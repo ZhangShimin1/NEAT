@@ -30,7 +30,8 @@ model:
     recurrent_layer: [0, 1]
 
   neuron:
-    surrogate_gradient: "sigmoid"
-    reset: "soft"
-    tau: 5.
-    v_threshold: 1.
+    rest: 0.1
+    decay: 0.8
+    threshold: 1.0
+    surro_grad: "triangle"
+    exec_mode: "serial"

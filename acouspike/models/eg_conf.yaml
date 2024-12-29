@@ -1,0 +1,12 @@
+model:
+  network:
+    num_hidden_layers: 3
+    num_hidden_units: [64, 256, 64]
+    recurrent_layer: [0, 1]
+
+  neuron:
+    rest: 0.1
+    decay: 0.8
+    threshold: 1.0
+    surro_grad: "triangle"
+    exec_mode: "serial"
