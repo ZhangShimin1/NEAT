@@ -123,20 +123,20 @@ class NonSpikingDatasets(Dataset):
         return xs, ys
 
 if __name__ == "__main__":
-    # # spiking version
-    # train_dataset = SpikingDatasets(split="train")
-
-    # train_loader = DataLoader(train_dataset, batch_size=128, shuffle=True, num_workers=1, 
-    #                           collate_fn=train_dataset.generate_batch, pin_memory=True)
-    
-    # for idx, (spect, target) in enumerate(train_loader):
-    #     print(spect.shape, target.shape)
-
-    # origin non-spiking version
-    train_dataset = NonSpikingDatasets(split="train", aug=True)
+    # spiking version
+    train_dataset = SpikingDatasets(split="train")
 
     train_loader = DataLoader(train_dataset, batch_size=128, shuffle=True, num_workers=1, 
                               collate_fn=train_dataset.generate_batch, pin_memory=True)
     
     for idx, (spect, target) in enumerate(train_loader):
         print(spect.shape, target.shape)
+
+    # # origin non-spiking version
+    # train_dataset = NonSpikingDatasets(split="train", aug=True)
+
+    # train_loader = DataLoader(train_dataset, batch_size=128, shuffle=True, num_workers=1, 
+    #                           collate_fn=train_dataset.generate_batch, pin_memory=True)
+    
+    # for idx, (spect, target) in enumerate(train_loader):
+    #     print(spect.shape, target.shape)

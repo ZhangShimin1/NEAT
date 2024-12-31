@@ -12,7 +12,7 @@ def _rectangular_function(v, threshold, a, b = 1., *_, **__):
     return grad_v
 
 
-def _triangle_function(v, threshold, a, *_, **__):
+def _triangle_function(v, threshold, a=1.0, *_, **__):
     """
         Altered from the code of Temporal Efficient Training, ICLR 2022 (https://openreview.net/forum?id=_XNtisL32jv)
         max(0, 1 - |ui[t] - θ|)

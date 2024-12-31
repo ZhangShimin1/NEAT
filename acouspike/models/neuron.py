@@ -1,13 +1,16 @@
-import torch
-import inspect
-import torch.nn as nn
-import math
-import numpy as np
-from torch.nn import Module
-from torch.autograd import Function
-from acouspike.models.sg import SurrogateGradient as SG
 
-class BaseNeuron(Module):
+import math
+import inspect
+import numpy as np
+
+import torch
+import torch.nn as nn
+from torch.autograd import Function
+
+from .sg import SurrogateGradient as SG
+
+
+class BaseNeuron(nn.Module):
     def __init__(self, exec_mode: str="serial"):
         super(BaseNeuron, self).__init__()
         self.exec_mode    = exec_mode
@@ -77,9 +80,11 @@ class LIFAct_thresh(Function):
         return grad_v, None, None, -grad_v, None, None
 
 
+
 class RLIF(BaseNeuron):
     """
-        Recurrent spiking neural network.
+        Recurrent spiking neural network, with the choice of BP methods
+
     """
 
     def __init__(
@@ -207,9 +212,10 @@ class Recurrent_LIF(BaseNeuron):
     def __init__(
             self,
             rest: float = 0.0,
-            decay: float = 0.2,
-            threshold: float = 0.3,
-            neuron_num: int = 1,
+
+            decay: float = None,
+            threshold: float = None,
+            neuron_num: int = None,
             time_step: int = None,
             surro_grad: SG = None,  # TODO: Set a default value
             exec_mode: str = "serial",
@@ -265,10 +271,6 @@ class Recurrent_LIF(BaseNeuron):
     def _temporal_fused_process(self, tx):
         raise NotImplementedError
         # else: # todo: add recurrent acceleration
-
-
-
-
 
 
 class PLIF(BaseNeuron):
@@ -597,8 +599,6 @@ class CLIF(BaseNeuron):
     # else: # todo: add recurrent acceleration
 
 
-
-
 class SPSN(BaseNeuron):
     """
         Altered from Spikingjelly
@@ -769,11 +769,6 @@ class LTC(BaseNeuron):
             return mem.unsqueeze(0)
         else:
             return torch.stack(ty)
-
-
-
-
-
 
 class DHSNN(BaseNeuron):
     """

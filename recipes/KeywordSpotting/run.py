@@ -91,6 +91,7 @@ def run(args: Args):
         valid_dataset = gsc_class(split="valid", version=args.data.version, if_command=args.data.if_command, aug=False)
         test_dataset = gsc_class(split="test", version=args.data.version, if_command=args.data.if_command, aug=False)
         in_dim = 40
+        T = 98
         if args.data.version == 1:
             if args.data.if_command:
                 out_dim = 10
@@ -103,6 +104,7 @@ def run(args: Args):
                 out_dim = 35
     elif args.data.dataset == "shd":
         if args.data.if_spk:
+            T = 100
             shd_class = getattr(module, "SpikingDatasets")
             train_dataset = shd_class(split="train")
             test_dataset = shd_class(split="test")
@@ -112,8 +114,11 @@ def run(args: Args):
             train_dataset = hd_class(split="train", aug=args.data.aug)
             test_dataset = hd_class(split="test", aug=False)
             in_dim = 40
+            # TODO: The timestep of each batch is different, which will result in conflict when instantiating the network
+            raise ValueError
         out_dim = 20
     elif args.data.dataset == "ssc":
+        T = 100
         ssc_class = getattr(module, "SpikingDatasets")
         train_dataset = ssc_class(split="train")
         valid_dataset = ssc_class(split="valid")
@@ -123,7 +128,7 @@ def run(args: Args):
 
 
     # Initialize model
-    model = LSTMNet(in_dim, out_dim, args.model)
+    model = BaseNet(in_dim=in_dim, out_dim=out_dim, T=T, model_config=args.model)
 
     # Initialize trainer
     trainer = Trainer(
