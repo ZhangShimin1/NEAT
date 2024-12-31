@@ -1,3 +1,4 @@
+
 import math
 import inspect
 import numpy as np
@@ -31,7 +32,6 @@ class BaseNeuron(nn.Module):
 
     def _temporal_fused_process(self, _):
         raise NotImplementedError(f"The `{inspect.currentframe().f_code.co_name}` method of the subclass `{type(self).__name__}` needs to be implemented.")
-
 
 class LIFAct(Function):
     @staticmethod
@@ -81,10 +81,10 @@ class LIFAct_thresh(Function):
 
 
 
-
 class RLIF(BaseNeuron):
     """
         Recurrent spiking neural network, with the choice of BP methods
+
     """
 
     def __init__(
@@ -212,6 +212,7 @@ class Recurrent_LIF(BaseNeuron):
     def __init__(
             self,
             rest: float = 0.0,
+
             decay: float = None,
             threshold: float = None,
             neuron_num: int = None,
@@ -769,7 +770,6 @@ class LTC(BaseNeuron):
         else:
             return torch.stack(ty)
 
-
 class DHSNN(BaseNeuron):
     """
         Altered from https://github.com/eva1801/DH-SNN
@@ -1012,5 +1012,3 @@ class adLIF(BaseNeuron):
             return torch.stack(ty)
     # def _temporal_fused_process(self, tx):
     # else: # todo: add recurrent acceleration
-
-

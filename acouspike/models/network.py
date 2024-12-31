@@ -153,6 +153,50 @@ class LSTMNet(nn.Module):
         return output
 
 
+class BaseNet_cupy(nn.Module):
+    def __init__(self, in_dim, out_dim, model_config):
+        super().__init__()
+        self.network_config = model_config.network
+        self.neuron_config = model_config.neuron
+
+        self.num_hidden_units = self.network_config.num_hidden_units
+        self.num_hidden_layers = self.network_config.num_hidden_layers
+        self.recurrent_layer = self.network_config.recurrent_layer
+
+        self.tau = self.neuron_config.tau
+        self.v_threshold = self.neuron_config.v_threshold
+
+        layers = []
+        # Input layer
+        input_layer = layer.Linear(in_dim, self.num_hidden_units[0], bias=False)
+        layers.append(input_layer)
+        layers.append(neuron.LIFNode(tau=self.tau, v_threshold=self.v_threshold, surrogate_function=surrogate.ATan(), step_mode='m', backend='cupy'))
+
+
+        # Hidden layers
+        for i in range(1, self.num_hidden_layers):
+            in_features = self.num_hidden_units[i - 1]
+            out_features = self.num_hidden_units[i]
+            linear_layer = layer.Linear(in_features, out_features, bias=False)
+            layers.append(linear_layer)
+            if i in self.recurrent_layer:
+                # Add a recurrent layer using ElementWiseRecurrentContainer
+                recurrent_node = neuron.LIFNode(tau=self.tau, v_threshold=self.v_threshold, surrogate_function=surrogate.ATan(), step_mode='s', backend='torch')
+                recurrent_layer = layer.LinearRecurrentContainer(recurrent_node, out_features, out_features)
+                layers.append(recurrent_layer)
+            else:
+                layers.append(neuron.LIFNode(tau=self.tau, v_threshold=self.v_threshold, surrogate_function=surrogate.ATan(), step_mode='m', backend='cupy'))
+
+        # Output layer
+        output_layer = layer.Linear(self.num_hidden_units[-1], out_dim, bias=False)
+        layers.append(output_layer)
+
+        self.network = nn.Sequential(*layers)
+
+    def forward(self, x):  # T, B, 
+        return self.network(x)
+
+
 if __name__ == '__main__':
     with open('./eg_conf.yaml', 'r') as file:
         config = yaml.safe_load(file)
