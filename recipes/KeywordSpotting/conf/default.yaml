@@ -30,8 +30,10 @@ model:
     recurrent_layer: [0, 1]
 
   neuron:
-    rest: 0.1
-    decay: 0.8
-    threshold: 1.0
-    surro_grad: "triangle"
-    exec_mode: "serial"
+    neuron_class: "LTC"
+    args:
+      rest: 0.0
+      decay: 0.2
+      threshold: 0.3
+      exec_mode: "serial"
+      surro_grad: "triangle"  # Example surrogate gradient

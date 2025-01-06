@@ -916,7 +916,6 @@ class adLIF(BaseNeuron):
             rest: float = 0.0,
             decay: float = 0.2,
             threshold: float = 0.3,
-            input_features: int = 1,
             neuron_num: int = 1,
             time_step: int = None,
             surro_grad: SG = None,
@@ -927,7 +926,6 @@ class adLIF(BaseNeuron):
         self.rest = rest
         self.decay = decay
         self.threshold = threshold
-        self.input_features = input_features
         self.neuron_num = neuron_num
         self.time_step = time_step
         self.surro_grad = surro_grad
