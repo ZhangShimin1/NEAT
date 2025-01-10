@@ -26,7 +26,7 @@ class ModelArgs(Serializable):
     neuron: NeuronArgs
 
 class BaseNet(nn.Module):
-    def __init__(self, in_dim, out_dim, T, model_config):
+    def __init__(self, in_dim, out_dim, model_config):
         super().__init__()
 
         self.network_config = model_config.network

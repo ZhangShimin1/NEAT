@@ -128,7 +128,7 @@ def run(args: Args):
 
 
     # Initialize model
-    model = BaseNet(in_dim=in_dim, out_dim=out_dim, T=T, model_config=args.model)
+    model = BaseNet(in_dim=in_dim, out_dim=out_dim, model_config=args.model)
 
     # Initialize trainer
     trainer = Trainer(
