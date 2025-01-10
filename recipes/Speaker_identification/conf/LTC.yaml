@@ -28,6 +28,10 @@ model:
     args:
       rest: 0.0
       decay: 0.2
-      threshold: 0.3
+      threshold: 0.5
       exec_mode: "serial"
-      surro_grad: "triangle"  # Example surrogate gradient
+      
+  SG:
+    SG_class: "triangle"
+    args:
+      a: 0.3

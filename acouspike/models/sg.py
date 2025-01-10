@@ -17,7 +17,6 @@ def _triangle_function(v, threshold, a=1.0, *_, **__):
         Altered from the code of Temporal Efficient Training, ICLR 2022 (https://openreview.net/forum?id=_XNtisL32jv)
         max(0, 1 - |ui[t] - θ|)
     """
-
     grad_v = (1 / a) * (1 / a) * ((a - abs(v - threshold)).clamp(min=0))
     return grad_v
 

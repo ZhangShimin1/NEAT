@@ -11,4 +11,4 @@
 - TODO: Some tiny aspects for dataloaders.
 - TODO: PMSN has not been added, the hyper-parameters in each surrogate gradients need default values. -->
 - TODO: Add speech enhancement and ASR(aishell)
-- TODO: benchmark LIF, PLIF, ALIF, LTC-LIF, TC-LIF, PMSN
+- TODO: benchmark LIF, PLIF, ALIF, LTC-LIF, adLIF, TC-LIF, PMSN

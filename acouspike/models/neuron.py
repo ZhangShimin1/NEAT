@@ -1168,3 +1168,45 @@ class PMSN_kernel(nn.Module):
         KB = torch.einsum('hnl,hn->hnl', K, B_bar)  # e-At*B  # (H N L)
         CKB = torch.einsum('hn, hnl -> hl', C, KB).real  # (H L)
         return CKB
+
+
+
+__neuron_config__ = {
+    "RLIF": RLIF,
+    "Recurrent_LIF": Recurrent_LIF,
+    "PLIF": PLIF,
+    "ALIF": ALIF,
+    "GLIF": GLIF,
+    "CLIF": CLIF,
+    "SPSN": SPSN,
+    "LTC": LTC,
+    "DHSNN": DHSNN,
+    "adLIF": adLIF,
+    "PMSN": PMSN,
+    "others"   : None,
+}
+
+
+
+class Neuron:
+    """
+    A helper class that returns an instance of a specified neuron.
+
+    Usage:
+        neuron_builder = Neuron("RLIF", rest=0.0, decay=0.2, ...)
+        my_rlif = neuron_builder()  # this calls RLIF(...) under the hood
+    """
+    def __init__(self, neuron_class: str, *args, **kwargs):
+        self.neuron_class = neuron_class
+        self.args = args       # Positional arguments
+        self.kwargs = kwargs   # Keyword arguments
+
+    def __call__(self):
+        # Look up the class by name
+        neuron_cls = __neuron_config__.get(self.neuron_class)
+        if neuron_cls is None:
+            raise ValueError(f"Invalid neuron class name: '{self.neuron_class}'. "
+                             f"Available keys: {list(__neuron_config__.keys())}")
+        
+        # Dynamically instantiate the neuron class with the provided args/kwargs
+        return neuron_cls(*self.args, **self.kwargs)
