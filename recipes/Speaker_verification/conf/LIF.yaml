@@ -39,6 +39,7 @@ model:
     SG_class: "triangle"
     alpha: 0.6
 
+
 loss_name: "amsoftmax"
 emb_dim: 256
 num_classes: 5994
