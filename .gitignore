@@ -148,3 +148,7 @@ backup_code/
 
 #Experiments
 exp/
+
+#Experiments data
+data/
+dump/
