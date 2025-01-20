@@ -47,8 +47,36 @@ pip install acouspike
 
 ## 💡 Quick Start
 
+```python
+import acouspike as asp
+
+# Create a simple SNN model
+model = asp.models.SimpleSNN(
+    input_size=64,
+    hidden_size=128,
+    output_size=10
+)
+
+# Train the model
+trainer = asp.training.SNNTrainer(model)
+trainer.train(dataset)
+```
+
 ## 🎯 Examples
 
+Ready-to-use examples are available in the `recipes` directory:
+
+- Speaker Identification
+```bash
+cd recipes/speaker_identification
+python run.sh
+```
+
+- Keyword Spotting
+```bash
+cd recipes/keyword_spotting
+python run.sh
+```
 
 ## 📊 Benchmarks
 
