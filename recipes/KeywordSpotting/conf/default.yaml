@@ -31,7 +31,6 @@ model:
   output_size: 1251
   num_layers: 3
   dropout: 0.0
-  bn: None
   neuron_type: "lif"
   bidirectional: False
   batch_first: True
