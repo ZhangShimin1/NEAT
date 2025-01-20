@@ -14,7 +14,7 @@ import importlib
 from src.audiozen.logger import init_logging_logger
 from src.audiozen.trainer import Trainer as BaseTrainer
 from src.audiozen.trainer_args import TrainingArgs
-from acouspike.models.network import BaseNet, ModelArgs
+from acouspike.models.model_warpper import ModelWrapper, ModelWrapperArgs
 from simple_parsing import Serializable, parse
 from raw_transform import train_transforms, test_transforms
 from vox1_dataset import RawWaveformDataset
@@ -146,10 +146,11 @@ class Trainer(BaseTrainer):
 
     def training_step(self, batch, batch_idx):        
         raw_wav, spect, target = batch
-        x = spect.permute(1, 0, 2).cuda()
+        x = spect.cuda()
         y = target.cuda()
         # forward
-        logits = self.model(x)
+        logits, states = self.model(x)
+        logits = logits.mean(dim=1)
         loss = self.loss_function(logits, y)
         # backward
         self.optimizer.zero_grad()
@@ -167,10 +168,11 @@ class Trainer(BaseTrainer):
 
     def evaluation_step(self, batch, batch_idx, dl_id):
         raw_wav, spect, target = batch
-        x = spect.permute(1, 0, 2).cuda()
+        x = spect.cuda()
         y = target.cuda()
         # forward
-        logits = self.model(x)
+        logits, states = self.model(x)
+        logits = logits.mean(dim=1)
         loss = self.loss_function(logits, y)
         reset_net(self.model)
         # calculate acc
@@ -185,7 +187,7 @@ class Trainer(BaseTrainer):
 @dataclass
 class Args(Serializable):
     trainer: TrainingArgs
-    model: ModelArgs
+    model: ModelWrapperArgs
 
 def run(args: Args):
     init_accelerator(device=args.trainer.device)
@@ -202,7 +204,7 @@ def run(args: Args):
     sample_rate = 16000
     random_clip_size = 16000
     val_clip_size = 16000
-    meta_dir = '/home/zysong/AcouSpike/recipes/Speaker_identification/voxceleb1_meta'
+    meta_dir = 'voxceleb1_meta'
     tr_tfs = train_transforms(True, random_clip_size,
                                             sample_rate=sample_rate)
     val_tfs = train_transforms(False, val_clip_size,
@@ -233,7 +235,20 @@ def run(args: Args):
     in_dim = 40
     out_dim = 1251
     # Initialize model
-    model = BaseNet(in_dim, out_dim, args.model)
+    model = ModelWrapper(
+                model_name=args.model.model_name,
+                input_size=in_dim,
+                hidden_size=args.model.hidden_size,
+                output_size=out_dim,
+                num_layers=args.model.num_layers,
+                dropout=args.model.dropout,
+                bn=args.model.bn,
+                neuron_type=args.model.neuron_type,
+                bidirectional=args.model.bidirectional,
+                batch_first=args.model.batch_first,
+                **args.model.neuron_args,
+                **args.model.SG_args
+            )
 
     # Initialize trainer
     trainer = Trainer(
