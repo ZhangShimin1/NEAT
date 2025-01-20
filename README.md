@@ -3,47 +3,73 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-0.0.1-green.svg)](https://github.com/username/repo)
 
-> A modern, lightweight library for Neuromorphic Audio Processing
+> A modern, lightweight library for Neuromorphic Audio Processing using Spiking Neural Networks
+
+## 🌟 Overview
+
+AcouSpike is a PyTorch-based framework designed for neuromorphic audio processing using Spiking Neural Networks (SNNs). It provides a flexible and efficient way to build, train, and deploy SNN models for various audio processing tasks.
 
 ## 🚀 Features
 
-- Feature 1: Build your own SNN model with PyTorch
-- Feature 2: Support for multiple neuron types
-- Feature 3: Support for multiple audio tasks
-- Free from dependencies
-- Fully tested
+- **Flexible Architecture**
+  - Build custom SNN models using PyTorch
+  - Support for various neuron types and synaptic connections
+  - Modular design for easy extension
 
-##Model overview
-### Neuron model
-We provide several neuron models in this library. Here's a detailed overview:
+- **Audio Processing**
+  - Built-in support for common audio tasks
+  - Efficient spike encoding for audio signals
 
-| Neuron Type | Path | Class | Reference |
-|------------|------|-------|-----------|
-| Leaky Integrate-and-Fire (LIF) | `/models/neuron/lif.py` | `LIF` | [Wu et al., 2019](https://arxiv.org/abs/1809.05793) |
-| Recurrent Integrate-and-Fire (RLIF) | `/models/neuron/lif.py` | `RLIF` |  |
-| Non-Spiking Integrate-and-Fire (RLIF) | `/models/neuron/lif.py` | `NonSpikingLIF` |  |
-| Adaptive Stochastic Gradient Learning LIF (ASGL-LIF) | `/models/neuron/lif.py` | `ASGL_LIF` | |
-| Parametric LIF (PLIF) | `/models/neuron/lif.py` | `PLIF` | [Fang et al., 2021](https://arxiv.org/abs/2007.05785) |
-| Adaptive LIF (ALIF) | `/models/neuron/lif.py` | `ALIF` | [Yin et al., 2021](https://www.nature.com/articles/s42256-021-00397-w) |
-| Generalized LIF (GLIF) | `/models/neuron/lif.py` | `GLIF` | [Yao et al., 2022](https://openreview.net/forum?id=UmFSx2c4ubT) |
-| Conductive LIF (CLIF) | `/models/neuron/lif.py` | `CLIF` | [Huang et al., 2024](https://openreview.net/pdf?id=yY6N89IlHa) |
-| Conductive Exponential LIF (CELIF) | `/models/neuron/lif.py` | `CELIF` | [Chen et al., 2023](https://arxiv.org/abs/2308.15150) |
-| SPSN | `/models/neuron/spsn.py` | `SPSN` | |
-| Liquid Time-Constant (LTC) | `/models/neuron/ltc.py` | `LTC` | [yin et al., 2023](https://github.com/byin-cwi/sFPTT/blob/main/fptt/fptt_mnist/snn_models_LIF4_save4.py) |
-| Probabilistic Multi-Spike Neuron (PMSN) | `/models/neuron/pmsn.py` | `PMSN` | |
-| Double-Headed Spiking Neural Network (DHSNN) | `/models/neuron/dhsnn.py` | `DHSNN` | [Zheng et al., 2024](https://www.nature.com/articles/s41467-023-44614-z) |
-| Adaptive LIF (adLIF) | `/models/neuron/lif.py` | `adLIF` | [Bittar , 2022](https://github.com/idiap/sparch) |
+- **Developer Friendly**
+  - Minimal dependencies
+  - Comprehensive documentation
+  - Full test coverage
+  - Easy-to-follow examples
 
-## 📦 Installation 
-
+## 🔧 Installation
+[TODO] make the acouspike a pip package
 ```bash
 pip install acouspike
 ```
 
-## 🔨 Usage
-run the following command to train a model:
-```bash
-cd recipes/Speaker_identification
-python run.sh
-```
+## 📚 Documentation
+
+### Model Components
+
+- [Neuron Models](./acouspike/models/neuron/README.md)
+- [Network Architectures](./acouspike/models/SNN/README.md)
+
+### Tutorials
+
+1. [Getting Started](./docs/tutorials/getting_started.md)
+2. [Building Your First SNN](./docs/tutorials/first_snn.md)
+3. [Audio Processing Basics](./docs/tutorials/audio_processing.md)
+
+## 💡 Quick Start
+
+## 🎯 Examples
+
+
+## 📊 Benchmarks
+
+Performance benchmarks and comparisons are available in our [benchmarks page](./docs/benchmarks.md).
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 📬 Contact
+
+- Issue Tracker: [GitHub Issues](https://github.com/username/acouspike/issues)
+- Email: maintainer@example.com
+
+## 🙏 Acknowledgments
+
+- List of contributors
+- Supporting organizations
+- Related projects and inspirations
 
