@@ -1,7 +1,7 @@
 data: 
   dataset: "ssc"
   aug: False
-  version: 2
+  version: 1
   if_command: True
   if_spk: True
 
@@ -23,18 +23,17 @@ trainer:
   cosine_with_min_lr_schedule_with_warmup_min_lr: 0.0001
   metric_for_best_model: "test_accuracy"
 
-
 model:
   network:
-    num_hidden_layers: 3
-    num_hidden_units: [64, 256, 64]
+    num_hidden_layers: 2
+    num_hidden_units: [128, 128]
     recurrent_layer: [0, 1]
 
   neuron:
-    neuron_class: "LTC"
+    neuron_class: "Recurrent_LIF"
     args:
       rest: 0.0
-      decay: 0.2
-      threshold: 0.3
+      decay: 0.8
+      threshold: 1.0
       exec_mode: "serial"
       surro_grad: "triangle"  # Example surrogate gradient

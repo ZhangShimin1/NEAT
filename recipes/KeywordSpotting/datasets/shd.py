@@ -12,12 +12,12 @@ import torch
 import torchaudio
 from torch.utils.data import Dataset, DataLoader
 
-from torchaudio_augmentations import ComposeMany
-from torchaudio_augmentations import Gain
-from torchaudio_augmentations import Noise
-from torchaudio_augmentations import PolarityInversion
-from torchaudio_augmentations import RandomApply
-from torchaudio_augmentations import Reverb
+# from torchaudio_augmentations import ComposeMany
+# from torchaudio_augmentations import Gain
+# from torchaudio_augmentations import Noise
+# from torchaudio_augmentations import PolarityInversion
+# from torchaudio_augmentations import RandomApply
+# from torchaudio_augmentations import Reverb
 
 
 class SpikingDatasets(Dataset):
@@ -37,9 +37,9 @@ class SpikingDatasets(Dataset):
         x_val = torch.FloatTensor(np.ones(len(times))).to(self.device)
         x_size = torch.Size([self.nb_steps, self.nb_units])
 
-        x = torch.sparse.FloatTensor(x_idx, x_val, x_size).to(self.device)
+        # x = torch.sparse.FloatTensor(x_idx, x_val, x_size).to(self.device)
+        x = torch.sparse_coo_tensor(x_idx, x_val, x_size, device=self.device)
         y = self.labels[index]
-
         return x.to_dense(), y
     
     def __len__(self):
@@ -102,17 +102,17 @@ class NonSpikingDatasets(Dataset):
         x = torchaudio.compliance.kaldi.fbank(x, num_mel_bins=40)
         return x
 
-    def augmentation(self, x, min_snr, max_snr, p_noise):
-        transforms = [
-            RandomApply([PolarityInversion()], p=0.8),
-            RandomApply([Noise(min_snr, max_snr)], p_noise),
-            RandomApply([Gain()], p=0.3),
-            RandomApply([Reverb(sample_rate=16000)], p=0.6),
-        ]
-        transf = ComposeMany(transforms, num_augmented_samples=1)
-        transf_x = transf(x)
+    # def augmentation(self, x, min_snr, max_snr, p_noise):
+    #     transforms = [
+    #         RandomApply([PolarityInversion()], p=0.8),
+    #         RandomApply([Noise(min_snr, max_snr)], p_noise),
+    #         RandomApply([Gain()], p=0.3),
+    #         RandomApply([Reverb(sample_rate=16000)], p=0.6),
+    #     ]
+    #     transf = ComposeMany(transforms, num_augmented_samples=1)
+    #     transf_x = transf(x)
 
-        return transf_x
+    #     return transf_x
 
     def generate_batch(self, batch):
         # TODO: the length of each batch is inconsistent
