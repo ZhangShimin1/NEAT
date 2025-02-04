@@ -30,7 +30,8 @@ class SpikingDatasets(Dataset):
         x_val = torch.FloatTensor(np.ones(len(times))).to(self.device)
         x_size = torch.Size([self.nb_steps, self.nb_units])
 
-        x = torch.sparse.FloatTensor(x_idx, x_val, x_size).to(self.device)
+        # x = torch.sparse.FloatTensor(x_idx, x_val, x_size).to(self.device)
+        x = torch.sparse_coo_tensor(x_idx, x_val, x_size, device=self.device)
         y = self.labels[index]
 
         return x.to_dense(), y
