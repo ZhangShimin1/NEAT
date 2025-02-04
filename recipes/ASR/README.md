@@ -1,0 +1,35 @@
+# ASR receipt
+
+
+## 📦 Installation 
+
+Install espnet following the instructions [here](https://github.com/espnet/espnet)
+
+Install espnet in this directory: 
+```bash
+cd \path\to\this\repo
+git clone https://github.com/espnet/espnet
+
+cd <espnet-root>/tools
+./setup_miniforge.sh ${CONDA_ROOT} espnet 3.8
+conda activate espnet
+make
+```
+
+kenlm is required for espnet, install it: 
+```bash
+cd <espnet-root>/tools/installers
+./install_kenlm.sh
+```
+if you have any issues in the installation, please refer to the issue [here](https://github.com/espnet/espnet/issues/6013).
+
+## 🔨 Usage
+
+Configure the path of dataset in `egs2/aishell/asr1/db.sh`
+
+Run the following command to train a model:
+```bash
+cd egs2/aishell/asr1
+python run_snn.sh
+```
+

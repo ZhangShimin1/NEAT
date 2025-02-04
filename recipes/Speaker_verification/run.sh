@@ -3,7 +3,7 @@
 ## ==================
 ## Define the GPU IDs
 ## ==================
-gpu_ids="0"
+gpu_ids="7"
 # gpu_ids="4,5,6,7"
 # gpu_ids="0,1,2,3,4,5,6,7"
 
@@ -12,8 +12,8 @@ if [[ -z "$num_processes" ]]; then
   num_processes=$(echo "$gpu_ids" | tr "," "\n" | wc -l)
 fi
 
-default_config_name="default"
-
+default_config_name="LIF"
+exp_name="LIF"
 
 echo "Running on bmi-5 [Training]"
 torchrun_bin="/home/zysong/miniconda3/envs/audiozen/bin/torchrun"
@@ -26,4 +26,4 @@ OMP_NUM_THREADS=1 CUDA_VISIBLE_DEVICES="${gpu_ids}" "${torchrun_bin}" \
     run.py \
     --config_path "conf/${default_config_name}.yaml" \
     --do_eval false \
-    --output_dir "exp/test"
+    --output_dir "exp/${exp_name}"

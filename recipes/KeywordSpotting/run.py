@@ -11,7 +11,7 @@ import importlib
 from src.audiozen.logger import init_logging_logger
 from src.audiozen.trainer import Trainer as BaseTrainer
 from src.audiozen.trainer_args import TrainingArgs
-from acouspike.models.network import *
+from acouspike.models.model_warpper import ModelWrapper, ModelWrapperArgs
 from simple_parsing import Serializable, parse
 
 from spikingjelly.activation_based.functional import reset_net
@@ -23,10 +23,11 @@ class Trainer(BaseTrainer):
 
     def training_step(self, batch, batch_idx):        
         spect, target = batch
-        x = spect.permute(1, 0, 2).cuda()
+        x = spect.cuda()
         y = target.cuda()
         # forward
-        logits = self.model(x)
+        logits, states = self.model(x)
+        logits = logits.mean(dim=1)
         loss = self.loss_function(logits, y)
         # backward
         self.optimizer.zero_grad()
@@ -44,10 +45,11 @@ class Trainer(BaseTrainer):
 
     def evaluation_step(self, batch, batch_idx, dl_id):
         spect, target = batch
-        x = spect.permute(1, 0, 2).cuda()
+        x = spect.cuda()
         y = target.cuda()
         # forward
-        logits = self.model(x)
+        logits, states = self.model(x)
+        logits = logits.mean(dim=1)
         loss = self.loss_function(logits, y)
         reset_net(self.model)
         # calculate acc
@@ -70,7 +72,7 @@ class DataArgs(Serializable):
 @dataclass
 class Args(Serializable):
     trainer: TrainingArgs
-    model: ModelArgs
+    model: ModelWrapperArgs
     data: DataArgs
 
 
@@ -128,7 +130,21 @@ def run(args: Args):
 
 
     # Initialize model
-    model = BaseNet(in_dim=in_dim, out_dim=out_dim, T=T, model_config=args.model)
+    model = ModelWrapper(
+                model_name=args.model.model_name,
+                input_size=in_dim,
+                hidden_size=args.model.hidden_size,
+                output_size=out_dim,
+                num_layers=args.model.num_layers,
+                bn=args.model.bn,
+                dropout=args.model.dropout,
+                neuron_type=args.model.neuron_type,
+                bidirectional=args.model.bidirectional,
+                batch_first=args.model.batch_first,
+                **args.model.neuron_args,
+                **args.model.SG_args
+            )
+
 
     # Initialize trainer
     trainer = Trainer(
