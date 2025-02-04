@@ -1,7 +1,7 @@
 data: 
   dataset: "ssc"
   aug: False
-  version: 2
+  version: 1
   if_command: True
   if_spk: True
 
@@ -30,7 +30,7 @@ model:
     recurrent_layer: [0, 1]
 
   neuron:
-    neuron_class: "LTC"
+    neuron_class: "Recurrent_LIF"
     args:
       rest: 0.0
       decay: 0.8

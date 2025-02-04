@@ -24,7 +24,7 @@ class Trainer(BaseTrainer):
     def training_step(self, batch, batch_idx):        
         spect, target = batch
         x = spect.permute(1, 0, 2).cuda()
-        y = target.cuda()
+        y = target.cuda().long()
         # forward
         logits = self.model(x)
         loss = self.loss_function(logits, y)
@@ -45,7 +45,7 @@ class Trainer(BaseTrainer):
     def evaluation_step(self, batch, batch_idx, dl_id):
         spect, target = batch
         x = spect.permute(1, 0, 2).cuda()
-        y = target.cuda()
+        y = target.cuda().long()
         # forward
         logits = self.model(x)
         loss = self.loss_function(logits, y)
