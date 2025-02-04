@@ -1,10 +1,6 @@
 from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
-# import sys
-# sys.path.append('../..')
-# sys.path.append('../../src')
-# sys.path.insert(0, "/home/zysong/AcouSpike/acouspike")
 import torch
 from acouspike.src.accelerate import init_accelerator
 import importlib
