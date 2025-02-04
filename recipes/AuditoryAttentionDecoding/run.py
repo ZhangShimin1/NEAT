@@ -1,17 +1,14 @@
 from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
-import sys
-sys.path.append('../..')
-sys.path.append('../../src')
 
 import torch
 
-from src.audiozen.accelerate import init_accelerator
-from src.audiozen.logger import init_logging_logger
-from src.audiozen.trainer import Trainer as BaseTrainer
-from src.audiozen.trainer_args import TrainingArgs
-from src.audiozen.utils import *
+from acouspike.src.accelerate import init_accelerator
+from acouspike.src.logger import init_logging_logger
+from acouspike.src.trainer import Trainer as BaseTrainer
+from acouspike.src.trainer_args import TrainingArgs
+from acouspike.src.utils import *
 
 from acouspike.models.network import *
 from simple_parsing import Serializable, parse

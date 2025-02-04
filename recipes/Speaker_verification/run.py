@@ -1,20 +1,17 @@
 from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
-import sys
-sys.path.append('/home/zysong/AcouSpike')
-sys.path.append('/home/zysong/AcouSpike/src')
 import logging
 import torch
 import torch.distributed as dist
 import os
 import numpy as np
 from typing import Any, Dict, Optional, Tuple, Union
-from src.audiozen.accelerate import init_accelerator
+from acouspike.src.accelerate import init_accelerator
 import importlib
-from src.audiozen.logger import init_logging_logger
-from src.audiozen.trainer import Trainer as BaseTrainer
-from src.audiozen.trainer_args import TrainingArgs
+from acouspike.src.logger import init_logging_logger
+from acouspike.src.trainer import Trainer as BaseTrainer
+from acouspike.src.trainer_args import TrainingArgs
 from acouspike.models.model_warpper import ModelWrapper, ModelWrapperArgs
 from simple_parsing import Serializable, parse
 from torch.utils.data import DataLoader, Dataset, DistributedSampler
