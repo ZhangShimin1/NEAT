@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import sys
-sys.path.insert(0, "/home/zysong/AcouSpike/acouspike")
-from ASR.asr import ASRTask
+sys.path.insert(0, "/home/zysong/AcouSpike")
+from acouspike.ASR.asr import ASRTask
 
 
 def get_parser():

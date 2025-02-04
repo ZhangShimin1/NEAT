@@ -2,10 +2,10 @@ import torch
 import torch.nn as nn
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence, PackedSequence
 from functools import partial
-from models.SNN.utils import reset_states
-from models.surrogate import SurrogateGradient
-from models.neuron import RLIF, LTC, CELIF, PMSN, SPSN, DHSNN, CLIF, adLIF
-from models.architecture.layer import BatchNorm1d, ThresholdDependentBatchNorm1d, TemporalEffectiveBatchNorm1d
+from acouspike.models.network.utils import reset_states
+from acouspike.models.surrogate.surrogate import SurrogateGradient
+from acouspike.models.neuron.lif import RLIF, LTC, CELIF, PMSN, SPSN, DHSNN, CLIF, adLIF
+from acouspike.models.layers.layer import BatchNorm1d, ThresholdDependentBatchNorm1d, TemporalEffectiveBatchNorm1d
 
 class SpikingNet(nn.Module):
     def __init__(self, input_size, 
@@ -47,7 +47,7 @@ class SpikingNet(nn.Module):
         elif spiking_neuron_name == 'ltc':
             surro_grad = SurrogateGradient(func_name=surrogate, a=alpha)
             exec_mode = "serial"
-            b_j0 = 0.2
+            b_j0 = beta
             spiking_neuron = partial(LTC,
                                     decay=decay,
                                     threshold=threshold,

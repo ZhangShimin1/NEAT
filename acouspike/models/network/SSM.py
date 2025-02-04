@@ -3,9 +3,9 @@ import math
 import torch.nn as nn
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence, PackedSequence
 from functools import partial
-from .utils import reset_states
-from models.surrogate import SurrogateGradient
-from models.neuron import S4D
+from acouspike.models.network.utils import reset_states
+from acouspike.models.surrogate.surrogate import SurrogateGradient
+from acouspike.models.neuron.S4DModule import S4D
 
 class SSMNet(nn.Module):
     def __init__(self, input_size, 

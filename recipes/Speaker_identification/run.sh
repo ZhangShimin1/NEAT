@@ -12,10 +12,10 @@ if [[ -z "$num_processes" ]]; then
   num_processes=$(echo "$gpu_ids" | tr "," "\n" | wc -l)
 fi
 
-default_config_name="LIF"
-exp_name="LIF"
+default_config_name="grid_search"
+exp_name="grid_search"
 
-echo "Running on bmi-5 [Training]"
+echo "Running experiment with config: ${default_config_name}"
 torchrun_bin="/home/zysong/miniconda3/envs/audiozen/bin/torchrun"
 
 OMP_NUM_THREADS=1 CUDA_VISIBLE_DEVICES="${gpu_ids}" "${torchrun_bin}" \

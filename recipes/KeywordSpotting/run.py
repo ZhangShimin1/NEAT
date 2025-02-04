@@ -4,13 +4,13 @@ from pathlib import Path
 import sys
 sys.path.append('../..')
 sys.path.append('../../src')
-
+sys.path.insert(0, "/home/zysong/AcouSpike/acouspike")
 import torch
-from src.audiozen.accelerate import init_accelerator
+from acouspike.src.accelerate import init_accelerator
 import importlib
-from src.audiozen.logger import init_logging_logger
-from src.audiozen.trainer import Trainer as BaseTrainer
-from src.audiozen.trainer_args import TrainingArgs
+from acouspike.src.logger import init_logging_logger
+from acouspike.src.trainer import Trainer as BaseTrainer
+from acouspike.src.trainer_args import TrainingArgs
 from acouspike.models.model_warpper import ModelWrapper, ModelWrapperArgs
 from simple_parsing import Serializable, parse
 
