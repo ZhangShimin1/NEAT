@@ -12,7 +12,7 @@ import torch
 import torch.distributed as dist
 from torch import Tensor
 
-from src.accelerate import broadcast_tensor, get_world_size_and_rank
+from acouspike.src.accelerate import broadcast_tensor, get_world_size_and_rank
 
 
 logger = logging.getLogger(__name__)

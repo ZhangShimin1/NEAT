@@ -29,7 +29,7 @@ AcouSpike is a PyTorch-based framework designed for neuromorphic audio processin
 ## 🔧 Installation
 [TODO] make the acouspike a pip package
 ```bash
-pip install acouspike
+pip install -i https://test.pypi.org/simple/ acouspike==0.0.0.1
 ```
 
 ## 📚 Documentation
