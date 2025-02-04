@@ -3,7 +3,7 @@ import torch.nn as nn
 import numpy as np
 import torch
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence, PackedSequence
-from models.surrogate import TriangleSurroGrad
+from acouspike.models.surrogate.surrogate import TriangleSurroGrad
 
 class Spiking_LSTM_Cell(nn.Module):
     def __init__(self, input_size, hidden_size):

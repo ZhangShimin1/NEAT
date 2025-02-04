@@ -1,8 +1,10 @@
 import torch
-import sys
-sys.path.insert(0, "/home/zysong/AcouSpike/acouspike")
-from models.SNN import Spiking_LSTM, TCN, SpikingNet, SpkTransformerNet, SSMNet
-from models.SNN.utils import count_parameters
+from acouspike.models.network.Spiking_LSTM import Spiking_LSTM
+from acouspike.models.network.TCN import TCN
+from acouspike.models.network.SpikingNet import SpikingNet
+from acouspike.models.network.Spikeformer import SpkTransformerNet
+from acouspike.models.network.SSM import SSMNet
+from acouspike.models.network.utils import count_parameters
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 class SNN_encoder(torch.nn.Module):

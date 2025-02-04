@@ -3,9 +3,9 @@ import torch.nn as nn
 from torch.nn.utils import weight_norm
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence, PackedSequence
 from functools import partial
-from .utils import reset_states
-from models.neuron import LIFNode
-from models.surrogate import TriangleSurroGrad
+from acouspike.models.network.utils import reset_states
+from acouspike.models.neuron.neuron import LIFNode
+from acouspike.models.surrogate.surrogate import TriangleSurroGrad
 
 class Chomp1d(nn.Module):
     def __init__(self, chomp_size):

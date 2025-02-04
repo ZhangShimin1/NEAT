@@ -3,8 +3,8 @@ import math
 import torch.nn as nn
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence, PackedSequence
 from functools import partial
-from models.surrogate import SurrogateGradient
-from models.neuron import RLIF
+from acouspike.models.surrogate.surrogate import SurrogateGradient
+from acouspike.models.neuron.lif import RLIF
 
 class PositionalEncoding(nn.Module):
     r"""Inject some information about the relative or absolute position of the tokens in the sequence.

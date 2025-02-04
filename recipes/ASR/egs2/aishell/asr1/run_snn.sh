@@ -5,7 +5,7 @@ set -e
 set -u
 set -o pipefail
 
-export CUDA_VISIBLE_DEVICES=6,7
+export CUDA_VISIBLE_DEVICES=0,1
 
 train_set=train
 valid_set=dev
@@ -15,7 +15,7 @@ asr_config=conf/tuning/SNN/train_asr_lif.yaml
 inference_config=conf/decode_asr_transformer.yaml
 
 expdir=exp/RNN
-asr_tag=celif
+asr_tag=test
 
 lm_config=conf/train_lm_transformer.yaml
 use_lm=false
@@ -29,7 +29,7 @@ speed_perturb_factors="0.9 1.0 1.1"
     --nj 16 \
     --inference_nj 16 \
     --ngpu 2 \
-    --stage 1 \
+    --stage 11 \
     --stop_stage 13 \
     --expdir "${expdir}" \
     --asr_tag "${asr_tag}" \
