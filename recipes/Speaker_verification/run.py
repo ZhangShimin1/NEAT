@@ -15,7 +15,7 @@ import importlib
 from src.audiozen.logger import init_logging_logger
 from src.audiozen.trainer import Trainer as BaseTrainer
 from src.audiozen.trainer_args import TrainingArgs
-from acouspike.models.network import BaseNet, ModelArgs
+from acouspike.models.model_warpper import ModelWrapper, ModelWrapperArgs
 from simple_parsing import Serializable, parse
 from torch.utils.data import DataLoader, Dataset, DistributedSampler
 from dataset import Evaluation_Dataset, Train_Dataset, Semi_Dataset
@@ -42,8 +42,9 @@ class Trainer(BaseTrainer):
     def training_step(self, batch, batch_idx): 
         waveform, label = batch
         feature = self.mel_trans(waveform)
-        feature = feature.squeeze(1).permute(2, 0, 1).cuda()
-        embedding = self.model(feature)
+        feature = feature.squeeze(1).permute(0, 2, 1).cuda()
+        embedding, states = self.model(feature)
+        embedding = embedding.mean(1)
         loss, acc = self.loss_fun(embedding, label.cuda())
         # backward
         self.optimizer.zero_grad()
@@ -60,11 +61,12 @@ class Trainer(BaseTrainer):
         path = path[0]
         with torch.no_grad():
             feature = self.mel_trans(x)
-            feature = feature.squeeze(1).permute(2, 0, 1).cuda()
+            feature = feature.squeeze(1).permute(0, 2, 1).cuda()
             self.model.eval()
-            x = self.model(feature)
+            embedding, states = self.model(feature)
+            embedding = embedding.mean(1)
         reset_net(self.model)
-        x = x.detach().cpu().numpy()[0]
+        x = embedding.detach().cpu().numpy()[0]
         return[{
             "eval_vectors": x,
             "index_mapping": {path: batch_idx}
@@ -117,8 +119,8 @@ class Trainer(BaseTrainer):
 # ==================== Entry ====================
 @dataclass
 class DataArgs(Serializable):
-    train_csv_path: str = "/home/zysong/AcouSpike/recipes/Speaker_verification/metadata/train_vox1.csv"
-    trial_path: str = "/home/zysong/AcouSpike/recipes/Speaker_verification/metadata/vox1_test.txt"
+    train_csv_path: str = "metadata/train_vox1.csv"
+    trial_path: str = "metadata/vox1_test.txt"
     unlabel_csv_path: str = None
     aug: bool = False
     second: int = 3
@@ -126,7 +128,7 @@ class DataArgs(Serializable):
 @dataclass
 class Args(Serializable):
     trainer: TrainingArgs
-    model: ModelArgs
+    model: ModelWrapperArgs
     data: DataArgs
     loss_name: str
     emb_dim: int
@@ -164,7 +166,20 @@ def run(args: Args):
     in_dim=80
 
     # Initialize model
-    model = BaseNet(in_dim, args.emb_dim, args.model)
+    model = ModelWrapper(
+                model_name=args.model.model_name,
+                input_size=in_dim,
+                hidden_size=args.model.hidden_size,
+                output_size=args.emb_dim,
+                num_layers=args.model.num_layers,
+                dropout=args.model.dropout,
+                bn=args.model.bn,
+                neuron_type=args.model.neuron_type,
+                bidirectional=args.model.bidirectional,
+                batch_first=args.model.batch_first,
+                **args.model.neuron_args,
+                **args.model.SG_args
+            )
     trials = np.loadtxt(args.data.trial_path, str)
 
     # Initialize trainer
