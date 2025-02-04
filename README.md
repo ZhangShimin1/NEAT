@@ -45,23 +45,6 @@ pip install -i https://test.pypi.org/simple/ acouspike==0.0.0.1
 2. [Building Your First SNN](./docs/tutorials/first_snn.md)
 3. [Audio Processing Basics](./docs/tutorials/audio_processing.md)
 
-## 💡 Quick Start
-
-```python
-import acouspike as asp
-
-# Create a simple SNN model
-model = asp.models.SimpleSNN(
-    input_size=64,
-    hidden_size=128,
-    output_size=10
-)
-
-# Train the model
-trainer = asp.training.SNNTrainer(model)
-trainer.train(dataset)
-```
-
 ## 🎯 Examples
 
 Ready-to-use examples are available in the `recipes` directory:
