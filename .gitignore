@@ -152,3 +152,6 @@ exp/
 #Experiments data
 data/
 dump/
+
+#helper files
+upload_pip.md
