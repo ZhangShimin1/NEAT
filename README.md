@@ -1,7 +1,7 @@
 # AcouSpike 
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.0.1-green.svg)](https://github.com/username/repo)
+[![Version](https://img.shields.io/badge/version-0.0.0.1-green.svg)](https://github.com/username/repo)
 
 > A modern, lightweight library for Neuromorphic Audio Processing using Spiking Neural Networks
 
@@ -27,8 +27,10 @@ AcouSpike is a PyTorch-based framework designed for neuromorphic audio processin
   - Easy-to-follow examples
 
 ## 🔧 Installation
-[TODO] make the acouspike a pip package
+
 ```bash
+git clone https://github.com/ZhangShimin1/AcouSpike
+cd AcouSpike
 pip install -i https://test.pypi.org/simple/ acouspike==0.0.0.1
 ```
 
