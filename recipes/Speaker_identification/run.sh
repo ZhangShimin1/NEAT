@@ -12,8 +12,8 @@ if [[ -z "$num_processes" ]]; then
   num_processes=$(echo "$gpu_ids" | tr "," "\n" | wc -l)
 fi
 
-default_config_name="grid_search"
-exp_name="grid_search"
+default_config_name="LTC"
+exp_name="LTC"
 
 echo "Running experiment with config: ${default_config_name}"
 torchrun_bin="/home/zysong/miniconda3/envs/audiozen/bin/torchrun"

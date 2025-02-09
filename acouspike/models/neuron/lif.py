@@ -865,7 +865,6 @@ class CELIF(BaseNeuron):
         for x in tx:
             if self.recurrent:
                 x = x + self.recurrent_weight(y)
-            breakpoint()
             thresh = thresh + v * self.TE[:self.neuron_num, step] - (thresh - self.threshold) * self.beta
             v = v * self.decay * (1. - y) + x
             y = LIFAct_thresh.apply(v, self.rest, self.decay, thresh, self.time_step, self.surro_grad)

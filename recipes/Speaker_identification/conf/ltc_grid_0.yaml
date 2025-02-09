@@ -29,11 +29,11 @@ model:
   batch_first: True
   neuron_args:
     rest: 0.0
-    decay: DECAY
-    threshold: THRESHOLD
+    decay: 0.3
+    threshold: 0.3
     exec_mode: "serial"
     recurrent: False
-    beta: BETA
+    beta: 0.05
   SG_args:
     SG_class: "triangle"
-    alpha: ALPHA 
+    alpha: 0.4 
