@@ -12,10 +12,18 @@ if [[ -z "$num_processes" ]]; then
   num_processes=$(echo "$gpu_ids" | tr "," "\n" | wc -l)
 fi
 
-default_config_name="LTC"
+# Regard config_name as input.
+# If a command-line argument is passed, use it as the configuration name,
+# otherwise default to "LTC".
+if [ "$#" -ge 1 ]; then
+  config_name="$1"
+else
+  config_name="default"
+fi
 
-
+echo "Running with config: ${config_name}"
 echo "Running on bmi-5 [Training]"
+
 torchrun_bin="/home/zysong/miniconda3/envs/audiozen/bin/torchrun"
 # torchrun_bin="/home/smzhang/audio/bin/torchrun"
 
@@ -25,6 +33,6 @@ OMP_NUM_THREADS=1 CUDA_VISIBLE_DEVICES="${gpu_ids}" "${torchrun_bin}" \
     --nnodes=1 \
     --nproc-per-node="$num_processes" \
     run.py \
-    --config_path "conf/${default_config_name}.yaml" \
-    --do_eval true \
-    --output_dir "exp/shd"
+    --config_path "conf/${config_name}.yaml" \
+    --do_eval false \
+    --output_dir "exp/${config_name}"

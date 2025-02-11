@@ -3,7 +3,7 @@
 ## ==================
 ## Define the GPU IDs
 ## ==================
-gpu_ids="0"
+gpu_ids="2"
 # gpu_ids="4,5,6,7"
 # gpu_ids="0,1,2,3,4,5,6,7"
 
@@ -12,8 +12,8 @@ if [[ -z "$num_processes" ]]; then
   num_processes=$(echo "$gpu_ids" | tr "," "\n" | wc -l)
 fi
 
-default_config_name="ltc_grid_7"
-exp_name="ltc_grid_7"
+default_config_name="adLIF"
+exp_name="adlif"
 
 echo "Running experiment with config: ${default_config_name}"
 torchrun_bin="/home/zysong/miniconda3/envs/audiozen/bin/torchrun"

@@ -1,13 +1,13 @@
 # Same as LIF.yaml but we'll replace the neuron parameters
 trainer:
-  num_train_epochs: 100
+  num_train_epochs: 50
   seed: 202501
   output_dir: "exp/"
   optim: adam
   dataloader_num_workers: 4
   per_device_train_batch_size: 256
   eval_batch_size: 1
-  eval_epoch_interval: 1
+  eval_epoch_interval: 50
   learning_rate: 0.001
   lr_scheduler_type: cosine_with_min_lr_schedule_with_warmup
   warmup_ratio: 0.0
