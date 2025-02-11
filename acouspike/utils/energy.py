@@ -1,4 +1,3 @@
-
 class EnergyCalculator:
 
     def __init__(self, energy_info, eac=0.9, emac=4.6):
@@ -71,12 +70,14 @@ class EnergyCalculator:
     
 
 if __name__ == "__main__":
-    # ene_info = [{'Module Type': 'LTC', 'Firing Rate': 0.23434, 'Neuron Number': 300, 'Recurrent': False},
-    #             {'Module Type': 'LTC', 'Firing Rate': 0.15762, 'Neuron Number': 300, 'Recurrent': False},
-    #             {'Module Type': 'LTC', 'Firing Rate': 0.17856, 'Neuron Number': 300, 'Recurrent': False}]
-    ene_info = [{'Module Type': 'ann', 'Firing Rate': 1., 'Neuron Number': 128, 'Recurrent': False},
-                {'Module Type': 'lif', 'Firing Rate': 0.23434, 'Neuron Number': 256, 'Recurrent': False},
-                {'Module Type': 'lif', 'Firing Rate': 0.15762, 'Neuron Number': 64, 'Recurrent': False},
-                {'Module Type': 'ann', 'Firing Rate': 1., 'Neuron Number': 20, 'Recurrent': False}]
+    ene_info = [{'Module Type': 'LTC', 'Firing Rate': 0.17268405854701996, 'Neuron Number': 300, 'Recurrent': False},
+                {'Module Type': 'LTC', 'Firing Rate': 0.14638777077198029, 'Neuron Number': 300, 'Recurrent': False},
+                {'Module Type': 'LTC', 'Firing Rate': 0.2399241328239441, 'Neuron Number': 300, 'Recurrent': False}]
+    # ene_info = [{'Module Type': 'ann', 'Firing Rate': 1., 'Neuron Number': 128, 'Recurrent': False},
+    #             {'Module Type': 'lif', 'Firing Rate': 0.23434, 'Neuron Number': 256, 'Recurrent': False},
+    #             {'Module Type': 'lif', 'Firing Rate': 0.15762, 'Neuron Number': 64, 'Recurrent': False},
+    #             {'Module Type': 'ann', 'Firing Rate': 1., 'Neuron Number': 20, 'Recurrent': False}]
     ec = EnergyCalculator(energy_info=ene_info)
-    print(ec.calculate())
+    energy_pJ = ec.calculate()
+    energy_muJ = energy_pJ / 1e3  # converting from picojoules (pJ) to microjoules (µJ)
+    print(f"Energy consumption: {energy_muJ} nJ")

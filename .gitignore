@@ -155,3 +155,6 @@ dump/
 
 #helper files
 upload_pip.md
+
+#grid search yaml
+*_grid_*.yaml

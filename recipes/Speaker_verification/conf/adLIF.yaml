@@ -25,7 +25,7 @@ model:
   output_size: 1251
   num_layers: 4
   dropout: 0.0
-  neuron_type: "lif"
+  neuron_type: "adlif"
   bidirectional: False
   batch_first: True
   neuron_args:
