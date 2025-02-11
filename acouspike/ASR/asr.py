@@ -9,7 +9,7 @@ from typeguard import typechecked
 from espnet2.asr.ctc import CTC
 # import sys
 # sys.path.insert(0, "/home/zysong/AcouSpike/acouspike")
-from ASR.encoder.vgg_rnn_encoder import VGGRNNEncoder
+from acouspike.ASR.encoder.vgg_rnn_encoder import VGGRNNEncoder
 from espnet2.asr.decoder.abs_decoder import AbsDecoder
 # from espnet2.asr.decoder.hugging_face_transformers_decoder import (  # noqa: H301
 #     HuggingFaceTransformersDecoder,

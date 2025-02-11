@@ -1265,7 +1265,7 @@ if [ ${stage} -le 10 ] && [ ${stop_stage} -ge 10 ] && ! [[ " ${skip_stages} " =~
     current_dir=$(pwd)
     # shellcheck disable=SC2046,SC2086
     ${train_cmd} JOB=1:"${_nj}" "${_logdir}"/stats.JOB.log \
-        ${python}  $HOME_DIR/bin/asr_train.py \
+        ${python} -m acouspike.ASR.bin.${asr_task}_train \
             --collect_stats true \
             --use_preprocessor true \
             --bpemodel "${bpemodel}" \
@@ -1427,7 +1427,7 @@ if [ ${stage} -le 11 ] && [ ${stop_stage} -ge 11 ] && ! [[ " ${skip_stages} " =~
         --num_nodes "${num_nodes}" \
         --init_file_prefix "${asr_exp}"/.dist_init_ \
         --multiprocessing_distributed true -- \
-        ${python} $HOME_DIR/bin/asr_train.py \
+        ${python} -m acouspike.ASR.bin.${asr_task}_train \
             --use_preprocessor true \
             --bpemodel "${bpemodel}" \
             --token_type "${token_type}" \
@@ -1577,7 +1577,7 @@ if [ ${stage} -le 12 ] && [ ${stop_stage} -ge 12 ] && ! [[ " ${skip_stages} " =~
         rm -f "${_logdir}/*.log"
         # shellcheck disable=SC2046,SC2086
         ${_cmd} --gpu "${_ngpu}" JOB=1:"${_nj}" "${_logdir}"/asr_inference.JOB.log \
-            ${python} $HOME_DIR/bin/asr_inference.py \
+            ${python} -m acouspike.ASR.bin.${asr_task}_inference \
                 --batch_size ${batch_size} \
                 --ngpu "${_ngpu}" \
                 --data_path_and_name_and_type "${_data}/${_scp},speech,${_type}" \

@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from einops import rearrange, repeat
-from .lif import LIFAct
+from acouspike.models.neuron.lif import LIFAct
 
 
 class DropoutNd(nn.Module):

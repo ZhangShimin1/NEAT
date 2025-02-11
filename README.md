@@ -1,7 +1,7 @@
 # AcouSpike 
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.0.1-green.svg)](https://github.com/username/repo)
+[![Version](https://img.shields.io/badge/version-0.0.0.1-green.svg)](https://github.com/username/repo)
 
 > A modern, lightweight library for Neuromorphic Audio Processing using Spiking Neural Networks
 
@@ -27,9 +27,11 @@ AcouSpike is a PyTorch-based framework designed for neuromorphic audio processin
   - Easy-to-follow examples
 
 ## 🔧 Installation
-[TODO] make the acouspike a pip package
+
 ```bash
-pip install acouspike
+git clone https://github.com/ZhangShimin1/AcouSpike
+cd AcouSpike
+pip install -i https://test.pypi.org/simple/ acouspike==0.0.0.1
 ```
 
 ## 📚 Documentation
@@ -44,23 +46,6 @@ pip install acouspike
 1. [Getting Started](./docs/tutorials/getting_started.md)
 2. [Building Your First SNN](./docs/tutorials/first_snn.md)
 3. [Audio Processing Basics](./docs/tutorials/audio_processing.md)
-
-## 💡 Quick Start
-
-```python
-import acouspike as asp
-
-# Create a simple SNN model
-model = asp.models.SimpleSNN(
-    input_size=64,
-    hidden_size=128,
-    output_size=10
-)
-
-# Train the model
-trainer = asp.training.SNNTrainer(model)
-trainer.train(dataset)
-```
 
 ## 🎯 Examples
 
