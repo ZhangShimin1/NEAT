@@ -4,7 +4,7 @@ from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence, Packed
 from functools import partial
 from acouspike.models.network.utils import reset_states
 from acouspike.models.surrogate.surrogate import SurrogateGradient
-from acouspike.models.neuron.lif import RLIF, LTC, CELIF, PMSN, SPSN, DHSNN, CLIF, adLIF
+from acouspike.models.neuron.lif import RLIF, PLIF, LTC, CELIF, PMSN, SPSN, DHSNN, CLIF, adLIF
 from acouspike.models.layers.layer import BatchNorm1d, ThresholdDependentBatchNorm1d, TemporalEffectiveBatchNorm1d
 
 class SpikingNet(nn.Module):
@@ -42,6 +42,17 @@ class SpikingNet(nn.Module):
                                     exec_mode=exec_mode,
                                     recurrent=recurrent,
                                     learning_rule='stbp',
+                                    )
+        elif spiking_neuron_name == 'plif':
+            surro_grad = SurrogateGradient(func_name=surrogate, a=alpha)
+            exec_mode = "serial"
+            spiking_neuron = partial(PLIF,
+                                    decay=decay,
+                                    threshold=threshold,
+                                    time_step=time_window,
+                                    surro_grad=surro_grad,
+                                    exec_mode=exec_mode,
+                                    recurrent=recurrent
                                     )
             
         elif spiking_neuron_name == 'ltc':

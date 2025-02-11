@@ -10,7 +10,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="acouspike",
-    version="0.0.0.1",
+    version="0.0.0.2",
     author="Zeyang Song",
     author_email="zeyang_song@u.nus.edu",
     description="A package for acoustic spike analysis",

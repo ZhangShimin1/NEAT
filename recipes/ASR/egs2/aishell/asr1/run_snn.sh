@@ -5,7 +5,7 @@ set -e
 set -u
 set -o pipefail
 
-export CUDA_VISIBLE_DEVICES=0,1
+export CUDA_VISIBLE_DEVICES=2,7
 
 train_set=train
 valid_set=dev
