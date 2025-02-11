@@ -113,11 +113,27 @@ class Trainer(BaseTrainer):
             if self.cal_FR:
                 for m, i in self.spike_seq_monitor.name_records_index.items():
                     if m not in FR_records.keys():
-                        FR_records[m] = []
+                        FR_records[m] = {}
                     FR_temp = torch.cat([self.spike_seq_monitor.records[index] for index in self.spike_seq_monitor.name_records_index[m]], dim=0)
-                    FR_records[m] = FR_temp.mean().detach().cpu().numpy().item()
-            FR_df = pd.DataFrame(list(FR_records.items()), columns=['Neuron index', 'Firing Rate'])
-            FR_df.to_csv(self.metrics_dir / f"FiringRate_{dl_id}_epoch_{self.state.epochs_trained}.csv", index=False)
+                    FR_records[m]['firing_rate'] = FR_temp.mean().detach().cpu().numpy().item()
+                    # Get the module instance from the model using the name
+                    module = dict(self.model.module.named_modules())[m]
+                    FR_records[m]['module_type'] = module.__class__.__name__
+                    FR_records[m]['neuron_num'] = module.neuron_num
+                    FR_records[m]['recurrent'] = module.recurrent
+
+                # Convert nested dict to DataFrame format
+                df_records = []
+                for module_name, stats in FR_records.items():
+                    df_records.append({
+                        'Neuron index': module_name,
+                        'Module Type': stats['module_type'],
+                        'Firing Rate': stats['firing_rate'],
+                        'Neuron Number': stats['neuron_num'],
+                        'Recurrent': stats['recurrent']
+                    })
+                FR_df = pd.DataFrame(df_records)
+                FR_df.to_csv(self.metrics_dir / f"FiringRate_{dl_id}_epoch_{self.state.epochs_trained}.csv", index=False)
         """
         evaluation_output = {
             "dataloader_id_1": [step_output_0, step_output_1, ...],

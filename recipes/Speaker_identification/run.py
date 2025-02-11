@@ -1,10 +1,10 @@
+import sys
+sys.path.append("../..")
 from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
 import os
-import sys
 import logging
-sys.path.insert(0, "/home/zysong/AcouSpike")
 from acouspike.src.accelerate import init_accelerator
 import importlib
 from acouspike.src.logger import init_logging_logger

@@ -1,7 +1,8 @@
+import sys
+sys.path.append("../..")
+import logging
 from dataclasses import dataclass
 from pathlib import Path
-import sys
-sys.path.insert(0, "/home/zysong/AcouSpike")
 from acouspike.src.accelerate import init_accelerator
 import importlib
 from acouspike.src.logger import init_logging_logger
@@ -9,7 +10,7 @@ from acouspike.src.trainer_args import TrainingArgs
 from acouspike.models.model_warpper import ModelWrapper, ModelWrapperArgs
 from simple_parsing import Serializable, parse
 from trainer import Trainer
-
+logger = logging.getLogger(__name__)
 # ==================== Entry ====================
 @dataclass
 class DataArgs(Serializable):
