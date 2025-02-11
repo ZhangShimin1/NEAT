@@ -1,10 +1,12 @@
 import torch
 import torch.nn as nn
-import sys
-sys.path.append('/home/zysong/AcouSpike/acouspike')
-from models.SNN import Spiking_LSTM, TCN, SpikingNet, SpkTransformerNet, SSMNet
+from acouspike.models.network.Spiking_LSTM import Spiking_LSTM
+from acouspike.models.network.TCN import TCN
+from acouspike.models.network.SpikingNet import SpikingNet
+from acouspike.models.network.Spikeformer import SpkTransformerNet
+from acouspike.models.network.SSM import SSMNet
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
-from models.SNN.utils import reset_backward_rnn_state
+from acouspike.models.network.utils import reset_backward_rnn_state
 
 from simple_parsing.helpers import Serializable
 from dataclasses import dataclass, field

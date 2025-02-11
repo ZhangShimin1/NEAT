@@ -1,65 +1,16 @@
-from dataclasses import dataclass
-from functools import partial
-from pathlib import Path
 import sys
-sys.path.append('../..')
-sys.path.append('../../src')
-
-import torch
-from src.audiozen.accelerate import init_accelerator
+sys.path.append("../..")
+import logging
+from dataclasses import dataclass
+from pathlib import Path
+from acouspike.src.accelerate import init_accelerator
 import importlib
-from src.audiozen.logger import init_logging_logger
-from src.audiozen.trainer import Trainer as BaseTrainer
-from src.audiozen.trainer_args import TrainingArgs
+from acouspike.src.logger import init_logging_logger
+from acouspike.src.trainer_args import TrainingArgs
 from acouspike.models.model_warpper import ModelWrapper, ModelWrapperArgs
 from simple_parsing import Serializable, parse
-
-from spikingjelly.activation_based.functional import reset_net
-
-class Trainer(BaseTrainer):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.loss_function = torch.nn.CrossEntropyLoss()
-
-    def training_step(self, batch, batch_idx):        
-        spect, target = batch
-        x = spect.permute(1, 0, 2).cuda()
-        y = target.cuda()
-        # forward
-        logits, states = self.model(x)
-        logits = logits.mean(dim=1)
-        loss = self.loss_function(logits, y)
-        # backward
-        self.optimizer.zero_grad()
-        loss.backward()
-        reset_net(self.model)
-        self.optimizer.step()
-        # calculate acc
-        _, preds = torch.max(logits, dim=1)
-        accuracy = (preds == y).float().mean()
-
-        return {
-            "loss": loss.detach().cpu().numpy(),
-            "accuracy": accuracy.detach().cpu().numpy(),
-        }
-
-    def evaluation_step(self, batch, batch_idx, dl_id):
-        spect, target = batch
-        x = spect.permute(1, 0, 2).cuda()
-        y = target.cuda()
-        # forward
-        logits, states = self.model(x)
-        logits = logits.mean(dim=1)
-        loss = self.loss_function(logits, y)
-        reset_net(self.model)
-        # calculate acc
-        _, preds = torch.max(logits, dim=1)
-        accuracy = (preds == y).float().mean()
-        return [{
-            "loss": loss.detach().cpu().numpy().item(),
-            "test_accuracy": accuracy.detach().cpu().numpy().item(),
-        }]
-    
+from trainer import Trainer
+logger = logging.getLogger(__name__)
 # ==================== Entry ====================
 @dataclass
 class DataArgs(Serializable):

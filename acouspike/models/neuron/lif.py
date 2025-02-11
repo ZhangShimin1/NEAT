@@ -8,12 +8,12 @@ try:
     from .kernel import temporal_fusion_kernel
 except BaseException as e:
     temporal_fusion_kernel = None
-from ..surrogate import SurrogateGradient as SG
-from ..surrogate.surrogate import PMSN_surrogate
-from ..surrogate.ASGL_surrogate import EfficientNoisySpike, InvSigmoid, InvRectangle
-from .base_neuron import BaseNeuron
+from acouspike.models.surrogate.surrogate import SurrogateGradient as SG
+from acouspike.models.surrogate.surrogate import PMSN_surrogate
+from acouspike.models.surrogate.ASGL_surrogate import EfficientNoisySpike, InvSigmoid, InvRectangle
+from acouspike.models.neuron.base_neuron import BaseNeuron
 from torch.autograd import Variable
-from .membrane_update import MembraneUpdate
+from acouspike.models.neuron.membrane_update import MembraneUpdate
 
 
 class FusedLIF(Function):
@@ -865,7 +865,6 @@ class CELIF(BaseNeuron):
         for x in tx:
             if self.recurrent:
                 x = x + self.recurrent_weight(y)
-            breakpoint()
             thresh = thresh + v * self.TE[:self.neuron_num, step] - (thresh - self.threshold) * self.beta
             v = v * self.decay * (1. - y) + x
             y = LIFAct_thresh.apply(v, self.rest, self.decay, thresh, self.time_step, self.surro_grad)
