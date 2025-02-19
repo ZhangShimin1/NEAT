@@ -23,7 +23,7 @@ model:
   input_size: 40
   hidden_size: 300
   output_size: 1251
-  num_layers: 3
+  num_layers: 4
   dropout: 0.0
   neuron_type: "lif"
   bidirectional: False

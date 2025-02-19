@@ -1,10 +1,8 @@
 data: 
-  dataset: "ssc"
+  dataset: "gsc"
   aug: False
   version: 2
   if_command: True
-  if_spk: True
-
 
 trainer:
   num_train_epochs: 100
