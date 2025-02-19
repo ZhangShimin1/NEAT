@@ -4,7 +4,7 @@ from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence, Packed
 from functools import partial
 from acouspike.models.network.utils import reset_states
 from acouspike.models.surrogate.surrogate import SurrogateGradient
-from acouspike.models.neuron.lif import RLIF, PLIF, LTC, CELIF, PMSN, SPSN, DHSNN, CLIF, adLIF
+from acouspike.models.neuron.lif import RLIF, PLIF, LTC, CELIF, PMSN, SPSN, DHSNN, CLIF, adLIF, TCLIF, GLIF
 from acouspike.models.layers.layer import BatchNorm1d, ThresholdDependentBatchNorm1d, TemporalEffectiveBatchNorm1d
 
 class SpikingNet(nn.Module):
@@ -24,7 +24,8 @@ class SpikingNet(nn.Module):
                  time_window = 512,
                  beta=0.1,
                  k=32,
-                 branch=4):
+                 branch=4,
+                 gamma=0.5):
         super(SpikingNet, self).__init__()
         self.input_size = input_size
         self.hidden_size = hidden_size
@@ -54,7 +55,27 @@ class SpikingNet(nn.Module):
                                     exec_mode=exec_mode,
                                     recurrent=recurrent
                                     )
-            
+        elif spiking_neuron_name == 'glif':  # TODO: non-fixed hyper-parameters
+            surro_grad = SurrogateGradient(func_name=surrogate, a=alpha)
+            exec_mode = "serial"
+            gamma = gamma
+            spiking_neuron = partial(GLIF,
+                                     threshold=threshold,
+                                     time_step=time_window,
+                                     surro_grad=surro_grad,
+                                     exec_mode=exec_mode,
+                                     recurrent=recurrent)
+        elif spiking_neuron_name == 'tclif':
+            surro_grad = SurrogateGradient(func_name=surrogate, a=alpha)
+            exec_mode = "serial"
+            gamma = gamma
+            spiking_neuron = partial(TCLIF,
+                                     threshold=threshold,
+                                     time_step=time_window,
+                                     surro_grad=surro_grad,
+                                     exec_mode=exec_mode,
+                                     recurrent=recurrent,
+                                     gamma=gamma)
         elif spiking_neuron_name == 'ltc':
             surro_grad = SurrogateGradient(func_name=surrogate, a=alpha)
             exec_mode = "serial"
