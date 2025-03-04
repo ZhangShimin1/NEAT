@@ -1,31 +1,17 @@
-#!/bin/bash
-
-## ==================
-## Define the GPU IDs
-## ==================
 gpu_ids="2"
-# gpu_ids="4,5,6,7"
-# gpu_ids="0,1,2,3,4,5,6,7"
 
 # Calculate the number of processes based on the number of GPUs
 if [[ -z "$num_processes" ]]; then
   num_processes=$(echo "$gpu_ids" | tr "," "\n" | wc -l)
 fi
 
-# Regard config_name as input.
-# If a command-line argument is passed, use it as the configuration name,
-# otherwise default to "LTC".
-if [ "$#" -ge 1 ]; then
-  config_name="$1"
-else
-  config_name="default"
-fi
+# Separate datasets and neurons
+dataset="shd"
+neuron="ltc"
 
-echo "Running with config: ${config_name}"
 echo "Running on bmi-5 [Training]"
 
 torchrun_bin="/home/zysong/miniconda3/envs/audiozen/bin/torchrun"
-# torchrun_bin="/home/smzhang/audio/bin/torchrun"
 
 OMP_NUM_THREADS=1 CUDA_VISIBLE_DEVICES="${gpu_ids}" "${torchrun_bin}" \
     --rdzv-backend=c10d \
@@ -33,6 +19,29 @@ OMP_NUM_THREADS=1 CUDA_VISIBLE_DEVICES="${gpu_ids}" "${torchrun_bin}" \
     --nnodes=1 \
     --nproc-per-node="$num_processes" \
     run.py \
-    --config_path "conf/${config_name}.yaml" \
+    --config_path "conf/${dataset}/${neuron}.yaml" \
+    --do_train true \
     --do_eval false \
-    --output_dir "exp/${config_name}"
+    --do_predict false \
+    --output_dir "exp/${dataset}/${neuron}"
+
+# for i in "${!datasets[@]}"; do
+#   dataset="${datasets[$i]}"
+#   neuron="${neurons[$i]}"
+#   config_name="${neuron}_${dataset}"
+  
+#   echo "Running with config: ${config_name}"
+  
+#   OMP_NUM_THREADS=1 CUDA_VISIBLE_DEVICES="${gpu_ids}" "${torchrun_bin}" \
+#       --rdzv-backend=c10d \
+#       --rdzv-endpoint=localhost:0 \
+#       --nnodes=1 \
+#       --nproc-per-node="$num_processes" \
+#       run.py \
+#       --config_path "conf/${config_name}.yaml" \
+#       --do_train true \
+#       --do_eval false \
+#       --do_predict false \
+#       --output_dir "exp/${dataset}/${neuron}"
+
+# done
