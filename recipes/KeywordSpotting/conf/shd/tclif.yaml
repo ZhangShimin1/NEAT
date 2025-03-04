@@ -1,8 +1,8 @@
 data: 
-  dataset: "ssc"
+  dataset: "shd"
   aug: False
   version: 2
-  if_command: True
+  if_command: False
   if_spk: True
 
 
@@ -26,21 +26,22 @@ trainer:
 
 model:
   model_name: "spikingnet"
-  input_size: 40
-  hidden_size: 300
-  output_size: 20
-  num_layers: 3
+  input_size: 700
+  hidden_size: 128
+  output_size: 35
+  num_layers: 2
   dropout: 0.0
-  neuron_type: "lif"
+  neuron_type: "tclif"
   bidirectional: False
   batch_first: True
   neuron_args:
     rest: 0.0
     decay: 0.5
-    threshold: 0.5
+    threshold: 1.8
     exec_mode: "serial"
     recurrent: False
     beta: 0.1
+    gamma: 0.9
   SG_args:
     SG_class: "triangle"
     alpha: 0.6

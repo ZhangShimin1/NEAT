@@ -63,6 +63,11 @@ if __name__ == "__main__":
     train_loader = DataLoader(train_dataset, batch_size=128, shuffle=True, num_workers=1, 
                               collate_fn=train_dataset.generate_batch, pin_memory=True)
     
+    sparsities = []
     for idx, (spect, target) in enumerate(train_loader):
         print(spect.shape, target.shape)
+        for s in spect:
+            rate = torch.sum(s) / 70000
+            sparsities.append(rate)
+    print(np.mean(np.array(sparsities)))  # sample-avg sparsity: 0.1195
         
