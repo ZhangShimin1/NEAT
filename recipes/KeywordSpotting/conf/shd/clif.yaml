@@ -1,8 +1,8 @@
 data: 
-  dataset: "ssc"
+  dataset: "shd"
   aug: False
-  version: 1
-  if_command: True
+  version: 2
+  if_command: False
   if_spk: True
 
 
@@ -12,8 +12,8 @@ trainer:
   output_dir: "exp/"
   optim: adam
   dataloader_num_workers: 4
-  per_device_train_batch_size: 128
-  eval_batch_size: 128
+  per_device_train_batch_size: 64
+  eval_batch_size: 64
   learning_rate: 0.001
   lr_scheduler_type: cosine_with_min_lr_schedule_with_warmup
   warmup_ratio: 0.0
@@ -23,17 +23,24 @@ trainer:
   cosine_with_min_lr_schedule_with_warmup_min_lr: 0.0001
   metric_for_best_model: "test_accuracy"
 
-model:
-  network:
-    num_hidden_layers: 2
-    num_hidden_units: [128, 128]
-    recurrent_layer: [0, 1]
 
-  neuron:
-    neuron_class: "Recurrent_LIF"
-    args:
-      rest: 0.0
-      decay: 0.8
-      threshold: 1.0
-      exec_mode: "serial"
-      surro_grad: "triangle"  # Example surrogate gradient
+model:
+  model_name: "spikingnet"
+  input_size: 700
+  hidden_size: 128
+  output_size: 35
+  num_layers: 2
+  dropout: 0.0
+  neuron_type: "clif"
+  bidirectional: False
+  batch_first: True
+  neuron_args:
+    rest: 0.0
+    decay: 0.5
+    threshold: 0.5
+    exec_mode: "serial"
+    recurrent: False
+    beta: 0.1
+  SG_args:
+    SG_class: "triangle"
+    alpha: 0.6

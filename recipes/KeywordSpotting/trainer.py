@@ -23,7 +23,7 @@ class Trainer(BaseTrainer):
         y = target.long().cuda()
         # forward
         logits, states = self.model(x)
-        logits = logits.mean(dim=1)
+        logits = logits.sum(dim=1)
         loss = self.loss_function(logits, y)
         # backward
         self.optimizer.zero_grad()
@@ -44,7 +44,7 @@ class Trainer(BaseTrainer):
         y = target.long().cuda()
         # forward
         logits, states = self.model(x)
-        logits = logits.mean(dim=1)
+        logits = logits.sum(dim=1)
         loss = self.loss_function(logits, y)
         # calculate acc
         _, preds = torch.max(logits, dim=1)

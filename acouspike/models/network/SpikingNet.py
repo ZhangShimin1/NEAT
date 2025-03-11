@@ -58,7 +58,6 @@ class SpikingNet(nn.Module):
         elif spiking_neuron_name == 'glif':  # TODO: non-fixed hyper-parameters
             surro_grad = SurrogateGradient(func_name=surrogate, a=alpha)
             exec_mode = "serial"
-            gamma = gamma
             spiking_neuron = partial(GLIF,
                                      threshold=threshold,
                                      time_step=time_window,
