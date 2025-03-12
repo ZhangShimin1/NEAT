@@ -7,7 +7,8 @@ from acouspike.models.network.Spikeformer import SpkTransformerNet
 from acouspike.models.network.SSM import SSMNet
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 from acouspike.models.network.utils import reset_backward_rnn_state
-
+from acouspike.models.network.SpikingCNN import spiking_resnet18
+from acouspike.models.surrogate.surrogate import TriangleSurroGrad
 from simple_parsing.helpers import Serializable
 from dataclasses import dataclass, field
 
@@ -36,7 +37,8 @@ class ModelWrapper(nn.Module):
         'tcn': 'Temporal Convolutional Network',
         'spikeformer': 'Spiking Transformer',
         'ssm': 'State Space Model',
-        'spikingnet': 'Basic Spiking Neural Network'
+        'spikingnet': 'Basic Spiking Neural Network',
+        'spikingcnn': 'Spiking ResNet18'
     }
 
     def __init__(
@@ -151,6 +153,9 @@ class ModelWrapper(nn.Module):
                 time_window=time_window,
                 lr=lr
             )
+        elif self.model_name == 'spikingcnn':
+            kwargs_spikes = {'nb_steps': 4, 'threshold': threshold, 'decay': decay, 'surrogate_function': TriangleSurroGrad.apply}
+            self.model = spiking_resnet18(num_classes=output_size, in_channel=1, **kwargs_spikes)
         else:  # spikingnet
             self.model = SpikingNet(input_size=input_size, 
                                     hidden_size=hidden_size, 
@@ -182,12 +187,16 @@ class ModelWrapper(nn.Module):
         :return: batch of hidden state sequences (B, Tmax, eprojs)
         :rtype: torch.Tensor
         """
-        ys, states = self.model(inputs)
-        projected = torch.tanh(
-            self.l_last(ys.contiguous().view(-1, ys.size(2)))
-        )
-        xs_pad = projected.view(ys.size(0), ys.size(1), -1)
-        return xs_pad, states  # x: utt list of frame x dim
+        if self.model_name == 'spikingcnn':
+            ys = self.model(inputs)
+            return ys, None
+        else:
+            ys, states = self.model(inputs)
+            projected = torch.tanh(
+                self.l_last(ys.contiguous().view(-1, ys.size(2)))
+            )
+            xs_pad = projected.view(ys.size(0), ys.size(1), -1)
+            return xs_pad, states  # x: utt list of frame x dim
 
 def test_model_wrapper():
     """

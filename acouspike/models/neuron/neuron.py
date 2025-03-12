@@ -8,6 +8,48 @@ import copy
 import torch.nn.functional as F
 
 
+class LIFCell(nn.Module):
+    def __init__(self, surrogate_function, decay=None, threshold=None):
+        super(LIFCell, self).__init__()
+        self.decay = copy.deepcopy(decay)
+        self.threshold = copy.deepcopy(threshold)
+        self._reset_parameters()
+        self.surrogate_function = copy.deepcopy(surrogate_function)
+
+    def forward(self, vmem, psp):
+        vmem = self.decay * vmem + psp
+        spike = self.surrogate_function(vmem - self.threshold)
+        vmem -= self.threshold * spike
+        
+        return vmem, spike
+
+    def _reset_parameters(self):
+        if self.threshold is None:
+            self.threshold = 0.5
+        if self.decay is None:
+            self.decay = nn.Parameter(torch.Tensor([0.9]))
+
+
+class LIFLayer(nn.Module):
+    def __init__(self, cell=LIFCell, nb_steps=0, **cell_args):
+        super(LIFLayer, self).__init__()
+        assert nb_steps > 0, 'the number of time steps should be specified'
+        self.cell = cell(**cell_args)
+        self.nb_steps = nb_steps
+
+    def forward(self, x):
+        # vmem = torch.zeros_like(x[0])
+        vmem = 0
+        spikes = []
+        for step in range(self.nb_steps): 
+            # vmem, spike = self.cell(vmem, x[step])
+            current = x[step]
+            vmem, spike = self.cell(vmem, current)
+            spikes.append(spike * self.cell.threshold)
+
+        return torch.stack(spikes)
+
+
 class MemoryModule(nn.Module):
     def __init__(self):
         """
@@ -260,14 +302,10 @@ class LIFNode(BaseNode):
     def __init__(self,
                  decay_factor=0.5,
                  threshold=1.,
-                 neuron_num=1,
                  surrogate_function=None,
-                 hard_reset=False,
-                 detach_reset=False,
-                 detach_mem=False,
-                 recurrent=False
+                 detach_mem=False
                  ):
-        super().__init__(threshold, surrogate_function, hard_reset, detach_reset)
+        super().__init__(threshold, surrogate_function)
         self.decay_factor = torch.tensor(decay_factor).float()
         self.detach_mem = detach_mem
         # self.num_trace = num_trace
@@ -292,7 +330,7 @@ class LIFNode(BaseNode):
         spike = self.neuronal_fire()
         self.neuronal_reset(spike)
         return spike
-
+        
 
 class SLTT_LIFNode(LIFNode):
     def __init__(self,

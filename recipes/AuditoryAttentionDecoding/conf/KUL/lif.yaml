@@ -1,9 +1,8 @@
-data: 
-  dataset: "gsc"
-  aug: False
-  version: 2
-  if_command: False
-  if_spk: False
+data:
+  dataset: "KUL"
+  mode: "WS"  # within subject or cross trial
+  window: "1s"
+
 
 trainer:
   num_train_epochs: 100
@@ -11,7 +10,7 @@ trainer:
   output_dir: "exp/"
   optim: adam
   dataloader_num_workers: 4
-  per_device_train_batch_size: 256
+  per_device_train_batch_size: 64
   eval_batch_size: 64
   learning_rate: 0.001
   lr_scheduler_type: cosine_with_min_lr_schedule_with_warmup
@@ -21,17 +20,16 @@ trainer:
   cosine_with_min_lr_schedule_with_warmup_initial_lr: 0.001
   cosine_with_min_lr_schedule_with_warmup_min_lr: 0.0001
   metric_for_best_model: "test_accuracy"
-  ddp_find_unused_parameters: True
 
 
 model:
   model_name: "spikingnet"
-  input_size: 40
-  hidden_size: 300
-  output_size: 35
+  input_size: 64
+  hidden_size: 128
+  output_size: 2
   num_layers: 2
   dropout: 0.0
-  neuron_type: "adlif"
+  neuron_type: "lif"
   bidirectional: False
   batch_first: True
   neuron_args:
@@ -39,7 +37,7 @@ model:
     decay: 0.5
     threshold: 0.5
     exec_mode: "serial"
-    recurrent: True
+    recurrent: False
     beta: 0.1
   SG_args:
     SG_class: "triangle"

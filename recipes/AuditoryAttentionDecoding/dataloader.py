@@ -137,19 +137,16 @@ class AADWSDataset:
 
 if __name__ == "__main__":
     # Parameters
-    path = "/datasets/AAD/KUL/1s/"
     subject_id = "1"
     fold_num = 5
     batch_size = 32
 
-    # # Initialize EEGDataLoader
-    # eeg_loader = EEGDataLoader(path=path, subject_id=subject_id, fold_num=fold_num, batch_size=batch_size)
+    aad = AADWSDataset(dataset='DTU', subject_id=subject_id, fold_num=fold_num)
+    train_dataset, val_dataset, test_dataset = aad.get_datasets()
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
-    # # Get DataLoaders
-    # train_loader, val_loader, test_loader = eeg_loader.get_dataloaders()
-
-    # # Example usage
-    # for batch_idx, (inputs, targets) in enumerate(train_loader):
-    #     print(f"Batch {batch_idx + 1}:")
-    #     print(f"Input shape: {inputs.shape}, Target shape: {targets.shape}")
-    #     print(targets)
+    # Example usage
+    for batch_idx, (inputs, targets) in enumerate(train_loader):
+        print(f"Batch {batch_idx + 1}:")
+        print(f"Input shape: {inputs.shape}, Target shape: {targets.shape}")
+        # print(targets)

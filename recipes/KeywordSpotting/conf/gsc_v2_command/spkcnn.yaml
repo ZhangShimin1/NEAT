@@ -21,17 +21,16 @@ trainer:
   cosine_with_min_lr_schedule_with_warmup_initial_lr: 0.001
   cosine_with_min_lr_schedule_with_warmup_min_lr: 0.0001
   metric_for_best_model: "test_accuracy"
-  ddp_find_unused_parameters: True
 
 
 model:
-  model_name: "spikingnet"
+  model_name: "spikingcnn"
   input_size: 40
   hidden_size: 300
-  output_size: 35
+  output_size: 14
   num_layers: 2
-  dropout: 0.0
-  neuron_type: "adlif"
+  dropout: 0.0  
+  neuron_type: "lif"
   bidirectional: False
   batch_first: True
   neuron_args:
@@ -40,7 +39,6 @@ model:
     threshold: 0.5
     exec_mode: "serial"
     recurrent: True
-    beta: 0.1
   SG_args:
     SG_class: "triangle"
     alpha: 0.6

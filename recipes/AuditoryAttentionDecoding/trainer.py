@@ -1,4 +1,3 @@
-
 import torch
 import logging
 from tqdm import tqdm
@@ -22,7 +21,7 @@ class Trainer(BaseTrainer):
 
     def training_step(self, batch, batch_idx):        
         spect, target = batch
-        x = spect.cuda()
+        x = spect.squeeze(1).permute(0, 2, 1).cuda()
         y = target.long().cuda()
         # forward
         logits, states = self.model(x)
@@ -43,7 +42,7 @@ class Trainer(BaseTrainer):
 
     def evaluation_step(self, batch, batch_idx, dl_id):
         spect, target = batch
-        x = spect.cuda()
+        x = spect.squeeze(1).permute(0, 2, 1).cuda()
         y = target.long().cuda()
         # forward
         logits, states = self.model(x)
@@ -114,7 +113,6 @@ class Trainer(BaseTrainer):
                 dataloader_output.append(step_output)
             evaluation_output[dl_id] = dataloader_output
             if self.cal_FR:
-                
                 for m, i in self.spike_seq_monitor.name_records_index.items():
                     if m not in FR_records.keys():
                         FR_records[m] = {}
@@ -130,6 +128,11 @@ class Trainer(BaseTrainer):
                 extracted_model_info = self.extract_module_data(FR_records)
                 energy_calculator = EnergyCalculator(energy_info=extracted_model_info)
                 event_energy, float_energy = energy_calculator.calculate()
+        
+
+                # Prepare JSON data structure
+                model_name = getattr(self.model.module, 'model_name', 'Unknown')
+                dataset_name = extracted_model_info['dataset_name'] or 'Unknown'
                 
                 # Create firing rate data by module
                 firing_rate_data = {}
@@ -197,7 +200,7 @@ class Trainer(BaseTrainer):
                 # The dataset name is typically after "exp/" in the path
                 for i, part in enumerate(metrics_path_parts):
                     if part == "exp" and i+1 < len(metrics_path_parts):
-                        dataset_name = metrics_path_parts[i+2]
+                        dataset_name = metrics_path_parts[i+1]
                         break
         
         # Return a dictionary with all the extracted lists
