@@ -3,7 +3,7 @@
 ## ==================
 ## Define the GPU IDs
 ## ==================
-gpu_ids="1"
+gpu_ids="0"
 # gpu_ids="4,5,6,7"
 # gpu_ids="0,1,2,3,4,5,6,7"
 
@@ -12,8 +12,8 @@ if [[ -z "$num_processes" ]]; then
   num_processes=$(echo "$gpu_ids" | tr "," "\n" | wc -l)
 fi
 
-default_config_name="LIF"
-exp_name="LIF"
+default_config_name="PLIF"
+exp_name="rplif"
 
 echo "Running on bmi-5 [Training]"
 torchrun_bin="/home/zysong/miniconda3/envs/audiozen/bin/torchrun"
