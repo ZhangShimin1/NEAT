@@ -37,7 +37,7 @@ class Trainer(BaseTrainer):
         feature = self.mel_trans(waveform)
         feature = feature.squeeze(1).permute(0, 2, 1).cuda()
         embedding, states = self.model(feature)
-        embedding = embedding.mean(1)
+        embedding = embedding.sum(1)
         loss, acc = self.loss_fun(embedding, label.cuda())
         # backward
         self.optimizer.zero_grad()
@@ -57,7 +57,7 @@ class Trainer(BaseTrainer):
             feature = feature.squeeze(1).permute(0, 2, 1).cuda()
             self.model.eval()
             embedding, states = self.model(feature)
-            embedding = embedding.mean(1)
+            embedding = embedding.sum(1)
         reset_net(self.model)
         x = embedding.detach().cpu().numpy()[0]
         return[{
