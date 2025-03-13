@@ -12,8 +12,8 @@ if [[ -z "$num_processes" ]]; then
   num_processes=$(echo "$gpu_ids" | tr "," "\n" | wc -l)
 fi
 
-default_config_name="PLIF"
-exp_name="rplif"
+default_config_name="adLIF"
+exp_name="radlif"
 
 echo "Running on bmi-5 [Training]"
 torchrun_bin="/home/zysong/miniconda3/envs/audiozen/bin/torchrun"
