@@ -16,6 +16,7 @@ trainer:
   cosine_with_min_lr_schedule_with_warmup_min_lr: 0.0001
   metric_for_best_model: "cosine_eer"
   greater_is_better: false
+  ddp_find_unused_parameters: True
 
 
 model:
@@ -33,7 +34,7 @@ model:
     decay: 0.5
     threshold: 0.5
     exec_mode: "serial"
-    recurrent: False
+    recurrent: True
     beta: 0.1
   SG_args:
     SG_class: "triangle"
