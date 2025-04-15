@@ -38,7 +38,7 @@ model:
     decay: 0.5
     threshold: 0.5
     exec_mode: "serial"
-    recurrent: False
+    recurrent: True
   SG_args:
     SG_class: "triangle"
     alpha: 0.6

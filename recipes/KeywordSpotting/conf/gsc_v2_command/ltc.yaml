@@ -30,7 +30,7 @@ model:
   output_size: 14
   num_layers: 2
   dropout: 0.0
-  neuron_type: "pmsn"
+  neuron_type: "ltc"
   bidirectional: False
   batch_first: True
   neuron_args:
@@ -38,7 +38,7 @@ model:
     decay: 0.5
     threshold: 0.5
     exec_mode: "serial"
-    recurrent: False
+    recurrent: True
   SG_args:
     SG_class: "triangle"
     alpha: 0.6

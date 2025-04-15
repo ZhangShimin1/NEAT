@@ -39,7 +39,7 @@ model:
     decay: 0.5
     threshold: 1.8
     exec_mode: "serial"
-    recurrent: False
+    recurrent: True
     beta: 0.1
     gamma: 0.9
   SG_args:

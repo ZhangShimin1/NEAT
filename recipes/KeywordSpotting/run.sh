@@ -1,4 +1,4 @@
-gpu_ids="2"
+gpu_ids="0"
 
 # Calculate the number of processes based on the number of GPUs
 if [[ -z "$num_processes" ]]; then
@@ -6,8 +6,8 @@ if [[ -z "$num_processes" ]]; then
 fi
 
 # Separate datasets and neurons
-dataset="shd"
-neuron="ltc"
+dataset="gsc_v2_command"
+neuron="clif"
 
 echo "Running on bmi-5 [Training]"
 

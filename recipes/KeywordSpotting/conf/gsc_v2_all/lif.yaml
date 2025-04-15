@@ -29,7 +29,7 @@ model:
   hidden_size: 300
   output_size: 35
   num_layers: 2
-  dropout: 0.0
+  dropout: 0.0  
   neuron_type: "lif"
   bidirectional: False
   batch_first: True
@@ -38,7 +38,7 @@ model:
     decay: 0.5
     threshold: 0.5
     exec_mode: "serial"
-    recurrent: False
+    recurrent: True
   SG_args:
     SG_class: "triangle"
     alpha: 0.6
