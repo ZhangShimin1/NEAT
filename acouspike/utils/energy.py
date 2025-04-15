@@ -107,44 +107,60 @@ class EnergyCalculator:
 
     def intermediate_snn_layer_energy(self):
         energy_consumption = 0
-        dim_in, dim_out = self.neuron_nums
-        f_in, f_out = self.firing_rates
-        neuron = self.module_type
-        rec = self.recurrent_flag
-
-        if neuron.lower() == "rlif":
-            energy_consumption += self.lif(f_in, f_out, dim_in, dim_out, rec)
-        elif neuron.lower() == "plif":
-            energy_consumption += self.lif(f_in, f_out, dim_in, dim_out, rec)
-        elif neuron.lower() == "adlif":
-            energy_consumption += self.adlif(f_in, f_out, dim_in, dim_out, rec)
-        elif neuron.lower() == "ltc":
-            energy_consumption += self.ltc(f_in, f_out, dim_in, dim_out, rec)
-        elif neuron.lower() == "glif":
-            energy_consumption += self.glif(f_in, f_out, dim_in, dim_out, rec)   
-        elif neuron.lower() == "tclif":
-            energy_consumption += self.tclif(f_in, f_out, dim_in, dim_out, rec)    
-        elif neuron.lower() == "clif":
-            energy_consumption += self.clif(f_in, f_out, dim_in, dim_out, rec) 
-        elif neuron.lower() == "pmsn":
-            energy_consumption += self.pmsn(f_in, f_out, dim_in, dim_out, rec) 
-        elif neuron.lower() == "celif":
-            energy_consumption += self.celif(f_in, f_out, dim_in, dim_out, rec) 
-        else:
-            raise NotImplementedError
+        
+        # Iterate through all layers except the last one
+        for i in range(len(self.neuron_nums) - 1):
+            dim_in = self.neuron_nums[i]
+            dim_out = self.neuron_nums[i + 1]
+            f_in = self.firing_rates[i]
+            f_out = self.firing_rates[i + 1]
+            
+            # Check if module_type is a list or a single value
+            if isinstance(self.module_type, list):
+                neuron = self.module_type[i] if i < len(self.module_type) else self.module_type[-1]
+            else:
+                neuron = self.module_type
+                
+            # Check if recurrent_flag is a list or a single value
+            if isinstance(self.recurrent_flag, list):
+                rec = self.recurrent_flag[i] if i < len(self.recurrent_flag) else self.recurrent_flag[-1]
+            else:
+                rec = self.recurrent_flag
+            
+            # Calculate energy based on neuron type
+            if neuron.lower() == "rlif":
+                energy_consumption += self.lif(f_in, f_out, dim_in, dim_out, rec)
+            elif neuron.lower() == "plif":
+                energy_consumption += self.lif(f_in, f_out, dim_in, dim_out, rec)
+            elif neuron.lower() == "adlif":
+                energy_consumption += self.adlif(f_in, f_out, dim_in, dim_out, rec)
+            elif neuron.lower() == "ltc":
+                energy_consumption += self.ltc(f_in, f_out, dim_in, dim_out, rec)
+            elif neuron.lower() == "glif":
+                energy_consumption += self.glif(f_in, f_out, dim_in, dim_out, rec)   
+            elif neuron.lower() == "tclif":
+                energy_consumption += self.tclif(f_in, f_out, dim_in, dim_out, rec)    
+            elif neuron.lower() == "clif":
+                energy_consumption += self.clif(f_in, f_out, dim_in, dim_out, rec) 
+            elif neuron.lower() == "pmsn":
+                energy_consumption += self.pmsn(f_in, f_out, dim_in, dim_out, rec) 
+            elif neuron.lower() == "celif":
+                energy_consumption += self.celif(f_in, f_out, dim_in, dim_out, rec) 
+            else:
+                raise NotImplementedError(f"Neuron type {neuron} not implemented")
 
         return energy_consumption
     
 
 if __name__ == "__main__":
     ene_info = {
-        'dataset_name': "ssc",
-        'neuron_types': "pmsn",
-        'firing_rates': [0.2456328272819519, 0.1387682408094406],
-        'neuron_nums': [128, 128],
-        'recurrent_flags': False,
-        'readout_dim': 35,
-        'readin_dim': 700
+        'dataset_name': "vox1",
+        'neuron_types': "adlif",
+        'firing_rates': [0.16058824956417084, 0.134964719414711, 0.13767844438552856, 0.01729411818087101],
+        'neuron_nums': [300, 300, 300, 300],
+        'recurrent_flags': True,
+        'readout_dim': 1251,
+        'readin_dim': 40
     }
     ec = EnergyCalculator(energy_info=ene_info)
     eve_ene, flo_ene = ec.calculate()
