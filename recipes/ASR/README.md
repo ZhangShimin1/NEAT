@@ -25,7 +25,9 @@ if you have any issues in the installation, please refer to the issue [here](htt
 
 ## 🔨 Usage
 
-Configure the path of dataset in `egs2/aishell/asr1/db.sh`
+Set the HOME_DIR in recipes/ASR/egs2/TEMPLATE/asr1/asr.sh to the path to acouspike source code.
+
+Configure the path of AISHELL dataset in `egs2/aishell/asr1/db.sh`.
 
 Run the following command to train a model:
 ```bash
