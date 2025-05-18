@@ -1,4 +1,4 @@
-MAIN_ROOT=/home/zysong/AcouSpike/backup_code/espnet
+MAIN_ROOT=/path/to/espnet
 
 export PATH=$PWD/utils/:$PATH
 export LC_ALL=C
