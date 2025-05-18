@@ -23,6 +23,14 @@ cd <espnet-root>/tools/installers
 ```
 if you have any issues in the installation, please refer to the issue [here](https://github.com/espnet/espnet/issues/6013).
 
+Update the MAIN_ROOT variable in the following files to point to your local ESPnet installation directory:
+
+- `recipes/ASR/egs2/aishell/asr1/path.sh`
+- `recipes/ASR/egs2/aishell/asr1/local/path.sh`
+
+For example, if you installed espnet at /home/user/espnet, modify the first line in both files from
+MAIN_ROOT=/path/to/espnet to MAIN_ROOT=/home/user/espnet
+
 ## 🔨 Usage
 
 Set the HOME_DIR in recipes/ASR/egs2/TEMPLATE/asr1/asr.sh to the absolute path to acouspike source code.
