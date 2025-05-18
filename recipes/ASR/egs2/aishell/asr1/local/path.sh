@@ -1,4 +1,4 @@
-MAIN_ROOT=/home/zysong/AcouSpike/backup_code/espnet
+MAIN_ROOT=/path/to/espnet
 
 # check extra kenlm module installation
 if [ ! -d $MAIN_ROOT/tools/kenlm/build/bin ] > /dev/null; then
