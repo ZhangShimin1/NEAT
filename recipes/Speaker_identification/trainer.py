@@ -1,18 +1,19 @@
+import logging
+from typing import Dict
 
-
+import pandas as pd
 import torch
 import torch.distributed as dist
-import logging
-import pandas as pd
-from typing import Any, Dict, Optional, Tuple, Union
-from acouspike.src.trainer import Trainer as BaseTrainer
 from torch.utils.data import DataLoader, Dataset, DistributedSampler
 from tqdm import tqdm
-from acouspike.utils.monitor import OutputMonitor, cal_firing_rate
-from acouspike.src.accelerate import gather_object
+
 from acouspike.models.neuron.base_neuron import BaseNeuron
+from acouspike.src.accelerate import gather_object
+from acouspike.src.trainer import Trainer as BaseTrainer
+from acouspike.utils.monitor import OutputMonitor, cal_firing_rate
 
 logger = logging.getLogger(__name__)
+
 
 def _collate_fn_raw_multiclass(batch):
     def func(p):
@@ -45,8 +46,10 @@ class Trainer(BaseTrainer):
         self.loss_function = torch.nn.CrossEntropyLoss()
         self.cal_FR = cal_FR
         if cal_FR:
-            self.spike_seq_monitor = OutputMonitor(self.model, BaseNeuron, cal_firing_rate)
-    
+            self.spike_seq_monitor = OutputMonitor(
+                self.model, BaseNeuron, cal_firing_rate
+            )
+
     def init_train_dataloader(self):
         if self.train_dataset is None:
             raise ValueError("Trainer: `train()` requires a `train_dataset`.")
@@ -72,7 +75,7 @@ class Trainer(BaseTrainer):
             "prefetch_factor": self.args.dataloader_prefetch_factor,
             "sampler": sampler,
             "shuffle": (sampler is None),
-            "collate_fn": _collate_fn_raw_multiclass
+            "collate_fn": _collate_fn_raw_multiclass,
         }
 
         if self.is_rank_zero:
@@ -98,7 +101,9 @@ class Trainer(BaseTrainer):
             if isinstance(eval_dataset, Dataset):
                 eval_dataset = {"default": eval_dataset}
             else:
-                raise ValueError("Trainer: `eval_dataset` should be either a dataset or a dictionary of datasets.")
+                raise ValueError(
+                    "Trainer: `eval_dataset` should be either a dataset or a dictionary of datasets."
+                )
 
         dataloader_params = {
             "batch_size": self.args.eval_batch_size,
@@ -109,7 +114,7 @@ class Trainer(BaseTrainer):
             "drop_last": False,
             "prefetch_factor": self.args.dataloader_prefetch_factor,
             "shuffle": False,  # No need to shuffle for evaluation
-            "collate_fn": _collate_fn_raw_multiclass
+            "collate_fn": _collate_fn_raw_multiclass,
         }
 
         eval_dataloaders = {}
@@ -137,7 +142,7 @@ class Trainer(BaseTrainer):
 
         return eval_dataloaders
 
-    def training_step(self, batch, batch_idx):        
+    def training_step(self, batch, batch_idx):
         raw_wav, spect, target = batch
         x = spect.cuda()
         y = target.cuda()
@@ -169,11 +174,13 @@ class Trainer(BaseTrainer):
         # calculate acc
         _, preds = torch.max(logits, dim=1)
         accuracy = (preds == y).float().mean()
-        return [{
-            "loss": loss.detach().cpu().numpy().item(),
-            "test_accuracy": accuracy.detach().cpu().numpy().item(),
-        }]
-    
+        return [
+            {
+                "loss": loss.detach().cpu().numpy().item(),
+                "test_accuracy": accuracy.detach().cpu().numpy().item(),
+            }
+        ]
+
     @torch.no_grad()
     def evaluation_loop(self, description: str, gather_step_output: bool = False):
         """Prediction/evaluation loop, shared by `Trainer.evaluate()` and `Trainer.predict()`."""
@@ -234,26 +241,40 @@ class Trainer(BaseTrainer):
                 for m, i in self.spike_seq_monitor.name_records_index.items():
                     if m not in FR_records.keys():
                         FR_records[m] = {}
-                    FR_temp = torch.cat([self.spike_seq_monitor.records[index] for index in self.spike_seq_monitor.name_records_index[m]], dim=0)
-                    FR_records[m]['firing_rate'] = FR_temp.mean().detach().cpu().numpy().item()
+                    FR_temp = torch.cat(
+                        [
+                            self.spike_seq_monitor.records[index]
+                            for index in self.spike_seq_monitor.name_records_index[m]
+                        ],
+                        dim=0,
+                    )
+                    FR_records[m]["firing_rate"] = (
+                        FR_temp.mean().detach().cpu().numpy().item()
+                    )
                     # Get the module instance from the model using the name
                     module = dict(self.model.module.named_modules())[m]
-                    FR_records[m]['module_type'] = module.__class__.__name__
-                    FR_records[m]['neuron_num'] = module.neuron_num
-                    FR_records[m]['recurrent'] = module.recurrent
+                    FR_records[m]["module_type"] = module.__class__.__name__
+                    FR_records[m]["neuron_num"] = module.neuron_num
+                    FR_records[m]["recurrent"] = module.recurrent
 
                 # Convert nested dict to DataFrame format
                 df_records = []
                 for module_name, stats in FR_records.items():
-                    df_records.append({
-                        'Neuron index': module_name,
-                        'Module Type': stats['module_type'],
-                        'Firing Rate': stats['firing_rate'],
-                        'Neuron Number': stats['neuron_num'],
-                        'Recurrent': stats['recurrent']
-                    })
+                    df_records.append(
+                        {
+                            "Neuron index": module_name,
+                            "Module Type": stats["module_type"],
+                            "Firing Rate": stats["firing_rate"],
+                            "Neuron Number": stats["neuron_num"],
+                            "Recurrent": stats["recurrent"],
+                        }
+                    )
                 FR_df = pd.DataFrame(df_records)
-                FR_df.to_csv(self.metrics_dir / f"FiringRate_{dl_id}_epoch_{self.state.epochs_trained}.csv", index=False)
+                FR_df.to_csv(
+                    self.metrics_dir
+                    / f"FiringRate_{dl_id}_epoch_{self.state.epochs_trained}.csv",
+                    index=False,
+                )
         """
         evaluation_output = {
             "dataloader_id_1": [step_output_0, step_output_1, ...],
@@ -262,4 +283,3 @@ class Trainer(BaseTrainer):
         }
         """
         return evaluation_output
-    

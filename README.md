@@ -26,11 +26,31 @@ AcouSpike is a PyTorch-based framework designed for neuromorphic audio processin
 
 ## 🔧 Installation
 
+Install uv:
+
+```bash
+# On Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+Install AcouSpike:
+
 ```bash
 git clone https://github.com/ZhangShimin1/AcouSpike
 cd AcouSpike
-pip install -i https://test.pypi.org/simple/ acouspike==0.0.0.1
+
+# The `uv sync` command create a virtual environment and install all dependencies
+uv sync
 ```
+
+Run the tasks, for example, speaker identification:
+
+```bash
+cd recipes/speaker_identification
+bash run.sh
+```
+
+Go to task directory and follow the instructions in the `README.md` file.
 
 ## 📚 Documentation
 
