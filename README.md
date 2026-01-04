@@ -24,33 +24,64 @@ AcouSpike is a PyTorch-based framework designed for neuromorphic audio processin
   - Comprehensive documentation
   - Easy-to-follow examples
 
-## 🔧 Installation
+## 🔧 Installation & Development
 
-Install [uv](https://astral.sh/uv/) (a lockfile-based python env manager) first:
+This project uses **[uv](https://github.com/astral-sh/uv)** for ultra-fast dependency management and packaging. If you are new to `uv`, think of it as a modern replacement for `pip`, `pip-tools`, and `virtualenv` all in one binary.
+
+### 1. Install `uv`
+First, install the tool itself:
 
 ```bash
-# On Linux
+# On Linux / macOS
 curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# On Windows
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-Install AcouSpike:
+### 2. Set up the environment
+Clone the repo and sync dependencies. `uv` will automatically create a virtual environment for you.
 
 ```bash
 git clone https://github.com/ZhangShimin1/AcouSpike
 cd AcouSpike
 
-# The `uv sync` command create a virtual environment and install all dependencies
+# This creates a .venv folder and installs all dependencies defined in pyproject.toml
 uv sync
 ```
 
-Run the tasks, for example, speaker identification:
+### 3. Activate the environment
+
+To run commands (like python scripts), you can
+
+```bash
+# Linux / macOS
+source .venv/bin/activate
+
+# Windows
+.venv\Scripts\activate
+
+# Now you can use 'python' directly
+```
+
+### 4. Adding new dependencies
+If you need to add a new library (e.g., `scikit-learn`):
+
+```bash
+uv add scikit-learn
+```
+
+This automatically updates `pyproject.toml` and the lock file.
+
+## 🚀 Quick Start
+
+Run the speaker identification task:
 
 ```bash
 cd recipes/speaker_identification
+# Ensure you are in the virtual environment or use 'uv run'
 bash run.sh
 ```
-
-Go to the specified task folder and follow the instructions in the `README.md` file.
 
 ## 📚 Documentation
 
