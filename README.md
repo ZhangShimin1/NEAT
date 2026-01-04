@@ -26,7 +26,7 @@ AcouSpike is a PyTorch-based framework designed for neuromorphic audio processin
 
 ## 🔧 Installation
 
-Install uv:
+Install [uv](https://astral.sh/uv/) (a lockfile-based python env manager) first:
 
 ```bash
 # On Linux
@@ -50,7 +50,7 @@ cd recipes/speaker_identification
 bash run.sh
 ```
 
-Go to task directory and follow the instructions in the `README.md` file.
+Go to the specified task folder and follow the instructions in the `README.md` file.
 
 ## 📚 Documentation
 
@@ -64,22 +64,6 @@ Go to task directory and follow the instructions in the `README.md` file.
 1. [Getting Started](./docs/tutorials/getting_started.md)
 2. [Building Your First SNN](./docs/tutorials/first_snn.md)
 3. [Audio Processing Basics](./docs/tutorials/audio_processing.md)
-
-## 🎯 Examples
-
-Ready-to-use examples are available in the `recipes` directory:
-
-- Speaker Identification
-```bash
-cd recipes/speaker_identification
-python run.sh
-```
-
-- Keyword Spotting
-```bash
-cd recipes/keyword_spotting
-python run.sh
-```
 
 ## 📊 Benchmarks
 
