@@ -1,11 +1,10 @@
 import numpy as np
-import torch
-import torch.nn as nn
 import pandas as pd
-
-from scipy.io import wavfile
-from scipy import signal
 import soundfile
+import torch
+from scipy import signal
+from scipy.io import wavfile
+
 
 def compute_dB(waveform):
     """
@@ -15,8 +14,9 @@ def compute_dB(waveform):
         numpy.array: Output array (#length).
     """
     val = max(0.0, np.mean(np.power(waveform, 2)))
-    dB = 10*np.log10(val+1e-4)
+    dB = 10 * np.log10(val + 1e-4)
     return dB
+
 
 class WavAugment(object):
     def __init__(self, noise_csv_path="data/noise.csv", rir_csv_path="data/rir.csv"):
@@ -62,7 +62,7 @@ class WavAugment(object):
         noise = np.random.randn(len(waveform))
         noise_dB = compute_dB(noise)
         noise = np.sqrt(10 ** ((clean_dB - noise_dB - snr) / 10)) * noise
-        waveform = (waveform + noise)
+        waveform = waveform + noise
         return waveform
 
     def change_volum(self, waveform):
@@ -96,14 +96,14 @@ class WavAugment(object):
 
         if audio_length >= noise_length:
             shortage = audio_length - noise_length
-            noise = np.pad(noise, (0, shortage), 'wrap')
+            noise = np.pad(noise, (0, shortage), "wrap")
         else:
-            start = np.random.randint(0, (noise_length-audio_length))
-            noise = noise[start:start+audio_length]
+            start = np.random.randint(0, (noise_length - audio_length))
+            noise = noise[start : start + audio_length]
 
         noise_dB = compute_dB(noise)
         noise = np.sqrt(10 ** ((clean_dB - noise_dB - snr) / 10)) * noise
-        waveform = (waveform + noise)
+        waveform = waveform + noise
         return waveform
 
     def reverberate(self, waveform):
@@ -118,9 +118,9 @@ class WavAugment(object):
 
         path = self.rir_paths[idx]
         rir, sample_rate = soundfile.read(path)
-        rir = rir/np.sqrt(np.sum(rir**2))
+        rir = rir / np.sqrt(np.sum(rir**2))
 
-        waveform = signal.convolve(waveform, rir, mode='full')
+        waveform = signal.convolve(waveform, rir, mode="full")
         return waveform[:audio_length]
 
 
@@ -131,7 +131,9 @@ if __name__ == "__main__":
 
     gaussian_noise_wave = aug.add_gaussian_noise(waveform)
     print(gaussian_noise_wave.dtype)
-    wavfile.write("gaussian_noise_wave.wav", 16000, gaussian_noise_wave.astype(np.int16))
+    wavfile.write(
+        "gaussian_noise_wave.wav", 16000, gaussian_noise_wave.astype(np.int16)
+    )
 
     real_noise_wave = aug.add_real_noise(waveform)
     print(real_noise_wave.dtype)

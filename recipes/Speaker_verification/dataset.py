@@ -1,15 +1,12 @@
-import collections
-import os
 import random
 
 import numpy as np
 import pandas as pd
 import torch
-from scipy import signal
+from augment import WavAugment
 from scipy.io import wavfile
 from sklearn.utils import shuffle
 from torch.utils.data import DataLoader, Dataset
-from augment import WavAugment
 
 
 def load_audio(filename, second=2):
@@ -23,12 +20,13 @@ def load_audio(filename, second=2):
 
     if audio_length <= length:
         shortage = length - audio_length
-        waveform = np.pad(waveform, (0, shortage), 'wrap')
+        waveform = np.pad(waveform, (0, shortage), "wrap")
         waveform = waveform.astype(np.float64)
     else:
-        start = np.int64(random.random()*(audio_length-length))
-        waveform =  waveform[start:start+length].astype(np.float64)
+        start = np.int64(random.random() * (audio_length - length))
+        waveform = waveform[start : start + length].astype(np.float64)
     return waveform.copy()
+
 
 class Train_Dataset(Dataset):
     def __init__(self, train_csv_path, second=3, pairs=True, aug=False, **kwargs):
@@ -57,14 +55,26 @@ class Train_Dataset(Dataset):
             waveform_2 = load_audio(self.paths[index], self.second)
             if self.aug == True:
                 waveform_2 = self.wav_aug(waveform_2)
-            return torch.FloatTensor(waveform_1), torch.FloatTensor(waveform_2), self.labels[index]
+            return (
+                torch.FloatTensor(waveform_1),
+                torch.FloatTensor(waveform_2),
+                self.labels[index],
+            )
 
     def __len__(self):
         return len(self.paths)
 
 
 class Semi_Dataset(Dataset):
-    def __init__(self, label_csv_path, unlabel_csv_path, second=2, pairs=True, aug=False, **kwargs):
+    def __init__(
+        self,
+        label_csv_path,
+        unlabel_csv_path,
+        second=2,
+        pairs=True,
+        aug=False,
+        **kwargs,
+    ):
         self.second = second
         self.pairs = pairs
 
@@ -98,13 +108,22 @@ class Semi_Dataset(Dataset):
             waveform_u_1 = self.wav_aug(waveform_u_1)
 
         if self.pairs == False:
-            return torch.FloatTensor(waveform_l), self.labels[index], torch.FloatTensor(waveform_u_1)
+            return (
+                torch.FloatTensor(waveform_l),
+                self.labels[index],
+                torch.FloatTensor(waveform_u_1),
+            )
 
         else:
             waveform_u_2 = load_audio(self.u_paths[idx], self.second)
             if self.aug == True:
                 waveform_u_2 = self.wav_aug(waveform_u_2)
-            return torch.FloatTensor(waveform_l), self.labels[index], torch.FloatTensor(waveform_u_1), torch.FloatTensor(waveform_u_2)
+            return (
+                torch.FloatTensor(waveform_l),
+                self.labels[index],
+                torch.FloatTensor(waveform_u_1),
+                torch.FloatTensor(waveform_u_2),
+            )
 
     def __len__(self):
         return len(self.paths)
@@ -123,13 +142,9 @@ class Evaluation_Dataset(Dataset):
     def __len__(self):
         return len(self.paths)
 
+
 if __name__ == "__main__":
     dataset = Train_Dataset(train_csv_path="data/train.csv", second=3)
-    loader = DataLoader(
-        dataset,
-        batch_size=10,
-        shuffle=False
-    )
+    loader = DataLoader(dataset, batch_size=10, shuffle=False)
     for x, label in loader:
         pass
-

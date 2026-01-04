@@ -1,16 +1,16 @@
-'''
+"""
 Descripttion: Dataloader for Spiking/Non-Spiking Heidelberg Digits
               References code from Sparch (https://github.com/idiap/sparch/tree/main)
-version: 
+version:
 Author: Shimin Zhang
 Date: 2024-11-23 10:50:21
-'''
+"""
+
 import h5py
 import numpy as np
-
 import torch
 import torchaudio
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader, Dataset
 
 # from torchaudio_augmentations import ComposeMany
 # from torchaudio_augmentations import Gain
@@ -23,12 +23,14 @@ from torch.utils.data import Dataset, DataLoader
 class SpikingDatasets(Dataset):
     def __init__(self, split, nb_steps=100, nb_units=700, max_time=1.4):
         self.device = "cpu"  # for memory allocation
-        self.split_data = f'/datasets/kws/spiking_heidelberg_digits/shd_{split}.h5'
+        self.split_data = f"/datasets/kws/spiking_heidelberg_digits/shd_{split}.h5"
         self.nb_steps = nb_steps
         self.nb_units = nb_units
         self.time_bins = np.linspace(0, max_time, num=self.nb_steps)
-        self.firing_times, self.units_fired, self.labels = self.load_spiking_data(self.split_data)
-    
+        self.firing_times, self.units_fired, self.labels = self.load_spiking_data(
+            self.split_data
+        )
+
     def __getitem__(self, index):
         times = np.digitize(self.firing_times[index], self.time_bins)
         units = self.units_fired[index]
@@ -41,11 +43,10 @@ class SpikingDatasets(Dataset):
         x = torch.sparse_coo_tensor(x_idx, x_val, x_size, device=self.device)
         y = self.labels[index]
         return x.to_dense(), y
-    
-    def __len__(self):
 
+    def __len__(self):
         return len(self.labels)
-    
+
     def load_spiking_data(self, path):
         data = h5py.File(path, "r")
         firing_times = data["spikes"]["times"]
@@ -61,7 +62,7 @@ class SpikingDatasets(Dataset):
         ys = torch.LongTensor(ys).to(self.device)
 
         return xs, ys
-    
+
 
 class NonSpikingDatasets(Dataset):
     def __init__(self, split, aug=False, aug_params=[0.0001, 0.9, 0.1]):
@@ -81,18 +82,17 @@ class NonSpikingDatasets(Dataset):
         return spect, target
 
     def __len__(self):
-
         return len(self.file_list)
-    
+
     def get_file_list(self):
-        file_name = f'/datasets/kws/spiking_heidelberg_digits/heidelberg_digits/{self.split}_filenames.txt'
+        file_name = f"/datasets/kws/spiking_heidelberg_digits/heidelberg_digits/{self.split}_filenames.txt"
         with open(file_name, "r") as f:
             file_list = f.read().splitlines()
 
         return file_list
 
     def frontend(self, file_name):
-        file_path = f'/datasets/kws/spiking_heidelberg_digits/heidelberg_digits/audio/{file_name}'
+        file_path = f"/datasets/kws/spiking_heidelberg_digits/heidelberg_digits/audio/{file_name}"
         x, _ = torchaudio.load(file_path)
 
         if self.aug and self.split == "train":
@@ -122,13 +122,20 @@ class NonSpikingDatasets(Dataset):
 
         return xs, ys
 
+
 if __name__ == "__main__":
     # spiking version
     train_dataset = SpikingDatasets(split="train")
 
-    train_loader = DataLoader(train_dataset, batch_size=128, shuffle=True, num_workers=1, 
-                              collate_fn=train_dataset.generate_batch, pin_memory=True)
-    
+    train_loader = DataLoader(
+        train_dataset,
+        batch_size=128,
+        shuffle=True,
+        num_workers=1,
+        collate_fn=train_dataset.generate_batch,
+        pin_memory=True,
+    )
+
     sparsities = []
     for idx, (spect, target) in enumerate(train_loader):
         print(spect.shape, target.shape)
@@ -140,8 +147,8 @@ if __name__ == "__main__":
     # # origin non-spiking version
     # train_dataset = NonSpikingDatasets(split="train", aug=True)
 
-    # train_loader = DataLoader(train_dataset, batch_size=128, shuffle=True, num_workers=1, 
+    # train_loader = DataLoader(train_dataset, batch_size=128, shuffle=True, num_workers=1,
     #                           collate_fn=train_dataset.generate_batch, pin_memory=True)
-    
+
     # for idx, (spect, target) in enumerate(train_loader):
     #     print(spect.shape, target.shape)

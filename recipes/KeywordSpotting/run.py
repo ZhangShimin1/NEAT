@@ -1,16 +1,22 @@
 import sys
+
 sys.path.append("../..")
+import importlib
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from acouspike.src.accelerate import init_accelerator
-import importlib
-from acouspike.src.logger import init_logging_logger
-from acouspike.src.trainer_args import TrainingArgs
-from acouspike.models.model_warpper import ModelWrapper, ModelWrapperArgs
+
 from simple_parsing import Serializable, parse
 from trainer import Trainer
+
+from acouspike.models.model_warpper import ModelWrapper, ModelWrapperArgs
+from acouspike.src.accelerate import init_accelerator
+from acouspike.src.logger import init_logging_logger
+from acouspike.src.trainer_args import TrainingArgs
+
 logger = logging.getLogger(__name__)
+
+
 # ==================== Entry ====================
 @dataclass
 class DataArgs(Serializable):
@@ -19,6 +25,7 @@ class DataArgs(Serializable):
     version: int
     if_command: bool
     if_spk: bool
+
 
 @dataclass
 class Args(Serializable):
@@ -37,12 +44,27 @@ def run(args: Args):
     args.save(Path(args.trainer.output_dir) / "conf.yaml")
 
     # Initialize datasets
-    module = importlib.import_module(f'datasets.{args.data.dataset}')
+    module = importlib.import_module(f"datasets.{args.data.dataset}")
     if args.data.dataset == "gsc":
         gsc_class = getattr(module, "Datasets")
-        train_dataset = gsc_class(split="train", version=args.data.version, if_command=args.data.if_command, aug=args.data.aug)
-        valid_dataset = gsc_class(split="valid", version=args.data.version, if_command=args.data.if_command, aug=False)
-        test_dataset = gsc_class(split="test", version=args.data.version, if_command=args.data.if_command, aug=False)
+        train_dataset = gsc_class(
+            split="train",
+            version=args.data.version,
+            if_command=args.data.if_command,
+            aug=args.data.aug,
+        )
+        valid_dataset = gsc_class(
+            split="valid",
+            version=args.data.version,
+            if_command=args.data.if_command,
+            aug=False,
+        )
+        test_dataset = gsc_class(
+            split="test",
+            version=args.data.version,
+            if_command=args.data.if_command,
+            aug=False,
+        )
         in_dim = 40
         T = 98
         if args.data.version == 1:
@@ -79,31 +101,27 @@ def run(args: Args):
         in_dim = 700
         out_dim = 35
 
-
     # Initialize model
     model = ModelWrapper(
-                model_name=args.model.model_name,
-                input_size=in_dim,
-                hidden_size=args.model.hidden_size,
-                output_size=out_dim,
-                num_layers=args.model.num_layers,
-                bn=args.model.bn,
-                dropout=args.model.dropout,
-                neuron_type=args.model.neuron_type,
-                bidirectional=args.model.bidirectional,
-                batch_first=args.model.batch_first,
-                **args.model.neuron_args,
-                **args.model.SG_args
-            )
-
+        model_name=args.model.model_name,
+        input_size=in_dim,
+        hidden_size=args.model.hidden_size,
+        output_size=out_dim,
+        num_layers=args.model.num_layers,
+        bn=args.model.bn,
+        dropout=args.model.dropout,
+        neuron_type=args.model.neuron_type,
+        bidirectional=args.model.bidirectional,
+        batch_first=args.model.batch_first,
+        **args.model.neuron_args,
+        **args.model.SG_args,
+    )
 
     # Initialize trainer
     trainer = Trainer(
         model=model,
         args=args.trainer,
-        train_dataset=train_dataset
-        if args.trainer.do_train
-        else None,
+        train_dataset=train_dataset if args.trainer.do_train else None,
         eval_dataset=test_dataset,
     )
 
