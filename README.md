@@ -1,8 +1,8 @@
-# AcouSpike 
+# AcouSpike
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-> A modern, lightweight library for Neuromorphic Audio Processing using Spiking Neural Networks.
+> A modern, lightweight library for Neuromorphic Audio Processing using Spiking Neural Networks (SNNs).
 
 ## 🌟 Overview
 
@@ -10,27 +10,52 @@ AcouSpike is a PyTorch-based framework designed for neuromorphic audio processin
 
 ## 🚀 Features
 
-- **Flexible Architecture**
-  - Build custom SNN models using PyTorch
-  - Support for various neuron types and synaptic connections
-  - Modular design for easy extension
+### 🧠 Rich Neuron Models
+AcouSpike implements a wide variety of spiking neuron models, ranging from classic to state-of-the-art:
+- **Classic:** LIF (Leaky Integrate-and-Fire), PLIF (Parametric LIF)
+- **Advanced:** ALIF (Adaptive LIF), GLIF (Gated LIF), RLIF (Recurrent LIF)
+- **Specialized:** CLIF, CELIF, TCLIF, adLIF, LTC, PMSN, DHSNN, SPSN
+- **Surrogate Gradients:** Built-in support for various surrogate gradient methods for direct training.
 
-- **Audio Processing**
-  - Built-in support for common audio tasks
-  - Efficient spike encoding for audio signals
+### 🏗️ Network Architectures
+Easily build and experiment with modern SNN architectures:
+- **Spikeformer:** Spiking Transformer networks
+- **Spiking CNN:** Spiking ResNet and other convolutional backbones
+- **Recurrent:** Spiking LSTM, Recurrent LIF
+- **Sequential:** TCN (Temporal Convolutional Networks), SSM (State Space Models)
 
-- **Developer Friendly**
-  - Minimal dependencies
-  - Comprehensive documentation
-  - Easy-to-follow examples
+### 🎧 Supported Audio Tasks (Recipes)
+Ready-to-use recipes and training scripts for common audio applications:
+- **Automatic Speech Recognition (ASR):** End-to-end SNN-based speech recognition.
+- **Keyword Spotting (KWS):** Low-power keyword detection (e.g., Google Speech Commands).
+- **Speaker Identification:** Classifying speaker identities (e.g., VoxCeleb).
+- **Speaker Verification:** Verifying claimed speaker identities.
+- **Auditory Attention Decoding (AAD):** Decoding attended speech sources from neural signals.
 
-## 🔧 Installation & Development
+## 📂 Project Structure
 
-This project uses **[uv](https://github.com/astral-sh/uv)** for ultra-fast dependency management and packaging. If you are new to `uv`, think of it as a modern replacement for `pip`, `pip-tools`, and `virtualenv` all in one binary.
+```text
+AcouSpike/
+├── acouspike/              # Core library
+│   ├── models/
+│   │   ├── neuron/         # Neuron implementations (LIF, PLIF, etc.)
+│   │   ├── network/        # Network backbones (Spikeformer, TCN, etc.)
+│   │   └── surrogate/      # Surrogate gradient functions
+│   └── src/                # Training utilities, optimization, logging
+├── recipes/                # Task-specific training scripts
+│   ├── asr/
+│   ├── keyword_spotting/
+│   ├── speaker_identification/
+│   ├── speaker_verification/
+│   └── auditory_attention_decoding/
+└── utils/                  # General utility functions
+```
+
+## 🔧 Installation
+
+This project uses **[uv](https://github.com/astral-sh/uv)** for ultra-fast dependency management and packaging.
 
 ### 1. Install `uv`
-First, install the tool itself:
-
 ```bash
 # On Linux / macOS
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -40,55 +65,55 @@ powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
 ### 2. Set up the environment
-Clone the repo and sync dependencies. `uv` will automatically create a virtual environment for you.
-
+Clone the repo and sync dependencies.
 ```bash
 git clone https://github.com/ZhangShimin1/AcouSpike
 cd AcouSpike
 
-# This creates a .venv folder and installs all dependencies defined in pyproject.toml
+# Creates a .venv folder and installs dependencies from pyproject.toml
 uv sync
 ```
 
 ### 3. Activate the environment
-
-To run commands (like python scripts), you can
-
 ```bash
 # Linux / macOS
 source .venv/bin/activate
 
 # Windows
 .venv\Scripts\activate
-
-# Now you can use 'python' directly
 ```
 
-### 4. Adding new dependencies
-If you need to add a new library (e.g., `scikit-learn`):
+## ⚡ Quick Start
 
-```bash
-uv add scikit-learn
-```
+Each task in the `recipes/` directory comes with its own `run.sh` or instruction set.
 
-This automatically updates `pyproject.toml` and the lock file.
-
-## 🚀 Quick Start
-
-Run the speaker identification task:
+**Example: Speaker Identification**
 
 ```bash
 cd recipes/speaker_identification
-# Ensure you are in the virtual environment or use 'uv run'
+
+# Run the training script (ensure your environment is activated)
 bash run.sh
 ```
 
-## 📚 Documentation
+**Example: Keyword Spotting**
 
-### Model Components
+```bash
+cd recipes/keyword_spotting
 
-- [Neuron Models](./acouspike/models/neuron/README.md)
-- [Network Architectures](./acouspike/models/network/)
+# Check the configuration files in conf/ and run
+bash run.sh
+```
+
+## 📚 Documentation & Recipes
+
+Detailed documentation for specific tasks can be found in their respective directories:
+
+- [Automatic Speech Recognition (ASR)](./recipes/asr/README.md)
+- [Keyword Spotting](./recipes/keyword_spotting/README.md)
+- [Speaker Identification](./recipes/speaker_identification/README.md)
+- [Speaker Verification](./recipes/speaker_verification/README.md)
+- [Auditory Attention Decoding](./recipes/auditory_attention_decoding/readme.md)
 
 ## 📄 License
 
