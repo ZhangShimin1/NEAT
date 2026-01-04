@@ -1,17 +1,22 @@
 import sys
+
 sys.path.append("../..")
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from acouspike.src.accelerate import init_accelerator
-import importlib
-from acouspike.src.logger import init_logging_logger
-from acouspike.src.trainer_args import TrainingArgs
-from acouspike.models.model_warpper import ModelWrapper, ModelWrapperArgs
+
+from dataloader import AADWSDataset
 from simple_parsing import Serializable, parse
 from trainer import Trainer
-from dataloader import AADWSDataset
+
+from acouspike.models.model_warpper import ModelWrapper, ModelWrapperArgs
+from acouspike.src.accelerate import init_accelerator
+from acouspike.src.logger import init_logging_logger
+from acouspike.src.trainer_args import TrainingArgs
+
 logger = logging.getLogger(__name__)
+
+
 # ==================== Entry ====================
 @dataclass
 class DataArgs(Serializable):
@@ -19,11 +24,13 @@ class DataArgs(Serializable):
     mode: str
     window: str
 
+
 @dataclass
 class Args(Serializable):
     data: DataArgs
     trainer: TrainingArgs
     model: ModelWrapperArgs
+
 
 def run(args: Args):
     init_accelerator(device=args.trainer.device)
@@ -35,7 +42,9 @@ def run(args: Args):
             # TODO: optimize logger
             print(f"Experiment for subject-{sub}, fold-{i}")
             # Initialize logger
-            args.trainer.output_dir = f"{root_save_dir}/{args.data.dataset}/subj-{sub}/fold-{i}"
+            args.trainer.output_dir = (
+                f"{root_save_dir}/{args.data.dataset}/subj-{sub}/fold-{i}"
+            )
             init_logging_logger(args.trainer.output_dir)
             args.save(Path(args.trainer.output_dir) / "conf.yaml")
             aad = AADWSDataset(dataset=args.data.dataset, subject_id=sub, fold_num=i)
@@ -54,14 +63,14 @@ def run(args: Args):
                 bidirectional=args.model.bidirectional,
                 batch_first=args.model.batch_first,
                 **args.model.neuron_args,
-                **args.model.SG_args
+                **args.model.SG_args,
             )
             # Initialize trainer
             trainer = Trainer(
                 model=model,
                 args=args.trainer,
                 train_dataset=train_dataset if args.trainer.do_train else None,
-                eval_dataset=test_dataset
+                eval_dataset=test_dataset,
             )
 
             if args.trainer.do_eval:
@@ -74,6 +83,7 @@ def run(args: Args):
                 raise ValueError(
                     "At least one of `do_train`, `do_eval`, or `do_predict` must be True."
                 )
+
 
 if __name__ == "__main__":
     args = parse(Args, add_config_path_arg=True)

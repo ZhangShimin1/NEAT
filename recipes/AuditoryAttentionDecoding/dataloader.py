@@ -1,9 +1,9 @@
 import os
+from random import shuffle
+
 import numpy as np
 import scipy.io as scio
-from random import shuffle
-import torch
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader, Dataset
 
 
 class EEGDataset(Dataset):
@@ -74,12 +74,18 @@ class AADWSDataset:
         val_start = val_fold * fold_size
         test_start = test_fold * fold_size
 
-        val_indices = indices[val_start:val_start + fold_size]
-        test_indices = indices[test_start:test_start + fold_size]
-        train_indices = [i for i in indices if i not in val_indices and i not in test_indices]
+        val_indices = indices[val_start : val_start + fold_size]
+        test_indices = indices[test_start : test_start + fold_size]
+        train_indices = [
+            i for i in indices if i not in val_indices and i not in test_indices
+        ]
 
         # Split the data and labels
-        train_data, val_data, test_data = self.data[train_indices], self.data[val_indices], self.data[test_indices]
+        train_data, val_data, test_data = (
+            self.data[train_indices],
+            self.data[val_indices],
+            self.data[test_indices],
+        )
         train_labels, val_labels, test_labels = (
             self.labels[train_indices],
             self.labels[val_indices],
@@ -114,7 +120,9 @@ class AADWSDataset:
             tuple: Train, validation, and test DataLoaders.
         """
         # Split the data
-        train_data, train_labels, val_data, val_labels, test_data, test_labels = self._split_data()
+        train_data, train_labels, val_data, val_labels, test_data, test_labels = (
+            self._split_data()
+        )
 
         # Preprocess the data
         train_data, train_labels = self._preprocess_data(train_data, train_labels)
@@ -134,14 +142,13 @@ class AADWSDataset:
         return train_dataset, val_dataset, test_dataset
 
 
-
 if __name__ == "__main__":
     # Parameters
     subject_id = "1"
     fold_num = 5
     batch_size = 32
 
-    aad = AADWSDataset(dataset='DTU', subject_id=subject_id, fold_num=fold_num)
+    aad = AADWSDataset(dataset="DTU", subject_id=subject_id, fold_num=fold_num)
     train_dataset, val_dataset, test_dataset = aad.get_datasets()
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
