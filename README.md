@@ -88,21 +88,7 @@ bash run.sh
 ### Model Components
 
 - [Neuron Models](./acouspike/models/neuron/README.md)
-- [Network Architectures](./acouspike/models/SNN/README.md)
-
-### Tutorials
-
-1. [Getting Started](./docs/tutorials/getting_started.md)
-2. [Building Your First SNN](./docs/tutorials/first_snn.md)
-3. [Audio Processing Basics](./docs/tutorials/audio_processing.md)
-
-## 📊 Benchmarks
-
-Performance benchmarks and comparisons are available in our [benchmarks page](./docs/benchmarks.md).
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+- [Network Architectures](./acouspike/models/network/)
 
 ## 📄 License
 
@@ -110,12 +96,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📬 Contact
 
-- Issue Tracker: [GitHub Issues](https://github.com/username/acouspike/issues)
-- Email: maintainer@example.com
-
-## 🙏 Acknowledgments
-
-- List of contributors
-- Supporting organizations
-- Related projects and inspirations
-
+- Issue Tracker: [GitHub Issues](https://github.com/ZhangShimin1/AcouSpike/issues)
