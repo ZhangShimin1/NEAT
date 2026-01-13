@@ -9,13 +9,20 @@ authors = [
 ]
 urls = { Repository = "https://github.com/ZhangShimin1/AcouSpike" }
 dependencies = [
+    "h5py>=3.15.1",
+    "librosa>=0.11.0",
     "matplotlib>=3.10.8",
     "numpy>=2.2.6",
     "pandas>=2.3.3",
+    "scikit-learn>=1.7.2",
     "scipy>=1.15.3",
     "simple-parsing>=0.1.7",
+    "soundfile>=0.13.1",
+    "spikingjelly>=0.0.0.0.14",
     "torch==2.5.1",
+    "torch-audiomentations>=0.12.0",
     "torchaudio==2.5.1",
+    "torchaudio-augmentations>=0.2.4",
     "torchvision==0.20.1",
     "tqdm>=4.67.1",
 ]
