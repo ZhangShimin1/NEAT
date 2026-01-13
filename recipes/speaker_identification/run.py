@@ -50,6 +50,7 @@ def run(args: Args):
     random_clip_size = 16000
     val_clip_size = 16000
     meta_dir = "voxceleb1_meta"
+    dataset_path = "/path/to/dataset"
     tr_tfs = train_transforms(True, random_clip_size, sample_rate=sample_rate)
     val_tfs = train_transforms(False, val_clip_size, sample_rate=sample_rate)
     test_tfs = test_transforms(sample_rate=sample_rate)
@@ -58,6 +59,7 @@ def run(args: Args):
         os.path.join(meta_dir, "train.csv"),
         os.path.join(meta_dir, "lbl_map.json"),
         audio_config,
+        dataset_path,
         mode=mode,
         augment=True,
         mixer=None,

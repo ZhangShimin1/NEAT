@@ -1,18 +1,27 @@
 # Speaker identification receipt
 
-## 📦 Data preparation
 
-run the following command to download the dataset:
+## 📦 Data preparation
+Download all archive parts form hugging face:
 
 ```bash
-bash download_vox1.sh
-``` 
+   huggingface-cli download Acouspike/Voxceleb1_archive \
+     --repo-type dataset \
+     --local-dir /path/to/your/dataset
+```
+Concate and unzip the data:
+```
+cat VoxCeleb1_archive.tar.gz.part-* > VoxCeleb1_archive.tar.gz
+tar -xzvf VoxCeleb1_archive.tar.gz
+```
 
-Add the dataset path to the voxceleb1_meta test/train/val.csv
 
 ## 📦 Training
-Run the following command to train the model:
-Modify the config file to set the dataset path and other parameters.
+Before starting, ensure the configuration matches your environment:
+
+1. Open `run.py` (or your config file).
+2. Update the `dataset_path` to point to your downloaded data (e.g., `/path/to/your/dataset` when downloading).
+3. Run the following command to start training:
 
 ```bash
 bash run.sh

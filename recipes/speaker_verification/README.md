@@ -2,11 +2,21 @@
 
 
 ## 📦 Data preparation
-run the following command to download the dataset:
+
+Download all archive parts form hugging face:
+
 ```bash
-bash download_vox1&2.sh
-``` 
-Build the dataset: 
+   huggingface-cli download Acouspike/Voxceleb1_archive \
+     --repo-type dataset \
+     --local-dir /path/to/your/dataset
+```
+Concate and unzip the data:
+```
+cat VoxCeleb1_archive.tar.gz.part-* > VoxCeleb1_archive.tar.gz
+tar -xzvf VoxCeleb1_archive.tar.gz
+```
+
+Build the dataset metadata from the dataset(you need to change VOX_ROOT to the dataset path): 
 ```bash
 bash data_prep.sh
 ```

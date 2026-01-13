@@ -36,7 +36,7 @@ def get_parser():
         nargs="?",
         type=argparse.FileType("w"),
         default=sys.stdout,
-        help="The output filename. " "If omitted, then output to sys.stdout",
+        help="The output filename. If omitted, then output to sys.stdout",
     )
     return parser
 

@@ -29,7 +29,6 @@ class Speech2Text:
         model_dir: str = "./models",
         device: str = "cpu",
     ):
-
         self.model = whisper.load_model(
             name=model_tag, download_root=model_dir, device=device
         )

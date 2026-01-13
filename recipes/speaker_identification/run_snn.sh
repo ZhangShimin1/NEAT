@@ -13,7 +13,7 @@ if [[ -z "$num_processes" ]]; then
 fi
 
 default_config_name="PLIF"
-exp_name="rplif_new"
+exp_name="debug"
 
 echo "Running experiment with config: ${default_config_name}"
 torchrun_bin="/home/zysong/miniconda3/envs/audiozen/bin/torchrun"

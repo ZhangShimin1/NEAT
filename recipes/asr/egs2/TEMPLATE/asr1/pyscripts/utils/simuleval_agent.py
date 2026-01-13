@@ -372,20 +372,20 @@ class DummyAgent(SpeechToTextAgent):
             "--encoded_feat_length_limit",
             type=int,
             default=0,
-            help="Limit the lengths of the encoded feature" "to input to the decoder.",
+            help="Limit the lengths of the encoded featureto input to the decoder.",
         )
         group.add_argument(
             "--decoder_text_length_limit",
             type=int,
             default=0,
-            help="Limit the lengths of the text" "to input to the decoder.",
+            help="Limit the lengths of the textto input to the decoder.",
         )
 
         group.add_argument(
             "--backend",
             type=str,
             default="offline",
-            help="Limit the lengths of the text" "to input to the decoder.",
+            help="Limit the lengths of the textto input to the decoder.",
         )
         group.add_argument(
             "--time_sync",

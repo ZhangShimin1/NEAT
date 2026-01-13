@@ -155,9 +155,7 @@ class MfccFeatureReader(BaseFeatureReader):
                     waveform=x[i : i + 1],
                     sample_frequency=self.sample_rate,
                     use_energy=False,
-                ).transpose(
-                    0, 1
-                )  # (freq, time)
+                ).transpose(0, 1)  # (freq, time)
                 delta = torchaudio.functional.compute_deltas(mfcc)
                 ddelta = torchaudio.functional.compute_deltas(delta)
                 concat = (

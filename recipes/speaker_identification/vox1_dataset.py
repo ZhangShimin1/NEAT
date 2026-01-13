@@ -77,6 +77,7 @@ class RawWaveformDataset(Dataset):
         manifest_path,
         labels_map,
         audio_config,
+        dataset_path=None,  # ← 新增
         augment=False,
         mode="multilabel",
         delimiter=",",
@@ -109,10 +110,16 @@ class RawWaveformDataset(Dataset):
         else:
             self.bg_files = None
         df = pd.read_csv(manifest_path)
+
         files = df["files"].values.tolist()
         labels = df["labels"].values.tolist()
+        if dataset_path is not None:
+            dataset_path = os.path.abspath(dataset_path)
+            files = [os.path.normpath(os.path.join(dataset_path, f)) for f in files]
+
         self.files = files
         self.labels = labels
+
         if self.cropped_read:
             self.durations = df["durations"].values.tolist()
         self.spec_parser = RawAudioParser(normalize_waveform=self.normalize)

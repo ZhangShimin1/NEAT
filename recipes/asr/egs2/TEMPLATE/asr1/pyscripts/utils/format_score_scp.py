@@ -21,7 +21,7 @@ def main():
     parser.add_argument(
         "--name",
         default="score",
-        help="Specify the prefix word of output file name " 'such as "wav.scp"',
+        help='Specify the prefix word of output file name such as "wav.scp"',
     )
     parser.add_argument("--segments", default=None)
     args = parser.parse_args()

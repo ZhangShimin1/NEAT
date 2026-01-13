@@ -25,8 +25,7 @@ def get_parser():
         type=str,
         default="decode",
         choices=["decode", "asr_inference"],
-        help="name of logfile, e.g., 'decode' (espnet1) and "
-        "'asr_inference' (espnet2)",
+        help="name of logfile, e.g., 'decode' (espnet1) and 'asr_inference' (espnet2)",
     )
     parser.add_argument(
         "--input-shift",

@@ -274,9 +274,9 @@ def make_durations(args):
     with open(train_text_path, "w") as text_file:
         with open(durations_path, "w") as durations_file:
             lab_paths = sorted(wavs_dir.glob("**/*.lab"))
-            assert (
-                len(lab_paths) > 0
-            ), f"The folder {wavs_dir} does not contain any transcription."
+            assert len(lab_paths) > 0, (
+                f"The folder {wavs_dir} does not contain any transcription."
+            )
             for lab_path in lab_paths:
                 wav_path = lab_path.as_posix().replace(
                     ".lab", ".wav"
@@ -312,7 +312,7 @@ def make_durations(args):
                     no_samples,
                 )
                 key = filename.split("/")[-1]
-                text_file.write(f'{key} {" ".join(new_phones)}\n')
+                text_file.write(f"{key} {' '.join(new_phones)}\n")
                 durations = " ".join(str(d) for d in durations)
                 durations_file.write(f"{key} {durations} 0\n")
 

@@ -121,7 +121,7 @@ def dump_label(
     km_path,
     use_gpu,
     online_feature_extract,
-    **kwargs
+    **kwargs,
 ):
     if online_feature_extract:
         assert "feature_conf" in kwargs

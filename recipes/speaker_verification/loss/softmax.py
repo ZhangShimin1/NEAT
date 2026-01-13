@@ -1,9 +1,9 @@
 import torch
-import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 
 from .utils import accuracy
+
 
 class softmax(nn.Module):
     def __init__(self, embedding_dim, num_classes, **kwargs):
@@ -12,8 +12,12 @@ class softmax(nn.Module):
         self.fc = nn.Linear(embedding_dim, num_classes)
         self.criertion = nn.CrossEntropyLoss()
 
-        print('init softmax')
-        print('Embedding dim is {}, number of speakers is {}'.format(embedding_dim, num_classes))
+        print("init softmax")
+        print(
+            "Embedding dim is {}, number of speakers is {}".format(
+                embedding_dim, num_classes
+            )
+        )
 
     def forward(self, x, label=None):
         assert x.size()[0] == label.size()[0]
@@ -35,4 +39,3 @@ if __name__ == "__main__":
     print(data.shape)
     print(loss)
     print(acc)
-
