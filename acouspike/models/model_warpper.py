@@ -12,6 +12,7 @@ from acouspike.models.surrogate.surrogate import TriangleSurroGrad
 from simple_parsing.helpers import Serializable
 from dataclasses import dataclass, field
 
+
 @dataclass
 class ModelWrapperArgs(Serializable):
     model_name: str
@@ -25,20 +26,21 @@ class ModelWrapperArgs(Serializable):
     batch_first: bool = True
     bn: str = None
     neuron_args: dict = field(default_factory=dict)
-    SG_args: dict = field(default_factory=dict) 
+    SG_args: dict = field(default_factory=dict)
+
 
 class ModelWrapper(nn.Module):
     """
     A wrapper class for various spiking neural network models.
     """
-    
+
     AVAILABLE_MODELS = {
-        'spiking_lstm': 'Spiking LSTM model',
-        'tcn': 'Temporal Convolutional Network',
-        'spikeformer': 'Spiking Transformer',
-        'ssm': 'State Space Model',
-        'spikingnet': 'Basic Spiking Neural Network',
-        'spikingcnn': 'Spiking ResNet18'
+        "spiking_lstm": "Spiking LSTM model",
+        "tcn": "Temporal Convolutional Network",
+        "spikeformer": "Spiking Transformer",
+        "ssm": "State Space Model",
+        "spikingnet": "Basic Spiking Neural Network",
+        "spikingcnn": "Spiking ResNet18",
     }
 
     def __init__(
@@ -53,7 +55,7 @@ class ModelWrapper(nn.Module):
         bidirectional: bool = False,
         bn: str = None,
         batch_first: bool = True,
-        surrogate: str = 'triangle',
+        surrogate: str = "triangle",
         alpha: float = 1.0,
         decay: float = 0.5,
         threshold: float = 0.5,
@@ -65,7 +67,7 @@ class ModelWrapper(nn.Module):
         nhead: int = 4,
         recurrent: bool = False,
         branch: int = 4,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the model wrapper.
@@ -93,8 +95,8 @@ class ModelWrapper(nn.Module):
             branch (int): Number of branches for DHSNN
             **kwargs: Additional arguments
         """
-        super().__init__() 
-        print(f"Initializing {model_name} model...")    
+        super().__init__()
+        print(f"Initializing {model_name} model...")
         self.model_name = model_name.lower()
         if self.model_name not in self.AVAILABLE_MODELS:
             raise ValueError(
@@ -102,15 +104,15 @@ class ModelWrapper(nn.Module):
             )
 
         # Initialize the selected model based on type
-        if self.model_name == 'spiking_lstm':
+        if self.model_name == "spiking_lstm":
             self.model = Spiking_LSTM(
                 input_size=input_size,
                 hidden_size=hidden_size,
                 num_layers=num_layers,
                 bidirectional=bidirectional,
-                dropout=dropout
+                dropout=dropout,
             )
-        elif self.model_name == 'tcn':
+        elif self.model_name == "tcn":
             self.model = TCN(
                 input_size=input_size,
                 hidden_size=hidden_size,
@@ -119,9 +121,9 @@ class ModelWrapper(nn.Module):
                 batch_first=batch_first,
                 decay=decay,
                 threshold=threshold,
-                ksize=ksize
+                ksize=ksize,
             )
-        elif self.model_name == 'spikeformer':
+        elif self.model_name == "spikeformer":
             self.model = SpkTransformerNet(
                 input_size=input_size,
                 hidden_size=hidden_size,
@@ -134,9 +136,9 @@ class ModelWrapper(nn.Module):
                 threshold=threshold,
                 recurrent=recurrent,
                 time_window=time_window,
-                T=1
+                T=1,
             )
-        elif self.model_name == 'ssm':
+        elif self.model_name == "ssm":
             self.model = SSMNet(
                 input_size=input_size,
                 hidden_size=hidden_size,
@@ -151,29 +153,38 @@ class ModelWrapper(nn.Module):
                 decay=decay,
                 threshold=threshold,
                 time_window=time_window,
-                lr=lr
+                lr=lr,
             )
-        elif self.model_name == 'spikingcnn':
-            kwargs_spikes = {'nb_steps': 4, 'threshold': threshold, 'decay': decay, 'surrogate_function': TriangleSurroGrad.apply}
-            self.model = spiking_resnet18(num_classes=output_size, in_channel=1, **kwargs_spikes)
+        elif self.model_name == "spikingcnn":
+            kwargs_spikes = {
+                "nb_steps": 4,
+                "threshold": threshold,
+                "decay": decay,
+                "surrogate_function": TriangleSurroGrad.apply,
+            }
+            self.model = spiking_resnet18(
+                num_classes=output_size, in_channel=1, **kwargs_spikes
+            )
         else:  # spikingnet
-            self.model = SpikingNet(input_size=input_size, 
-                                    hidden_size=hidden_size, 
-                                    num_layers=num_layers, 
-                                    bidirectional=bidirectional, 
-                                    dropout=dropout, 
-                                    batch_first=batch_first, 
-                                    spiking_neuron_name=neuron_type, 
-                                    recurrent=recurrent,
-                                    bn=bn,
-                                    surrogate=surrogate, 
-                                    alpha=alpha, 
-                                    decay=decay,
-                                    threshold=threshold,
-                                    time_window =time_window,
-                                    beta=beta,
-                                    k=k,
-                                    branch=branch)
+            self.model = SpikingNet(
+                input_size=input_size,
+                hidden_size=hidden_size,
+                num_layers=num_layers,
+                bidirectional=bidirectional,
+                dropout=dropout,
+                batch_first=batch_first,
+                spiking_neuron_name=neuron_type,
+                recurrent=recurrent,
+                bn=bn,
+                surrogate=surrogate,
+                alpha=alpha,
+                decay=decay,
+                threshold=threshold,
+                time_window=time_window,
+                beta=beta,
+                k=k,
+                branch=branch,
+            )
         if bidirectional:
             self.l_last = torch.nn.Linear(hidden_size * 2, output_size)
         else:
@@ -187,16 +198,15 @@ class ModelWrapper(nn.Module):
         :return: batch of hidden state sequences (B, Tmax, eprojs)
         :rtype: torch.Tensor
         """
-        if self.model_name == 'spikingcnn':
+        if self.model_name == "spikingcnn":
             ys = self.model(inputs)
             return ys, None
         else:
             ys, states = self.model(inputs)
-            projected = torch.tanh(
-                self.l_last(ys.contiguous().view(-1, ys.size(2)))
-            )
+            projected = torch.tanh(self.l_last(ys.contiguous().view(-1, ys.size(2))))
             xs_pad = projected.view(ys.size(0), ys.size(1), -1)
             return xs_pad, states  # x: utt list of frame x dim
+
 
 def test_model_wrapper():
     """
@@ -204,88 +214,76 @@ def test_model_wrapper():
     """
     # Base parameters common to all models
     base_args = {
-        'input_size': 128,
-        'hidden_size': 256,
-        'output_size': 10,
-        'num_layers': 2,
-        'dropout': 0.1,
-        'bidirectional': False,
-        'batch_first': True,
+        "input_size": 128,
+        "hidden_size": 256,
+        "output_size": 10,
+        "num_layers": 2,
+        "dropout": 0.1,
+        "bidirectional": False,
+        "batch_first": True,
     }
 
     # Model-specific configurations
     model_configs = {
-        'spiking_lstm': ModelWrapperArgs(
-            model_name='spiking_lstm',
+        "spiking_lstm": ModelWrapperArgs(
+            model_name="spiking_lstm",
             **base_args,
-            neuron_type='spiking_lstm',
+            neuron_type="spiking_lstm",
             neuron_args={},
-            SG_args={}
+            SG_args={},
         ),
-        'tcn': ModelWrapperArgs(
-            model_name='tcn',
+        "tcn": ModelWrapperArgs(
+            model_name="tcn",
             **base_args,
-            neuron_type='spkbinaryssm',
+            neuron_type="spkbinaryssm",
             neuron_args={
-                'ksize': 7,
-                'decay': 0.5,
-                'threshold': 0.5,
+                "ksize": 7,
+                "decay": 0.5,
+                "threshold": 0.5,
             },
-            SG_args={
-                'surrogate_type': 'triangle',
-                'alpha': 2.0
-            }
+            SG_args={"surrogate_type": "triangle", "alpha": 2.0},
         ),
-        'spikeformer': ModelWrapperArgs(
-            model_name='spikeformer',
+        "spikeformer": ModelWrapperArgs(
+            model_name="spikeformer",
             **base_args,
-            neuron_type='spkbinaryssm',
+            neuron_type="spkbinaryssm",
             neuron_args={
-                'nhead': 4,
-                'recurrent': False,
-                'time_window': 512,
-                'decay': 0.5,
-                'threshold': 0.5,
-                'T': 1
+                "nhead": 4,
+                "recurrent": False,
+                "time_window": 512,
+                "decay": 0.5,
+                "threshold": 0.5,
+                "T": 1,
             },
-            SG_args={
-                'surrogate_type': 'triangle',
-                'alpha': 2.0
-            }
+            SG_args={"surrogate_type": "triangle", "alpha": 2.0},
         ),
-        'ssm': ModelWrapperArgs(
-            model_name='ssm',
+        "ssm": ModelWrapperArgs(
+            model_name="ssm",
             **base_args,
-            neuron_type='spkbinaryssm',
+            neuron_type="spkbinaryssm",
             neuron_args={
-                'recurrent': False,
-                'time_window': 512,
-                'decay': 0.5,
-                'threshold': 0.5,
-                'lr': 0.1
+                "recurrent": False,
+                "time_window": 512,
+                "decay": 0.5,
+                "threshold": 0.5,
+                "lr": 0.1,
             },
-            SG_args={
-                'surrogate_type': 'triangle',
-                'alpha': 2.0
-            }
+            SG_args={"surrogate_type": "triangle", "alpha": 2.0},
         ),
-        'spikingnet': ModelWrapperArgs(
-            model_name='spikingnet',
+        "spikingnet": ModelWrapperArgs(
+            model_name="spikingnet",
             **base_args,
-            neuron_type='celif',
+            neuron_type="celif",
             neuron_args={
-                'recurrent': False,
-                'time_window': 512,
-                'decay': 0.5,
-                'threshold': 0.5,
-                'beta': 0.1,
-                'branch': 4
+                "recurrent": False,
+                "time_window": 512,
+                "decay": 0.5,
+                "threshold": 0.5,
+                "beta": 0.1,
+                "branch": 4,
             },
-            SG_args={
-                'surrogate_type': 'triangle',
-                'alpha': 2.0
-            }
-        )
+            SG_args={"surrogate_type": "triangle", "alpha": 2.0},
+        ),
     }
 
     def run_model_tests(model_args):
@@ -303,7 +301,7 @@ def test_model_wrapper():
                 bidirectional=model_args.bidirectional,
                 batch_first=model_args.batch_first,
                 **model_args.neuron_args,
-                **model_args.SG_args
+                **model_args.SG_args,
             )
             print("✓ Model initialization successful")
 
@@ -316,7 +314,7 @@ def test_model_wrapper():
 
             # Test device movement
             if torch.cuda.is_available():
-                model.to('cuda')
+                model.to("cuda")
                 print("✓ Device movement successful")
             else:
                 print("- Skipping device test (CUDA not available)")
@@ -334,6 +332,7 @@ def test_model_wrapper():
     # Run tests for all models
     for model_name in model_configs:
         run_model_tests(model_configs[model_name])
+
 
 if __name__ == "__main__":
     test_model_wrapper()

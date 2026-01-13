@@ -17,7 +17,11 @@ from torch.utils.data import DataLoader, Dataset, DistributedSampler
 from torchinfo import summary
 from tqdm import tqdm
 
-from acouspike.src.accelerate import gather_object, get_world_size_and_rank, wait_for_everyone
+from acouspike.src.accelerate import (
+    gather_object,
+    get_world_size_and_rank,
+    wait_for_everyone,
+)
 from acouspike.src.logger import TensorboardLogger
 from acouspike.src.optimization import (
     get_constant_schedule_with_warmup,
@@ -33,7 +37,11 @@ from acouspike.src.trainer_utils import (
     print_env,
     save_state_dict_to_checkpoint,
 )
-from acouspike.src.utils import cleanup_before_training, prepare_empty_dir, set_random_seed
+from acouspike.src.utils import (
+    cleanup_before_training,
+    prepare_empty_dir,
+    set_random_seed,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -47,7 +55,10 @@ class Trainer:
         data_collator: Optional[Any] = None,
         train_dataset: Optional[Dataset] = None,
         eval_dataset: Optional[Union[Dataset, Dict[str, Dataset]]] = None,
-        optimizers: Tuple[torch.optim.Optimizer, torch.optim.lr_scheduler.LambdaLR] = (None, None),
+        optimizers: Tuple[torch.optim.Optimizer, torch.optim.lr_scheduler.LambdaLR] = (
+            None,
+            None,
+        ),
         **kwargs,
     ) -> None:
         """Initialize the Trainer.
@@ -102,7 +113,12 @@ class Trainer:
 
         if self.is_rank_zero:
             prepare_empty_dir(
-                [self.checkpoints_dir, self.tb_log_dir, self.enhanced_dir, self.metrics_dir],
+                [
+                    self.checkpoints_dir,
+                    self.tb_log_dir,
+                    self.enhanced_dir,
+                    self.metrics_dir,
+                ],
                 resume=self.args.resume_from_checkpoint != "no",
             )
 
@@ -130,7 +146,9 @@ class Trainer:
         checkpoints = [ckpt for ckpt in checkpoints if ckpt.is_dir()]
 
         if len(checkpoints) == 0:
-            raise FileNotFoundError(f"No checkpoints found in {checkpoints_dir.as_posix()}.")
+            raise FileNotFoundError(
+                f"No checkpoints found in {checkpoints_dir.as_posix()}."
+            )
 
         # Pick up the latest checkpoint
         ckpt_path = checkpoints[-1]
@@ -138,7 +156,10 @@ class Trainer:
         return ckpt_path
 
     def _parse_ckpt_path_or_alias(self, path_or_alias: str) -> Optional[Path]:
-        if path_or_alias not in ["no", "latest", "best"] and not Path(path_or_alias).exists():
+        if (
+            path_or_alias not in ["no", "latest", "best"]
+            and not Path(path_or_alias).exists()
+        ):
             raise FileNotFoundError(f"Checkpoint not found in {path_or_alias}")
 
         ckpt_path = None
@@ -161,7 +182,10 @@ class Trainer:
 
     def _load_state_dict_from_checkpoint(self, path_or_alias: str) -> Dict[str, Any]:
         """Load the state dictionary from the checkpoint directory."""
-        if path_or_alias not in ["no", "latest", "best"] and not Path(path_or_alias).exists():
+        if (
+            path_or_alias not in ["no", "latest", "best"]
+            and not Path(path_or_alias).exists()
+        ):
             raise FileNotFoundError(f"Checkpoint not found in {path_or_alias}")
 
         state_dict: Dict[str:Any] = {}
@@ -197,7 +221,9 @@ class Trainer:
             ckpt_path = self.checkpoints_dir / f"epoch_{str(epoch).zfill(4)}"
 
         if isinstance(self.model, DDP):
-            logger.info("Extract the `state_dict` from the `model.module.state_dict()`...")
+            logger.info(
+                "Extract the `state_dict` from the `model.module.state_dict()`..."
+            )
             model_stain_dict = self.model.module.state_dict()
         else:
             logger.info("Extract the `state_dict` from the `model.state_dict()`...")
@@ -249,7 +275,9 @@ class Trainer:
         """
         if dist.is_available() and dist.is_initialized():
             model = model.to(self.rank)
-            model = DDP(model, find_unused_parameters=self.args.ddp_find_unused_parameters)
+            model = DDP(
+                model, find_unused_parameters=self.args.ddp_find_unused_parameters
+            )
             # synchronize before training begins
             dist.barrier()
             return model
@@ -285,7 +313,9 @@ class Trainer:
         self.metrics_dir = self.output_dir / "metrics"
 
         # Each run will have a unique source code, config, and log file.
-        self.source_code_dir = Path(__file__).expanduser().absolute().parent.parent.parent
+        self.source_code_dir = (
+            Path(__file__).expanduser().absolute().parent.parent.parent
+        )
         self.source_code_backup_dir = self.output_dir / f"source_code__{time_now}"
         self.model_args_path = self.output_dir / f"model_args__{time_now}.yaml"
         self.loss_log_path = self.output_dir / "loss.csv"
@@ -298,10 +328,18 @@ class Trainer:
         sr = self.args.acoustic_sr
 
         # Support for torch and librosa stft
-        self.torch_stft = partial(torch.stft, n_fft=n_fft, hop_length=hop_length, win_length=win_length)
-        self.torch_istft = partial(torch.istft, n_fft=n_fft, hop_length=hop_length, win_length=win_length)
-        self.librosa_stft = partial(librosa.stft, n_fft=n_fft, hop_length=hop_length, win_length=win_length)
-        self.librosa_istft = partial(librosa.istft, n_fft=n_fft, hop_length=hop_length, win_length=win_length)
+        self.torch_stft = partial(
+            torch.stft, n_fft=n_fft, hop_length=hop_length, win_length=win_length
+        )
+        self.torch_istft = partial(
+            torch.istft, n_fft=n_fft, hop_length=hop_length, win_length=win_length
+        )
+        self.librosa_stft = partial(
+            librosa.stft, n_fft=n_fft, hop_length=hop_length, win_length=win_length
+        )
+        self.librosa_istft = partial(
+            librosa.istft, n_fft=n_fft, hop_length=hop_length, win_length=win_length
+        )
 
         self.n_fft = n_fft
         self.hop_length = hop_length
@@ -334,7 +372,11 @@ class Trainer:
         bar_desc += f"lr: {self.lr_scheduler.get_last_lr()[-1]:.10f}"
 
         if self.args.plot_lr:
-            self.writer.add_scalar("Train_Step/lr", self.lr_scheduler.get_last_lr()[-1], self.state.steps_trained)
+            self.writer.add_scalar(
+                "Train_Step/lr",
+                self.lr_scheduler.get_last_lr()[-1],
+                self.state.steps_trained,
+            )
 
         return bar_desc
 
@@ -363,7 +405,10 @@ class Trainer:
                 f"Early stopping counter: {self.state.early_stopping_patience_counter} out of {self.args.early_stopping_patience}"
             )
 
-            if self.state.early_stopping_patience_counter >= self.args.early_stopping_patience:
+            if (
+                self.state.early_stopping_patience_counter
+                >= self.args.early_stopping_patience
+            ):
                 logger.info("Early stopping triggered, stopping training...")
                 should_stop = True
 
@@ -419,7 +464,9 @@ class Trainer:
             if isinstance(eval_dataset, Dataset):
                 eval_dataset = {"default": eval_dataset}
             else:
-                raise ValueError("Trainer: `eval_dataset` should be either a dataset or a dictionary of datasets.")
+                raise ValueError(
+                    "Trainer: `eval_dataset` should be either a dataset or a dictionary of datasets."
+                )
 
         dataloader_params = {
             "batch_size": self.args.eval_batch_size,
@@ -458,11 +505,16 @@ class Trainer:
         return eval_dataloaders
 
     @staticmethod
-    def get_optimizer_cls_and_kwargs(args: TrainingArgs) -> Tuple[torch.optim.Optimizer, Dict]:
+    def get_optimizer_cls_and_kwargs(
+        args: TrainingArgs,
+    ) -> Tuple[torch.optim.Optimizer, Dict]:
         """Returns the optimizer class and optimizer parameters based on the training arguments."""
         optimizer_kwargs = {"lr": args.learning_rate}
 
-        adam_kwargs = {"betas": (args.adam_beta1, args.adam_beta2), "eps": args.adam_epsilon}
+        adam_kwargs = {
+            "betas": (args.adam_beta1, args.adam_beta2),
+            "eps": args.adam_epsilon,
+        }
 
         if args.optim == "adamw":
             optimizer_cls = torch.optim.AdamW
@@ -477,26 +529,36 @@ class Trainer:
 
     def init_optimizer(self):
         if self.optimizer is None:
-            optimizer_cls, optimizer_kwargs = self.get_optimizer_cls_and_kwargs(self.args)
+            optimizer_cls, optimizer_kwargs = self.get_optimizer_cls_and_kwargs(
+                self.args
+            )
             self.optimizer = optimizer_cls(self.model.parameters(), **optimizer_kwargs)
 
     def get_warmup_steps(self, warmup_steps, max_steps, warmup_ratio):
         """Calculate the number of warmup steps based on the training arguments."""
         if warmup_steps > 0:
             if self.is_rank_zero:
-                logger.info(f"warmup_steps={warmup_steps}. warmup_ratio will be ignored.")
+                logger.info(
+                    f"warmup_steps={warmup_steps}. warmup_ratio will be ignored."
+                )
             return warmup_steps
         else:
             return math.ceil(max_steps * warmup_ratio)
 
     def create_warmup_scheduler(self, optimizer, scheduler_name, max_steps: int):
-        num_warmup_steps = self.get_warmup_steps(self.args.warmup_steps, max_steps, self.args.warmup_ratio)
+        num_warmup_steps = self.get_warmup_steps(
+            self.args.warmup_steps, max_steps, self.args.warmup_ratio
+        )
 
         if scheduler_name == "constant_schedule_with_warmup":
-            return get_constant_schedule_with_warmup(optimizer=optimizer, num_warmup_steps=num_warmup_steps)
+            return get_constant_schedule_with_warmup(
+                optimizer=optimizer, num_warmup_steps=num_warmup_steps
+            )
         elif scheduler_name == "linear_schedule_with_warmup":
             return get_linear_schedule_with_warmup(
-                optimizer=optimizer, num_warmup_steps=num_warmup_steps, num_training_steps=max_steps
+                optimizer=optimizer,
+                num_warmup_steps=num_warmup_steps,
+                num_training_steps=max_steps,
             )
         elif scheduler_name == "cosine_with_min_lr_schedule_with_warmup":
             return get_cosine_with_min_lr_schedule_with_warmup(
@@ -510,7 +572,9 @@ class Trainer:
         else:
             raise ValueError(f"Invalid scheduler name: {scheduler_name}")
 
-    def init_lr_scheduler(self, max_steps: int, scheduler_specific_kwargs: Optional[Dict] = None):
+    def init_lr_scheduler(
+        self, max_steps: int, scheduler_specific_kwargs: Optional[Dict] = None
+    ):
         """Setup the learning rate scheduler.
 
         You can override this method to create your own schedulers. For example, in GAN training, you may want to
@@ -520,7 +584,9 @@ class Trainer:
             max_steps: the maximum number of steps to train.
         """
         self.lr_scheduler = self.create_warmup_scheduler(
-            optimizer=self.optimizer, scheduler_name=self.args.lr_scheduler_type, max_steps=max_steps
+            optimizer=self.optimizer,
+            scheduler_name=self.args.lr_scheduler_type,
+            max_steps=max_steps,
         )
 
     def setup_optimizer_and_scheduler(self, max_steps: int):
@@ -568,8 +634,12 @@ class Trainer:
         train_dataloader = self.init_train_dataloader()
 
         # Initialize the training variables
-        num_update_steps_per_epoch = len(train_dataloader)  # #samples // batch_size // world_size
-        num_update_steps_per_epoch = num_update_steps_per_epoch // self.args.gradient_accumulation_steps
+        num_update_steps_per_epoch = len(
+            train_dataloader
+        )  # #samples // batch_size // world_size
+        num_update_steps_per_epoch = (
+            num_update_steps_per_epoch // self.args.gradient_accumulation_steps
+        )
         num_update_steps_per_epoch = max(num_update_steps_per_epoch, 1)
         if self.args.max_steps > 0:
             # max_steps is set, so we need to calculate the number of epochs based on max_steps
@@ -603,13 +673,19 @@ class Trainer:
             logger.info("***** Running training *****")
             logger.info(f"  Num Epochs = {num_train_epochs:,}")
             logger.info(f"  `steps_per_epoch` = {num_update_steps_per_epoch:,}")
-            logger.info(f"  Instantaneous batch size per device = {self.args.per_device_train_batch_size:,}")
-            logger.info(f"  Gradient Accumulation steps = {self.args.gradient_accumulation_steps}")
+            logger.info(
+                f"  Instantaneous batch size per device = {self.args.per_device_train_batch_size:,}"
+            )
+            logger.info(
+                f"  Gradient Accumulation steps = {self.args.gradient_accumulation_steps}"
+            )
             logger.info(f"  Total optimization steps = {max_steps:,}")
 
         for epoch in range(self.state.epochs_trained + 1, num_train_epochs + 1):
             if self.is_rank_zero:
-                logger.info(f"{'=' * 9} Epoch {epoch} out of {num_train_epochs} {'=' * 9}")
+                logger.info(
+                    f"{'=' * 9} Epoch {epoch} out of {num_train_epochs} {'=' * 9}"
+                )
                 logger.info("Begin training...")
 
             if dist.is_available() and dist.is_initialized():
@@ -694,7 +770,9 @@ class Trainer:
         # Here, we will make sure that the dataloaders are only prepared once.
         if self.eval_dataloaders is None:
             if self.is_rank_zero:
-                logger.info("The evaluation dataloaders are not initialized. Initialize them now...")
+                logger.info(
+                    "The evaluation dataloaders are not initialized. Initialize them now..."
+                )
             self.eval_dataloaders = self.init_eval_dataloaders()
 
         # If the current run is not in training (use train mode), we need to prepare the model for DDP.
@@ -716,7 +794,9 @@ class Trainer:
 
             self.model = self._prepare_ddp_model(self.model)
 
-        evaluation_output = self.evaluation_loop(description="evaluate", gather_step_output=True)
+        evaluation_output = self.evaluation_loop(
+            description="evaluate", gather_step_output=True
+        )
 
         if self.is_rank_zero:
             # only the main process will run evaluation_epoch_end
@@ -789,7 +869,7 @@ class Trainer:
                 """
                 with torch.no_grad():
                     step_output = self.evaluation_step(batch, batch_idx, dl_id)
-                
+
                 # If `gather_step_output` is True, we will gather the step_output from all processes and return a list of all metric scores.
                 if gather_step_output:
                     """
@@ -878,11 +958,18 @@ class Trainer:
         # Compute mean loss on all loss items on a epoch
         if self.is_rank_zero:
             loss_keys = training_epoch_output[0].keys()
-            loss_dict = {key: np.mean([step_out[key] for step_out in training_epoch_output]) for key in loss_keys}
+            loss_dict = {
+                key: np.mean([step_out[key] for step_out in training_epoch_output])
+                for key in loss_keys
+            }
 
             for key, value in loss_dict.items():
-                logger.info(f"Loss '{key}' on epoch {self.state.epochs_trained}: {value}")
-                self.writer.add_scalar(f"Train_Epoch/{key}", value, self.state.epochs_trained)
+                logger.info(
+                    f"Loss '{key}' on epoch {self.state.epochs_trained}: {value}"
+                )
+                self.writer.add_scalar(
+                    f"Train_Epoch/{key}", value, self.state.epochs_trained
+                )
 
             # loss_dict["epoch"] = self.state.epochs_trained
             # Append the loss to the loss log
@@ -983,14 +1070,20 @@ class Trainer:
             # Use pandas to compute the mean of all metrics and save them to a csv file
             df_metrics = pd.DataFrame(metric_dict_list)
             df_metrics_mean = df_metrics.mean(numeric_only=True)
-            df_metrics_mean_df = df_metrics_mean.to_frame().T  # Convert mean to a DataFrame
+            df_metrics_mean_df = (
+                df_metrics_mean.to_frame().T
+            )  # Convert mean to a DataFrame
 
             time_now = self._current_time_now()
             df_metrics.to_csv(
-                self.metrics_dir / f"dl_{dl_id}_epoch_{self.state.epochs_trained}_{time_now}.csv", index=False
+                self.metrics_dir
+                / f"dl_{dl_id}_epoch_{self.state.epochs_trained}_{time_now}.csv",
+                index=False,
             )
             df_metrics_mean_df.to_csv(
-                self.metrics_dir / f"dl_{dl_id}_epoch_{self.state.epochs_trained}_{time_now}_mean.csv", index=False
+                self.metrics_dir
+                / f"dl_{dl_id}_epoch_{self.state.epochs_trained}_{time_now}_mean.csv",
+                index=False,
             )
 
             logger.info(f"\n{df_metrics_mean_df.to_markdown()}")
@@ -1001,6 +1094,10 @@ class Trainer:
 
                 if log_to_tensorboard:
                     for metric, value in df_metrics_mean.items():
-                        self.writer.add_scalar(f"metrics_{dl_id}/{metric}", value, self.state.epochs_trained)
+                        self.writer.add_scalar(
+                            f"metrics_{dl_id}/{metric}",
+                            value,
+                            self.state.epochs_trained,
+                        )
 
         return score

@@ -6,6 +6,7 @@ from functools import partial
 from acouspike.models.surrogate.surrogate import SurrogateGradient
 from acouspike.models.neuron.lif import RLIF
 
+
 class PositionalEncoding(nn.Module):
     r"""Inject some information about the relative or absolute position of the tokens in the sequence.
         The positional encodings have the same dimension as the embeddings, so that the two can be summed.
@@ -28,11 +29,13 @@ class PositionalEncoding(nn.Module):
 
         pe = torch.zeros(max_len, d_model)
         position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
+        div_term = torch.exp(
+            torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model)
+        )
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
         pe = pe.unsqueeze(0).transpose(0, 1)
-        self.register_buffer('pe', pe)
+        self.register_buffer("pe", pe)
 
     def forward(self, x):
         r"""Inputs of forward function
@@ -45,17 +48,11 @@ class PositionalEncoding(nn.Module):
             >>> output = pos_encoder(x)
         """
 
-        x = x + self.pe[:x.size(0), :]
+        x = x + self.pe[: x.size(0), :]
         return self.dropout(x)
 
-def SDSA3(
-        q,
-        k,
-        v,
-        attn_mask=None,
-        dropout_p=0.0,
-        scale=0.125
-):
+
+def SDSA3(q, k, v, attn_mask=None, dropout_p=0.0, scale=0.125):
     assert attn_mask is None
     # assert dropout_p == 0.0
     T, B, Nt, E = q.shape
@@ -79,11 +76,11 @@ def SDSA3(
 
 
 def _in_projection_packed(
-        q,
-        k,
-        v,
-        w,
-        b=None,
+    q,
+    k,
+    v,
+    w,
+    b=None,
 ):
     r"""
     Performs the in-projection step of the attention operation, using packed weights.
@@ -124,36 +121,43 @@ def _in_projection_packed(
                 b_q = b_kv = None
             else:
                 b_q, b_kv = b.split([E, E * 2])
-            return (nn.functional.linear(q, w_q, b_q),) + nn.functional.linear(k, w_kv, b_kv).chunk(2, dim=-1)
+            return (nn.functional.linear(q, w_q, b_q),) + nn.functional.linear(
+                k, w_kv, b_kv
+            ).chunk(2, dim=-1)
     else:
         w_q, w_k, w_v = w.chunk(3)
         if b is None:
             b_q = b_k = b_v = None
         else:
             b_q, b_k, b_v = b.chunk(3)
-        return nn.functional.linear(q, w_q, b_q), nn.functional.linear(k, w_k, b_k), nn.functional.linear(v, w_v, b_v)
+        return (
+            nn.functional.linear(q, w_q, b_q),
+            nn.functional.linear(k, w_k, b_k),
+            nn.functional.linear(v, w_v, b_v),
+        )
+
 
 def spk_multi_head_attention_forward(
-        query,
-        key,
-        value,
-        embed_dim_to_check,
-        num_heads,
-        in_proj_weight,
-        in_proj_bias,
-        bias_k,
-        bias_v,
-        dropout_p,
-        out_proj_weight,
-        out_proj_bias,
-        q_lif=None,
-        k_lif=None,
-        v_lif=None,
-        attn_lif=None,
-        training=True,
-        key_padding_mask=None,
-        need_weights=True,
-        attn_mask=None,
+    query,
+    key,
+    value,
+    embed_dim_to_check,
+    num_heads,
+    in_proj_weight,
+    in_proj_bias,
+    bias_k,
+    bias_v,
+    dropout_p,
+    out_proj_weight,
+    out_proj_bias,
+    q_lif=None,
+    k_lif=None,
+    v_lif=None,
+    attn_lif=None,
+    training=True,
+    key_padding_mask=None,
+    need_weights=True,
+    attn_mask=None,
 ):
     r"""
     Args:
@@ -215,16 +219,21 @@ def spk_multi_head_attention_forward(
     # set up shape vars
     T, tgt_len, bsz, embed_dim = query.shape
     T, src_len, _, _ = key.shape
-    assert embed_dim == embed_dim_to_check, \
+    assert embed_dim == embed_dim_to_check, (
         f"was expecting embedding dimension of {embed_dim_to_check}, but got {embed_dim}"
+    )
     if isinstance(embed_dim, torch.Tensor):
         # embed_dim can be a tensor when JIT tracing
-        head_dim = embed_dim.div(num_heads, rounding_mode='trunc')
+        head_dim = embed_dim.div(num_heads, rounding_mode="trunc")
     else:
         head_dim = embed_dim // num_heads
-    assert head_dim * num_heads == embed_dim, f"embed_dim {embed_dim} not divisible by num_heads {num_heads}"
+    assert head_dim * num_heads == embed_dim, (
+        f"embed_dim {embed_dim} not divisible by num_heads {num_heads}"
+    )
 
-    assert key.shape == value.shape, f"key shape {key.shape} does not match value shape {value.shape}"
+    assert key.shape == value.shape, (
+        f"key shape {key.shape} does not match value shape {value.shape}"
+    )
 
     #
     # compute in-projection
@@ -273,13 +282,17 @@ def spk_multi_head_attention_forward(
     attn_output, attn_output_weights = SDSA3(q, k, v, attn_mask, dropout_p)
     # print(f"attn_output: {attn_output.size()}")
 
-    attn_output = attn_output.transpose(1, 2).contiguous().view(T, tgt_len, bsz, embed_dim)
+    attn_output = (
+        attn_output.transpose(1, 2).contiguous().view(T, tgt_len, bsz, embed_dim)
+    )
     attn_output = attn_lif(attn_output)
     attn_output = nn.functional.linear(attn_output, out_proj_weight, out_proj_bias)
 
     if need_weights:
         # average attention weights over heads
-        attn_output_weights = attn_output_weights.view(T, bsz, num_heads, tgt_len, src_len)
+        attn_output_weights = attn_output_weights.view(
+            T, bsz, num_heads, tgt_len, src_len
+        )
         return attn_output, attn_output_weights.sum(dim=2) / num_heads
     else:
         return attn_output, None
@@ -314,14 +327,24 @@ class SpkMultiheadAttention(nn.Module):
         >>> multihead_attn = nn.MultiheadAttention(embed_dim, num_heads)
         >>> attn_output, attn_output_weights = multihead_attn(query, key, value)
     """
-    __constants__ = ['batch_first']
+
+    __constants__ = ["batch_first"]
 
     # bias_k: Optional[torch.Tensor]
     # bias_v: Optional[torch.Tensor]
 
-    def __init__(self, embed_dim, num_heads, dropout=0., bias=True,
-                 batch_first=False, spiking_neuron=None, device=None, dtype=None) -> None:
-        factory_kwargs = {'device': device, 'dtype': dtype}
+    def __init__(
+        self,
+        embed_dim,
+        num_heads,
+        dropout=0.0,
+        bias=True,
+        batch_first=False,
+        spiking_neuron=None,
+        device=None,
+        dtype=None,
+    ) -> None:
+        factory_kwargs = {"device": device, "dtype": dtype}
         super(SpkMultiheadAttention, self).__init__()
         self.embed_dim = embed_dim
         self.kdim = embed_dim
@@ -332,17 +355,23 @@ class SpkMultiheadAttention(nn.Module):
         self.dropout = dropout
         self.batch_first = batch_first
         self.head_dim = embed_dim // num_heads
-        assert self.head_dim * num_heads == self.embed_dim, "embed_dim must be divisible by num_heads"
+        assert self.head_dim * num_heads == self.embed_dim, (
+            "embed_dim must be divisible by num_heads"
+        )
 
-        self.in_proj_weight = nn.Parameter(torch.empty((3 * embed_dim, embed_dim), **factory_kwargs))
-        self.register_parameter('q_proj_weight', None)
-        self.register_parameter('k_proj_weight', None)
-        self.register_parameter('v_proj_weight', None)
+        self.in_proj_weight = nn.Parameter(
+            torch.empty((3 * embed_dim, embed_dim), **factory_kwargs)
+        )
+        self.register_parameter("q_proj_weight", None)
+        self.register_parameter("k_proj_weight", None)
+        self.register_parameter("v_proj_weight", None)
 
         if bias:
-            self.in_proj_bias = nn.Parameter(torch.empty(3 * embed_dim, **factory_kwargs))
+            self.in_proj_bias = nn.Parameter(
+                torch.empty(3 * embed_dim, **factory_kwargs)
+            )
         else:
-            self.register_parameter('in_proj_bias', None)
+            self.register_parameter("in_proj_bias", None)
         self.out_proj = nn.Linear(embed_dim, embed_dim, bias=bias, **factory_kwargs)
 
         self.bias_k = self.bias_v = None
@@ -358,12 +387,11 @@ class SpkMultiheadAttention(nn.Module):
         self.attn_lif = spiking_neuron()
 
     def _reset_parameters(self):
-
         nn.init.xavier_uniform_(self.in_proj_weight)
 
         if self.in_proj_bias is not None:
-            nn.init.constant_(self.in_proj_bias, 0.)
-            nn.init.constant_(self.out_proj.bias, 0.)
+            nn.init.constant_(self.in_proj_bias, 0.0)
+            nn.init.constant_(self.out_proj.bias, 0.0)
 
     # def __setstate__(self, state):
     #     # Support loading old MultiheadAttention checkpoints generated by v1.1.0
@@ -372,62 +400,81 @@ class SpkMultiheadAttention(nn.Module):
     #
     #     super(MultiheadAttention, self).__setstate__(state)
 
-    def forward(self, query, key, value, key_padding_mask=None,
-                need_weights=True, attn_mask=None):
+    def forward(
+        self,
+        query,
+        key,
+        value,
+        key_padding_mask=None,
+        need_weights=True,
+        attn_mask=None,
+    ):
         r"""
-    Args:
-        query: Query embeddings of shape :math:`(L, N, E_q)` when ``batch_first=False`` or :math:`(N, L, E_q)`
-            when ``batch_first=True``, where :math:`L` is the target sequence length, :math:`N` is the batch size,
-            and :math:`E_q` is the query embedding dimension ``embed_dim``. Queries are compared against
-            key-value pairs to produce the output. See "Attention Is All You Need" for more details.
-        key: Key embeddings of shape :math:`(S, N, E_k)` when ``batch_first=False`` or :math:`(N, S, E_k)` when
-            ``batch_first=True``, where :math:`S` is the source sequence length, :math:`N` is the batch size, and
-            :math:`E_k` is the key embedding dimension ``kdim``. See "Attention Is All You Need" for more details.
-        value: Value embeddings of shape :math:`(S, N, E_v)` when ``batch_first=False`` or :math:`(N, S, E_v)` when
-            ``batch_first=True``, where :math:`S` is the source sequence length, :math:`N` is the batch size, and
-            :math:`E_v` is the value embedding dimension ``vdim``. See "Attention Is All You Need" for more details.
-        key_padding_mask: If specified, a mask of shape :math:`(N, S)` indicating which elements within ``key``
-            to ignore for the purpose of attention (i.e. treat as "padding"). Binary and byte masks are supported.
-            For a binary mask, a ``True`` value indicates that the corresponding ``key`` value will be ignored for
-            the purpose of attention. For a byte mask, a non-zero value indicates that the corresponding ``key``
-            value will be ignored.
-        need_weights: If specified, returns ``attn_output_weights`` in addition to ``attn_outputs``.
-            Default: ``True``.
-        attn_mask: If specified, a 2D or 3D mask preventing attention to certain positions. Must be of shape
-            :math:`(L, S)` or :math:`(N\cdot\text{num\_heads}, L, S)`, where :math:`N` is the batch size,
-            :math:`L` is the target sequence length, and :math:`S` is the source sequence length. A 2D mask will be
-            broadcasted across the batch while a 3D mask allows for a different mask for each entry in the batch.
-            Binary, byte, and float masks are supported. For a binary mask, a ``True`` value indicates that the
-            corresponding position is not allowed to attend. For a byte mask, a non-zero value indicates that the
-            corresponding position is not allowed to attend. For a float mask, the mask values will be added to
-            the attention weight.
+        Args:
+            query: Query embeddings of shape :math:`(L, N, E_q)` when ``batch_first=False`` or :math:`(N, L, E_q)`
+                when ``batch_first=True``, where :math:`L` is the target sequence length, :math:`N` is the batch size,
+                and :math:`E_q` is the query embedding dimension ``embed_dim``. Queries are compared against
+                key-value pairs to produce the output. See "Attention Is All You Need" for more details.
+            key: Key embeddings of shape :math:`(S, N, E_k)` when ``batch_first=False`` or :math:`(N, S, E_k)` when
+                ``batch_first=True``, where :math:`S` is the source sequence length, :math:`N` is the batch size, and
+                :math:`E_k` is the key embedding dimension ``kdim``. See "Attention Is All You Need" for more details.
+            value: Value embeddings of shape :math:`(S, N, E_v)` when ``batch_first=False`` or :math:`(N, S, E_v)` when
+                ``batch_first=True``, where :math:`S` is the source sequence length, :math:`N` is the batch size, and
+                :math:`E_v` is the value embedding dimension ``vdim``. See "Attention Is All You Need" for more details.
+            key_padding_mask: If specified, a mask of shape :math:`(N, S)` indicating which elements within ``key``
+                to ignore for the purpose of attention (i.e. treat as "padding"). Binary and byte masks are supported.
+                For a binary mask, a ``True`` value indicates that the corresponding ``key`` value will be ignored for
+                the purpose of attention. For a byte mask, a non-zero value indicates that the corresponding ``key``
+                value will be ignored.
+            need_weights: If specified, returns ``attn_output_weights`` in addition to ``attn_outputs``.
+                Default: ``True``.
+            attn_mask: If specified, a 2D or 3D mask preventing attention to certain positions. Must be of shape
+                :math:`(L, S)` or :math:`(N\cdot\text{num\_heads}, L, S)`, where :math:`N` is the batch size,
+                :math:`L` is the target sequence length, and :math:`S` is the source sequence length. A 2D mask will be
+                broadcasted across the batch while a 3D mask allows for a different mask for each entry in the batch.
+                Binary, byte, and float masks are supported. For a binary mask, a ``True`` value indicates that the
+                corresponding position is not allowed to attend. For a byte mask, a non-zero value indicates that the
+                corresponding position is not allowed to attend. For a float mask, the mask values will be added to
+                the attention weight.
 
-    Outputs:
-        - **attn_output** - Attention outputs of shape :math:`(L, N, E)` when ``batch_first=False`` or
-          :math:`(N, L, E)` when ``batch_first=True``, where :math:`L` is the target sequence length, :math:`N` is
-          the batch size, and :math:`E` is the embedding dimension ``embed_dim``.
-        - **attn_output_weights** - Attention output weights of shape :math:`(N, L, S)`, where :math:`N` is the batch
-          size, :math:`L` is the target sequence length, and :math:`S` is the source sequence length. Only returned
-          when ``need_weights=True``.
+        Outputs:
+            - **attn_output** - Attention outputs of shape :math:`(L, N, E)` when ``batch_first=False`` or
+              :math:`(N, L, E)` when ``batch_first=True``, where :math:`L` is the target sequence length, :math:`N` is
+              the batch size, and :math:`E` is the embedding dimension ``embed_dim``.
+            - **attn_output_weights** - Attention output weights of shape :math:`(N, L, S)`, where :math:`N` is the batch
+              size, :math:`L` is the target sequence length, and :math:`S` is the source sequence length. Only returned
+              when ``need_weights=True``.
         """
         assert self.batch_first is False
         # if self.batch_first:
         #     query, key, value = [x.transpose(1, 0) for x in (query, key, value)]
 
         attn_output, attn_output_weights = spk_multi_head_attention_forward(
-            query, key, value, self.embed_dim, self.num_heads,
-            self.in_proj_weight, self.in_proj_bias,
-            self.bias_k, self.bias_v,
-            self.dropout, self.out_proj.weight, self.out_proj.bias,
-            q_lif=self.q_lif, k_lif=self.k_lif, v_lif=self.v_lif, attn_lif=self.attn_lif,
+            query,
+            key,
+            value,
+            self.embed_dim,
+            self.num_heads,
+            self.in_proj_weight,
+            self.in_proj_bias,
+            self.bias_k,
+            self.bias_v,
+            self.dropout,
+            self.out_proj.weight,
+            self.out_proj.bias,
+            q_lif=self.q_lif,
+            k_lif=self.k_lif,
+            v_lif=self.v_lif,
+            attn_lif=self.attn_lif,
             training=self.training,
-            key_padding_mask=key_padding_mask, need_weights=need_weights,
-            attn_mask=attn_mask)
+            key_padding_mask=key_padding_mask,
+            need_weights=need_weights,
+            attn_mask=attn_mask,
+        )
         if self.batch_first:
             return attn_output.transpose(1, 0), attn_output_weights
         else:
             return attn_output, attn_output_weights
-
 
 
 class SpkTransformerEncoderLayer(nn.Module):
@@ -461,16 +508,33 @@ class SpkTransformerEncoderLayer(nn.Module):
         >>> src = torch.rand(32, 10, 512)
         >>> out = encoder_layer(src)
     """
-    __constants__ = ['batch_first', 'norm_first']
 
-    def __init__(self, d_model, nhead, dim_feedforward=2048, dropout=0.1, activation=torch.nn.functional.relu,
-                 layer_norm_eps=1e-5, batch_first=False, norm_first=False, spiking_neuron=None,
-                 device=None, dtype=None) -> None:
-        factory_kwargs = {'device': device, 'dtype': dtype}
+    __constants__ = ["batch_first", "norm_first"]
+
+    def __init__(
+        self,
+        d_model,
+        nhead,
+        dim_feedforward=2048,
+        dropout=0.1,
+        activation=torch.nn.functional.relu,
+        layer_norm_eps=1e-5,
+        batch_first=False,
+        norm_first=False,
+        spiking_neuron=None,
+        device=None,
+        dtype=None,
+    ) -> None:
+        factory_kwargs = {"device": device, "dtype": dtype}
         super(SpkTransformerEncoderLayer, self).__init__()
-        self.self_attn = SpkMultiheadAttention(d_model, nhead, dropout=dropout, batch_first=batch_first,
-                                               spiking_neuron=spiking_neuron,
-                                               **factory_kwargs)
+        self.self_attn = SpkMultiheadAttention(
+            d_model,
+            nhead,
+            dropout=dropout,
+            batch_first=batch_first,
+            spiking_neuron=spiking_neuron,
+            **factory_kwargs,
+        )
         # Implementation of Feedforward model
         self.head_lif = spiking_neuron()
         self.fc1_lif = spiking_neuron()
@@ -526,12 +590,15 @@ class SpkTransformerEncoderLayer(nn.Module):
         return x
 
     # self-attention block
-    def _sa_block(self, x,
-                  attn_mask, key_padding_mask):
-        x = self.self_attn(x, x, x,
-                           attn_mask=attn_mask,
-                           key_padding_mask=key_padding_mask,
-                           need_weights=False)[0]
+    def _sa_block(self, x, attn_mask, key_padding_mask):
+        x = self.self_attn(
+            x,
+            x,
+            x,
+            attn_mask=attn_mask,
+            key_padding_mask=key_padding_mask,
+            need_weights=False,
+        )[0]
         return self.dropout1(x)
 
     # feed forward block
@@ -545,83 +612,97 @@ class SpkTransformerEncoderLayer(nn.Module):
 
 
 class SpkTransformerNet(nn.Module):
-    def __init__(self,
-                 input_size,
-                 hidden_size,
-                 nhead,
-                 batch_first=True, 
-                 num_hidden_layers=1,
-                 dropout=0,
-                 surrogate='triangle',
-                 alpha=1.0,
-                 decay=0.5,
-                 threshold=0.5,
-                 recurrent=False,
-                 time_window=512,
-                 T=4,
-                 ):
+    def __init__(
+        self,
+        input_size,
+        hidden_size,
+        nhead,
+        batch_first=True,
+        num_hidden_layers=1,
+        dropout=0,
+        surrogate="triangle",
+        alpha=1.0,
+        decay=0.5,
+        threshold=0.5,
+        recurrent=False,
+        time_window=512,
+        T=4,
+    ):
         super(SpkTransformerNet, self).__init__()
 
-        
         self.encoder = nn.Linear(input_size, hidden_size)
         self.batch_first = batch_first
         surro_grad = SurrogateGradient(func_name=surrogate, a=alpha)
         exec_mode = "serial"
-        spiking_neuron = partial(RLIF,
-                                 decay=decay,
-                                 threshold=threshold,
-                                 time_step=time_window,
-                                 surro_grad=surro_grad,
-                                 exec_mode=exec_mode,
-                                 recurrent=recurrent,
-                                 learning_rule='stbp',
-                                 )
+        spiking_neuron = partial(
+            RLIF,
+            decay=decay,
+            threshold=threshold,
+            time_step=time_window,
+            surro_grad=surro_grad,
+            exec_mode=exec_mode,
+            recurrent=recurrent,
+            learning_rule="stbp",
+        )
 
-        encoder_layer = SpkTransformerEncoderLayer(d_model=hidden_size, nhead=nhead, dim_feedforward=hidden_size * 4,
-                                                   dropout=dropout, spiking_neuron=spiking_neuron
-                                                   )
+        encoder_layer = SpkTransformerEncoderLayer(
+            d_model=hidden_size,
+            nhead=nhead,
+            dim_feedforward=hidden_size * 4,
+            dropout=dropout,
+            spiking_neuron=spiking_neuron,
+        )
         encoder_norm = nn.LayerNorm(hidden_size)
-        custom_encoder = nn.TransformerEncoder(encoder_layer, num_hidden_layers, encoder_norm)
-        self.transformer = nn.Transformer(d_model=hidden_size, nhead=nhead, dim_feedforward=hidden_size * 4,
-                                          num_encoder_layers=num_hidden_layers, dropout=dropout,
-                                          custom_encoder=custom_encoder).encoder
+        custom_encoder = nn.TransformerEncoder(
+            encoder_layer, num_hidden_layers, encoder_norm
+        )
+        self.transformer = nn.Transformer(
+            d_model=hidden_size,
+            nhead=nhead,
+            dim_feedforward=hidden_size * 4,
+            num_encoder_layers=num_hidden_layers,
+            dropout=dropout,
+            custom_encoder=custom_encoder,
+        ).encoder
         self.time_window = T
 
-        self.pos_encoder = PositionalEncoding(hidden_size, dropout=0.)
-
+        self.pos_encoder = PositionalEncoding(hidden_size, dropout=0.0)
 
     def flatten_parameters(self):
-            # Ensure all parameters are contiguous in memory for efficiency
-            pass
+        # Ensure all parameters are contiguous in memory for efficiency
+        pass
 
     def forward(self, x, hidden=None):
         is_packed = isinstance(x, PackedSequence)
-        assert hidden is None, "Not allowed to pass previous states in the current imple."
+        assert hidden is None, (
+            "Not allowed to pass previous states in the current imple."
+        )
         if is_packed:
             x, lengths = pad_packed_sequence(x, batch_first=self.batch_first)
         # print(f"x: {x.size()}") # [90, 101, 2560]
         # print(f"max lengths: {lengths.max()}") # [90]
-        
+
         if self.batch_first:
             batch_size, seq_len, _ = x.size()
             x = x.transpose(0, 1)  # Convert to (seq_len, batch_size, input_size)
         else:
             seq_len, batch_size, _ = x.size()
-            x = x     
+            x = x
         x = self.encoder(x)
         x = self.pos_encoder(x)
         x = (x.unsqueeze(0)).repeat(self.time_window, 1, 1, 1)
         x = self.transformer(x)  # input should have dimension (N, C, L)
 
         output = x.mean(0)
-        
+
         if self.batch_first:
-            output = output.transpose(0, 1)  # Convert to (batch_size, seq_len, num_directions * hidden_size)
-        
+            output = output.transpose(
+                0, 1
+            )  # Convert to (batch_size, seq_len, num_directions * hidden_size)
+
         if is_packed:
             output = pack_padded_sequence(output, lengths, batch_first=self.batch_first)
-        
+
         # print(f"h_n: {h_n.size()}")
 
         return output, (None, None)
-    

@@ -2,11 +2,11 @@ import torch
 import math
 
 
-def _rectangular_function(v, threshold, a, b=1., *_, **__):
+def _rectangular_function(v, threshold, a, b=1.0, *_, **__):
     """
-        Yujie Wu \emph{et al.}, Spatio-Temporal Backpropagation for Training High-Performance Spiking Neural Networks, 2018.
-        $$ h(u) = \frac{1}{a} \cdot \mathrm{sign}(|u - V_\text{th}| < \frac{a}{2}) $$
-        TODO: replace the '/a' by 'b' and change the citation
+    Yujie Wu \emph{et al.}, Spatio-Temporal Backpropagation for Training High-Performance Spiking Neural Networks, 2018.
+    $$ h(u) = \frac{1}{a} \cdot \mathrm{sign}(|u - V_\text{th}| < \frac{a}{2}) $$
+    TODO: replace the '/a' by 'b' and change the citation
     """
     grad_v = (torch.abs(v - threshold) < (a / 2)) * b
     return grad_v
@@ -14,8 +14,8 @@ def _rectangular_function(v, threshold, a, b=1., *_, **__):
 
 def _triangle_function(v, threshold, a, *_, **__):
     """
-        Altered from the code of Temporal Efficient Training, ICLR 2022 (https://openreview.net/forum?id=_XNtisL32jv)
-        max(0, 1 - |ui[t] - θ|)
+    Altered from the code of Temporal Efficient Training, ICLR 2022 (https://openreview.net/forum?id=_XNtisL32jv)
+    max(0, 1 - |ui[t] - θ|)
     """
 
     grad_v = (1 / a) * (1 / a) * ((a - abs(v - threshold)).clamp(min=0))
@@ -24,28 +24,40 @@ def _triangle_function(v, threshold, a, *_, **__):
 
 def _sigmoid_function(v, threshold, a, *_, **__):
     """
-       Yujie Wu \emph{et al.}, Spatio-Temporal Backpropagation for Training High-Performance Spiking Neural Networks, 2018.
+    Yujie Wu \emph{et al.}, Spatio-Temporal Backpropagation for Training High-Performance Spiking Neural Networks, 2018.
     """
     a = a / 4
-    grad_v = (1 / a) * torch.exp((threshold - v) / a) / (
-                (1 + torch.exp((threshold - v) / a)) * (1 + torch.exp((threshold - v) / a)))
+    grad_v = (
+        (1 / a)
+        * torch.exp((threshold - v) / a)
+        / ((1 + torch.exp((threshold - v) / a)) * (1 + torch.exp((threshold - v) / a)))
+    )
     return grad_v
 
 
-def gaussian(x, mu=0., sigma=.5):
-    return torch.exp(-((x - mu) ** 2) / (2 * sigma ** 2)) / torch.sqrt(2 * torch.tensor(math.pi)) / sigma
+def gaussian(x, mu=0.0, sigma=0.5):
+    return (
+        torch.exp(-((x - mu) ** 2) / (2 * sigma**2))
+        / torch.sqrt(2 * torch.tensor(math.pi))
+        / sigma
+    )
 
 
 def _multigaussian_function(v, threshold, a, *_, **__):
     """
-        Revised from https://github.com/byin-cwi/Efficient-spiking-networks
+    Revised from https://github.com/byin-cwi/Efficient-spiking-networks
     """
     input = v - threshold
     scale = 6.0
-    hight = .15
-    a = a / 2  # According to the paper, a = 0.5 in multigauss equal to a = 1 in triangle.
-    temp = gaussian(input, mu=0., sigma=a) * (1. + hight) - gaussian(input, mu=a, sigma=scale * a) * hight - gaussian(
-        input, mu=-a, sigma=scale * a) * hight
+    hight = 0.15
+    a = (
+        a / 2
+    )  # According to the paper, a = 0.5 in multigauss equal to a = 1 in triangle.
+    temp = (
+        gaussian(input, mu=0.0, sigma=a) * (1.0 + hight)
+        - gaussian(input, mu=a, sigma=scale * a) * hight
+        - gaussian(input, mu=-a, sigma=scale * a) * hight
+    )
     grad_v = temp.float() * a
     return grad_v
 
@@ -75,7 +87,7 @@ class SurrogateGradient:
 
 class PMSN_surrogate(torch.autograd.Function):
     @staticmethod
-    def forward(ctx, input, thresh, gamma=1.):
+    def forward(ctx, input, thresh, gamma=1.0):
         # tm=torch.arange(input.size(-1),device=input.device).repeat(input.size(0),input.size(1),1) * thresh + (2-1e-3) * thresh
         cum_x = input.cumsum(dim=-1)
         cum_x_shift = cum_x.clone()
@@ -107,7 +119,7 @@ class TriangleSurroGrad(torch.autograd.Function):
 
     @staticmethod
     def forward(ctx, input, gamma=1.0):
-        out = input.ge(0.)
+        out = input.ge(0.0)
         L = torch.tensor([gamma])
         ctx.save_for_backward(input, L)
         return out.float()
@@ -123,10 +135,9 @@ class TriangleSurroGrad(torch.autograd.Function):
 
 
 class RectangleSurroGrad(torch.autograd.Function):
-
     @staticmethod
     def forward(ctx, input, gamma=1.0):
-        out = input.ge(0.)
+        out = input.ge(0.0)
         L = torch.tensor([gamma])
         ctx.save_for_backward(input, L)
         return out.float()

@@ -53,7 +53,9 @@ class TrainerState:
         self.epochs_trained = state_dict["epochs_trained"]
         self.steps_trained = state_dict["steps_trained"]
 
-        self.early_stopping_patience_counter = state_dict["early_stopping_patience_counter"]
+        self.early_stopping_patience_counter = state_dict[
+            "early_stopping_patience_counter"
+        ]
 
         self.best_score = state_dict["best_score"]
         self.best_score_epoch = state_dict["best_score_epoch"]
@@ -77,7 +79,7 @@ def print_env():
         "Python version": platform.python_version(),
         "Numpy version": np.__version__,
         "PyTorch version (GPU?)": f"{pt_version} ({pt_cuda_available})",
-        "System RAM": f"{psutil.virtual_memory().total / 1024 ** 3:.2f} GB",
+        "System RAM": f"{psutil.virtual_memory().total / 1024**3:.2f} GB",
         "GPU Available": f"{pt_cuda_available}",
         "GPU IDs": f"{torch.cuda.device_count()}",
     }
@@ -119,42 +121,65 @@ def save_state_dict_to_checkpoint(ckpt_epoch_dir, state_dict: dict[str, Any]):
             for i, model_state in enumerate(model_states):
                 state_fpath = ckpt_epoch_dir / f"model_{i}.pth"
                 torch.save(model_state, state_fpath)
-                logger.info(f"Model checkpoint {os.path.getsize(state_fpath) / 1000**3:.2f} GB saved to {state_fpath}")
+                logger.info(
+                    f"Model checkpoint {os.path.getsize(state_fpath) / 1000**3:.2f} GB saved to {state_fpath}"
+                )
         else:
             state_fpath = ckpt_epoch_dir / "model.pth"
             torch.save(state_dict[StateName.MODEL], state_fpath)
-            logger.info(f"Model checkpoint {os.path.getsize(state_fpath) / 1000**3:.2f} GB saved to {state_fpath}")
+            logger.info(
+                f"Model checkpoint {os.path.getsize(state_fpath) / 1000**3:.2f} GB saved to {state_fpath}"
+            )
 
     # Adapter states
     if StateName.ADAPTER in state_dict and state_dict[StateName.ADAPTER] is not None:
         state_fpath = ckpt_epoch_dir / "adapter.pth"
         state_weights = state_dict[StateName.ADAPTER]
         torch.save(state_weights, state_fpath)
-        logger.info(f"Adapter checkpoint {os.path.getsize(state_fpath) / 1000**3:.2f} GB saved to {state_fpath}")
+        logger.info(
+            f"Adapter checkpoint {os.path.getsize(state_fpath) / 1000**3:.2f} GB saved to {state_fpath}"
+        )
 
     # Optimizer states
-    if StateName.OPTIMIZER in state_dict and state_dict[StateName.OPTIMIZER] is not None:
+    if (
+        StateName.OPTIMIZER in state_dict
+        and state_dict[StateName.OPTIMIZER] is not None
+    ):
         state_fpath = ckpt_epoch_dir / "optimizer.pth"
         state_weights = state_dict[StateName.OPTIMIZER]
         torch.save(state_weights, state_fpath)
-        logger.info(f"Optimizer checkpoint {os.path.getsize(state_fpath) / 1000**3:.2f} GB saved to {state_fpath}")
+        logger.info(
+            f"Optimizer checkpoint {os.path.getsize(state_fpath) / 1000**3:.2f} GB saved to {state_fpath}"
+        )
 
     # LR Scheduler states
-    if StateName.LR_SCHEDULER in state_dict and state_dict[StateName.LR_SCHEDULER] is not None:
+    if (
+        StateName.LR_SCHEDULER in state_dict
+        and state_dict[StateName.LR_SCHEDULER] is not None
+    ):
         state_fpath = ckpt_epoch_dir / "lr_scheduler.pth"
         torch.save(state_dict[StateName.LR_SCHEDULER], state_fpath)
-        logger.info(f"LR Scheduler checkpoint {os.path.getsize(state_fpath) / 1000**3:.2f} GB saved to {state_fpath}")
+        logger.info(
+            f"LR Scheduler checkpoint {os.path.getsize(state_fpath) / 1000**3:.2f} GB saved to {state_fpath}"
+        )
 
     # Trainer states
-    if StateName.TRAINER_STATE in state_dict and state_dict[StateName.TRAINER_STATE] is not None:
+    if (
+        StateName.TRAINER_STATE in state_dict
+        and state_dict[StateName.TRAINER_STATE] is not None
+    ):
         state_fpath = ckpt_epoch_dir / "trainer_state.pkl"
         torch.save(state_dict[StateName.TRAINER_STATE], state_fpath)
-        logger.info(f"Trainer state checkpoint {os.path.getsize(state_fpath) / 1000**3:.2f} GB saved to {state_fpath}")
+        logger.info(
+            f"Trainer state checkpoint {os.path.getsize(state_fpath) / 1000**3:.2f} GB saved to {state_fpath}"
+        )
 
     if StateName.SCALER in state_dict and state_dict[StateName.SCALER] is not None:
         state_fpath = ckpt_epoch_dir / "scaler.pkl"
         torch.save(state_dict[StateName.SCALER], state_fpath)
-        logger.info(f"Scaler checkpoint {os.path.getsize(state_fpath) / 1000**3:.2f} GB saved to {state_fpath}")
+        logger.info(
+            f"Scaler checkpoint {os.path.getsize(state_fpath) / 1000**3:.2f} GB saved to {state_fpath}"
+        )
 
 
 def load_state_dict_from_checkpoint(ckpt_epoch_dir: Path) -> dict[str, Any]:
@@ -179,20 +204,28 @@ def load_state_dict_from_checkpoint(ckpt_epoch_dir: Path) -> dict[str, Any]:
         model_states = {}
         for model_state_fpath in model_state_fpaths:
             model_name = model_state_fpath.stem
-            model_states[model_name] = torch.load(model_state_fpath, map_location="cpu", weights_only=True)
+            model_states[model_name] = torch.load(
+                model_state_fpath, map_location="cpu", weights_only=True
+            )
         state_dict[StateName.MODEL] = model_states
     elif len(model_state_fpaths) == 1:
-        state_dict[StateName.MODEL] = torch.load(model_state_fpaths[0], map_location="cpu", weights_only=True)
+        state_dict[StateName.MODEL] = torch.load(
+            model_state_fpaths[0], map_location="cpu", weights_only=True
+        )
 
     # Adapter states
     adapter_state_fpath = ckpt_epoch_dir / "adapter.pth"
     if adapter_state_fpath.exists():
-        state_dict[StateName.ADAPTER] = torch.load(adapter_state_fpath, map_location="cpu", weights_only=True)
+        state_dict[StateName.ADAPTER] = torch.load(
+            adapter_state_fpath, map_location="cpu", weights_only=True
+        )
 
     # Optimizer states
     optimizer_state_fpath = ckpt_epoch_dir / "optimizer.pth"
     if optimizer_state_fpath.exists():
-        state_dict[StateName.OPTIMIZER] = torch.load(optimizer_state_fpath, map_location="cpu", weights_only=True)
+        state_dict[StateName.OPTIMIZER] = torch.load(
+            optimizer_state_fpath, map_location="cpu", weights_only=True
+        )
 
     # LR Scheduler states
     lr_scheduler_state_fpath = ckpt_epoch_dir / "lr_scheduler.pth"
@@ -204,7 +237,9 @@ def load_state_dict_from_checkpoint(ckpt_epoch_dir: Path) -> dict[str, Any]:
     # Trainer states
     trainer_state_fpath = ckpt_epoch_dir / "trainer_state.pkl"
     if trainer_state_fpath.exists():
-        state_dict[StateName.TRAINER_STATE] = torch.load(trainer_state_fpath, weights_only=False)
+        state_dict[StateName.TRAINER_STATE] = torch.load(
+            trainer_state_fpath, weights_only=False
+        )
 
     # Scaler states
     scaler_state_fpath = ckpt_epoch_dir / "scaler.pkl"
@@ -215,7 +250,11 @@ def load_state_dict_from_checkpoint(ckpt_epoch_dir: Path) -> dict[str, Any]:
 
 
 def cleanup_redundant_checkpoints(ckpt_root_dir: Path, num_keep_ckpts: int):
-    ckpt_epoch_dirs = sorted(ckpt_root_dir.glob("epoch_*"), key=lambda x: int(x.stem.split("_")[-1]), reverse=True)
+    ckpt_epoch_dirs = sorted(
+        ckpt_root_dir.glob("epoch_*"),
+        key=lambda x: int(x.stem.split("_")[-1]),
+        reverse=True,
+    )
 
     for ckpt_epoch_dir in ckpt_epoch_dirs[num_keep_ckpts:]:
         shutil.rmtree(ckpt_epoch_dir)

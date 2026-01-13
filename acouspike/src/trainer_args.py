@@ -48,7 +48,9 @@ class TrainingArgs(Serializable):
     adam_beta1: float = 0.9  # The beta1 for Adam.
     adam_beta2: float = 0.999
     adam_epsilon: float = 1e-8
-    lr_scheduler_type: str = "constant_schedule_with_warmup"  # The type of learning rate scheduler.
+    lr_scheduler_type: str = (
+        "constant_schedule_with_warmup"  # The type of learning rate scheduler.
+    )
     warmup_steps: int = 0  # Linear warmup over warmup_steps.
     warmup_ratio: float = 0.0  # Linear warmup over warmup_ratio * max_steps.
     cosine_with_min_lr_schedule_with_warmup_num_cycles: float = 0.5

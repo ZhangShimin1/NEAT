@@ -10,7 +10,11 @@ except BaseException as e:
     temporal_fusion_kernel = None
 from acouspike.models.surrogate.surrogate import SurrogateGradient as SG
 from acouspike.models.surrogate.surrogate import PMSN_surrogate
-from acouspike.models.surrogate.ASGL_surrogate import EfficientNoisySpike, InvSigmoid, InvRectangle
+from acouspike.models.surrogate.ASGL_surrogate import (
+    EfficientNoisySpike,
+    InvSigmoid,
+    InvRectangle,
+)
 from acouspike.models.neuron.base_neuron import BaseNeuron
 from torch.autograd import Variable
 from acouspike.models.neuron.membrane_update import MembraneUpdate
@@ -18,7 +22,9 @@ from acouspike.models.neuron.membrane_update import MembraneUpdate
 
 class FusedLIF(Function):
     @staticmethod
-    def forward(ctx, tx, rest, decay, threshold, time_step, surro_grad: SG, use_tv: bool = False):
+    def forward(
+        ctx, tx, rest, decay, threshold, time_step, surro_grad: SG, use_tv: bool = False
+    ):
         ctx.rest = rest
         ctx.decay = decay
         ctx.threshold = threshold
@@ -30,7 +36,9 @@ class FusedLIF(Function):
             v_tv = torch.zeros_like(tx)
         else:
             v_tv = torch.zeros_like(tx[0])
-        temporal_fusion_kernel.fusedForwardLIF(tx, v_tv, ty, rest, decay, threshold, time_step, use_tv)
+        temporal_fusion_kernel.fusedForwardLIF(
+            tx, v_tv, ty, rest, decay, threshold, time_step, use_tv
+        )
         ctx.tv = v_tv
         ctx.save_for_backward(ty)
         return ty
@@ -45,8 +53,9 @@ class FusedLIF(Function):
         surro_grad = ctx.surro_grad
         sg_kwargs = ctx.sg_kwargs
         grad_tx = torch.zeros_like(grad_ty)
-        temporal_fusion_kernel.fusedBackwardLIF(grad_ty, grad_tx, ty, tv, decay, threshold, time_step, surro_grad,
-                                                sg_kwargs)
+        temporal_fusion_kernel.fusedBackwardLIF(
+            grad_ty, grad_tx, ty, tv, decay, threshold, time_step, surro_grad, sg_kwargs
+        )
         return grad_tx, None, None, None, None, None, None
 
 
@@ -99,28 +108,28 @@ class LIFAct_thresh(Function):
 
 class LIF(BaseNeuron):
     """
-        Explicitly Iterative Leaky-Integrate-and-Fire Model.
-        Yujie Wu \emph{et al.}, Direct Training for Spiking Neural Networks: Faster, Larger, Better, 2019.
+    Explicitly Iterative Leaky-Integrate-and-Fire Model.
+    Yujie Wu \emph{et al.}, Direct Training for Spiking Neural Networks: Faster, Larger, Better, 2019.
 
-        Hard Reset Case:
-        $$ v_i^{(t)} = k_{\tau} \cdot v_i^{(t-1)} \cdot (1 - y_i^{(t-1)}) + V_\text{rest} \cdot y_i^{(t-1)} + x_i^{(t)} $$
-        Soft Reset Case:
-        $$ v_i^{(t)} = k_{\tau} \cdot v_i^{(t-1)} + (V_\text{rest} - V_\text{th}) \cdot y_i^{(t-1)} + x_i^{(t)} $$
-        Final:
-        $$ y_i^{(t)} = H(v_i^{(t)} - V_\text{th}) $$
+    Hard Reset Case:
+    $$ v_i^{(t)} = k_{\tau} \cdot v_i^{(t-1)} \cdot (1 - y_i^{(t-1)}) + V_\text{rest} \cdot y_i^{(t-1)} + x_i^{(t)} $$
+    Soft Reset Case:
+    $$ v_i^{(t)} = k_{\tau} \cdot v_i^{(t-1)} + (V_\text{rest} - V_\text{th}) \cdot y_i^{(t-1)} + x_i^{(t)} $$
+    Final:
+    $$ y_i^{(t)} = H(v_i^{(t)} - V_\text{th}) $$
     """
 
     def __init__(
-            self,
-            rest: float = 0.0,
-            decay: float = 0.2,
-            threshold: float = 0.3,
-            neuron_num: int = -1,
-            time_step: int = None,
-            surro_grad: SG = None,  # TODO: Set a default value
-            reset_mode: str = "hard",  # TODO: Add value checking
-            prop_mode: str = "STBP",  # TODO: Add value checking
-            exec_mode: str = "serial"
+        self,
+        rest: float = 0.0,
+        decay: float = 0.2,
+        threshold: float = 0.3,
+        neuron_num: int = -1,
+        time_step: int = None,
+        surro_grad: SG = None,  # TODO: Set a default value
+        reset_mode: str = "hard",  # TODO: Add value checking
+        prop_mode: str = "STBP",  # TODO: Add value checking
+        exec_mode: str = "serial",
     ):
         super(LIF, self).__init__(exec_mode=exec_mode)
         self.rest = rest
@@ -130,7 +139,9 @@ class LIF(BaseNeuron):
         self.surro_grad = surro_grad
         self.prop_mode = prop_mode
         self.reset_mode = reset_mode
-        self.mem_update = MembraneUpdate(prop_mode=self.prop_mode, reset_mode=self.reset_mode)
+        self.mem_update = MembraneUpdate(
+            prop_mode=self.prop_mode, reset_mode=self.reset_mode
+        )
 
     def __repr__(self):
         # TODO: Avoid type sensitivity caused by `self.surro_grad`
@@ -140,10 +151,10 @@ class LIF(BaseNeuron):
             f"decay={self.decay}, "
             f"threshold={self.threshold}, "
             f"time_step={self.time_step}, "
-            f"surrogate_gradient=\"{self.surro_grad.func_name}\", "
-            f"propogation_mode=\"{self.prop_mode}\", "
-            f"reset_mode=\"{self.reset_mode}\", "
-            f"execution_mode=\"{self.exec_mode}\""
+            f'surrogate_gradient="{self.surro_grad.func_name}", '
+            f'propogation_mode="{self.prop_mode}", '
+            f'reset_mode="{self.reset_mode}", '
+            f'execution_mode="{self.exec_mode}"'
             f")"
         )
 
@@ -157,41 +168,60 @@ class LIF(BaseNeuron):
             return_v = True
         for x in tx:
             v = self.mem_update(x, v, y, self.rest, self.decay, self.threshold)
-            y = LIFAct.apply(v, self.rest, self.decay, self.threshold, self.time_step, self.surro_grad)
+            y = LIFAct.apply(
+                v,
+                self.rest,
+                self.decay,
+                self.threshold,
+                self.time_step,
+                self.surro_grad,
+            )
             ty.append(y)
         if return_v:
-            if self.reset_mode != "hard": raise NotImplementedError
-            if self.prop_mode != "STBP": raise NotImplementedError
+            if self.reset_mode != "hard":
+                raise NotImplementedError
+            if self.prop_mode != "STBP":
+                raise NotImplementedError
             v = v * (1.0 - y) + self.rest * y
             return torch.stack(ty), v
         else:
             return torch.stack(ty)
 
     def _temporal_fused_process(self, tx):
-        if self.reset_mode != "hard": raise NotImplementedError
-        if self.prop_mode != "STBP": raise NotImplementedError
-        return FusedLIF.apply(tx, self.rest, self.decay, self.threshold, self.time_step, self.surro_grad, self.training)
+        if self.reset_mode != "hard":
+            raise NotImplementedError
+        if self.prop_mode != "STBP":
+            raise NotImplementedError
+        return FusedLIF.apply(
+            tx,
+            self.rest,
+            self.decay,
+            self.threshold,
+            self.time_step,
+            self.surro_grad,
+            self.training,
+        )
 
 
 class RLIF(BaseNeuron):
     """
-        Recurrent spiking neural network.
+    Recurrent spiking neural network.
     """
 
     def __init__(
-            self,
-            rest: float = 0.0,
-            decay: float = 0.2,
-            threshold: float = 0.3,
-            neuron_num: int = 1,
-            time_step: int = None,
-            surro_grad: SG = None,  # TODO: Set a default value
-            exec_mode: str = "serial",
-            recurrent: bool = False,
-            learning_rule: str = "stbp",
-            truncated_t: int = 1000,
-            bn=None,
-            last_layer=False
+        self,
+        rest: float = 0.0,
+        decay: float = 0.2,
+        threshold: float = 0.3,
+        neuron_num: int = 1,
+        time_step: int = None,
+        surro_grad: SG = None,  # TODO: Set a default value
+        exec_mode: str = "serial",
+        recurrent: bool = False,
+        learning_rule: str = "stbp",
+        truncated_t: int = 1000,
+        bn=None,
+        last_layer=False,
     ):
         super(RLIF, self).__init__(exec_mode=exec_mode)
         self.rest = rest
@@ -217,13 +247,13 @@ class RLIF(BaseNeuron):
             f"threshold={self.threshold}, "
             f"neuron_num={self.neuron_num}, "
             f"time_step={self.time_step}, "
-            f"surrogate_gradient=\"{self.surro_grad.func_name}\", "
-            f"execution_mode=\"{self.exec_mode}\", "
-            f"recurrent={self.recurrent}\", "
-            f"learning_rule=\"{self.learning_rule}\", "
-            f"truncated_t=\"{self.truncated_t}\", "
-            f"batchnorm=\"{self.bn}\", "
-            f"last_layer=\"{self.last_layer}\", "
+            f'surrogate_gradient="{self.surro_grad.func_name}", '
+            f'execution_mode="{self.exec_mode}", '
+            f'recurrent={self.recurrent}", '
+            f'learning_rule="{self.learning_rule}", '
+            f'truncated_t="{self.truncated_t}", '
+            f'batchnorm="{self.bn}", '
+            f'last_layer="{self.last_layer}", '
             f")"
         )
 
@@ -238,7 +268,7 @@ class RLIF(BaseNeuron):
             y = torch.zeros_like(tx[0])
             return_state = False
 
-        if self.recurrent and self.learning_rule == 'eprop':
+        if self.recurrent and self.learning_rule == "eprop":
             recurrent_trace = torch.zeros_like(tx[0])
 
         if self.bn is not None:
@@ -246,27 +276,33 @@ class RLIF(BaseNeuron):
 
         for t, x in enumerate(tx):
             if self.recurrent:
-                if self.training and self.learning_rule == 'eprop':
+                if self.training and self.learning_rule == "eprop":
                     recurrent_trace = self.decay * recurrent_trace.detach() + y.detach()
-                    recurrent_trace_output = self.recurrent_weight(recurrent_trace.detach())
-                    x = x + self.recurrent_weight(
-                        y.detach()).detach() + recurrent_trace_output - recurrent_trace_output.detach()
-                elif self.learning_rule in ['sltt']:
+                    recurrent_trace_output = self.recurrent_weight(
+                        recurrent_trace.detach()
+                    )
+                    x = (
+                        x
+                        + self.recurrent_weight(y.detach()).detach()
+                        + recurrent_trace_output
+                        - recurrent_trace_output.detach()
+                    )
+                elif self.learning_rule in ["sltt"]:
                     x = x + self.recurrent_weight(y.detach())
-                elif self.learning_rule == 'tbptt':
+                elif self.learning_rule == "tbptt":
                     if t % self.truncated_t == 0:
                         x = x + self.recurrent_weight(y.detach())
                     else:
                         x = x + self.recurrent_weight(y)
                 else:
                     x = x + self.recurrent_weight(y)
-            if self.learning_rule == 'stbp':
+            if self.learning_rule == "stbp":
                 v = self.decay * v + x
-            elif self.learning_rule in ['sdbp', 'eprop', 'sltt']:
+            elif self.learning_rule in ["sdbp", "eprop", "sltt"]:
                 v = self.decay * v.detach() + x
-            elif self.learning_rule == 'notd':
+            elif self.learning_rule == "notd":
                 v = x
-            elif self.learning_rule == 'tbptt':
+            elif self.learning_rule == "tbptt":
                 if t % self.truncated_t == 0:
                     v = v.detach()
                     y = y.detach()
@@ -274,11 +310,18 @@ class RLIF(BaseNeuron):
             else:
                 raise NotImplementedError
             # if not self.last_layer:
-            y = LIFAct.apply(v, self.rest, self.decay, self.threshold, self.time_step, self.surro_grad)
-            if self.learning_rule in ['sltt', 'eprop', 'sdbp']:
+            y = LIFAct.apply(
+                v,
+                self.rest,
+                self.decay,
+                self.threshold,
+                self.time_step,
+                self.surro_grad,
+            )
+            if self.learning_rule in ["sltt", "eprop", "sdbp"]:
                 v = v - v * y.detach() + self.rest * y.detach()  # Hard reset
                 # print(f"t: {t} y: {y.sum()} y size: {y.size()}")
-            elif self.learning_rule == 'notd':
+            elif self.learning_rule == "notd":
                 v = v
             else:
                 v = v - v * y + self.rest * y  # Hard reset
@@ -292,26 +335,33 @@ class RLIF(BaseNeuron):
 
     def _temporal_fused_process(self, tx):
         if not self.recurrent:
-            return FusedLIF.apply(tx, self.rest, self.decay, self.threshold, self.time_step, self.surro_grad,
-                                  self.training)
+            return FusedLIF.apply(
+                tx,
+                self.rest,
+                self.decay,
+                self.threshold,
+                self.time_step,
+                self.surro_grad,
+                self.training,
+            )
         # else: # todo: add recurrent acceleration
 
 
 class Recurrent_LIF(BaseNeuron):
     """
-        Recurrent spiking neural network.
+    Recurrent spiking neural network.
     """
 
     def __init__(
-            self,
-            rest: float = 0.0,
-            decay: float = 0.2,
-            threshold: float = 0.3,
-            neuron_num: int = 1,
-            time_step: int = None,
-            surro_grad: SG = None,  # TODO: Set a default value
-            exec_mode: str = "serial",
-            recurrent: bool = False
+        self,
+        rest: float = 0.0,
+        decay: float = 0.2,
+        threshold: float = 0.3,
+        neuron_num: int = 1,
+        time_step: int = None,
+        surro_grad: SG = None,  # TODO: Set a default value
+        exec_mode: str = "serial",
+        recurrent: bool = False,
     ):
         super(Recurrent_LIF, self).__init__(exec_mode=exec_mode)
         self.rest = rest
@@ -333,8 +383,8 @@ class Recurrent_LIF(BaseNeuron):
             f"threshold={self.threshold}, "
             f"neuron_num={self.neuron_num}, "
             f"time_step={self.time_step}, "
-            f"surrogate_gradient=\"{self.surro_grad.func_name}\", "
-            f"execution_mode=\"{self.exec_mode}\", "
+            f'surrogate_gradient="{self.surro_grad.func_name}", '
+            f'execution_mode="{self.exec_mode}", '
             f"recurrent={self.recurrent}"
             f")"
         )
@@ -353,7 +403,14 @@ class Recurrent_LIF(BaseNeuron):
             if self.recurrent:
                 x = x + self.recurrent_weight(y)
             v = self.decay * v * (1.0 - y) + self.rest * y + x
-            y = LIFAct.apply(v, self.rest, self.decay, self.threshold, self.time_step, self.surro_grad)
+            y = LIFAct.apply(
+                v,
+                self.rest,
+                self.decay,
+                self.threshold,
+                self.time_step,
+                self.surro_grad,
+            )
             ty.append(y)
         if return_state:
             return torch.stack(ty), (v, y)
@@ -362,8 +419,15 @@ class Recurrent_LIF(BaseNeuron):
 
     def _temporal_fused_process(self, tx):
         if not self.recurrent:
-            return FusedLIF.apply(tx, self.rest, self.decay, self.threshold, self.time_step, self.surro_grad,
-                                  self.training)
+            return FusedLIF.apply(
+                tx,
+                self.rest,
+                self.decay,
+                self.threshold,
+                self.time_step,
+                self.surro_grad,
+                self.training,
+            )
         # else: # todo: add recurrent acceleration
 
 
@@ -376,11 +440,11 @@ class NonSpikingLIF(BaseNeuron):
     """
 
     def __init__(
-            self,
-            rest: float = 0.0,
-            decay: float = 0.2,
-            time_step: int = None,
-            exec_mode: str = "serial"
+        self,
+        rest: float = 0.0,
+        decay: float = 0.2,
+        time_step: int = None,
+        exec_mode: str = "serial",
     ):
         super(NonSpikingLIF, self).__init__(exec_mode=exec_mode)
         self.rest = rest
@@ -393,7 +457,7 @@ class NonSpikingLIF(BaseNeuron):
             f"rest={self.rest}, "
             f"decay={self.decay}, "
             f"time_step={self.time_step}, "
-            f"execution_mode=\"{self.exec_mode}\""
+            f'execution_mode="{self.exec_mode}"'
             f")"
         )
 
@@ -419,15 +483,15 @@ class ASGL_LIF(BaseNeuron):
     """
 
     def __init__(
-            self,
-            rest: float = 0.0,
-            decay: float = 0.2,
-            threshold: float = 0.3,
-            neuron_num: int = 1,
-            time_step: int = None,
-            exec_mode: str = "serial",
-            a: float = 1.0,
-            recurrent: bool = False
+        self,
+        rest: float = 0.0,
+        decay: float = 0.2,
+        threshold: float = 0.3,
+        neuron_num: int = 1,
+        time_step: int = None,
+        exec_mode: str = "serial",
+        a: float = 1.0,
+        recurrent: bool = False,
     ):
         super(ASGL_LIF, self).__init__(exec_mode=exec_mode)
         self.rest = rest
@@ -448,7 +512,7 @@ class ASGL_LIF(BaseNeuron):
             f"threshold={self.threshold}, "
             f"neuron_num={self.neuron_num}, "
             f"time_step={self.time_step}, "
-            f"execution_mode=\"{self.exec_mode}\","
+            f'execution_mode="{self.exec_mode}",'
             f"recurrent={self.recurrent}"
             f")"
         )
@@ -480,19 +544,19 @@ class ASGL_LIF(BaseNeuron):
 
 class PLIF(BaseNeuron):
     """
-        Altered from Spikingjelly
+    Altered from Spikingjelly
     """
 
     def __init__(
-            self,
-            rest: float = 0.0,
-            decay: float = 0.2,
-            threshold: float = 0.3,
-            neuron_num: int = 1,
-            time_step: int = None,
-            surro_grad: SG = None,  # TODO: Set a default value
-            exec_mode: str = "serial",
-            recurrent: bool = False
+        self,
+        rest: float = 0.0,
+        decay: float = 0.2,
+        threshold: float = 0.3,
+        neuron_num: int = 1,
+        time_step: int = None,
+        surro_grad: SG = None,  # TODO: Set a default value
+        exec_mode: str = "serial",
+        recurrent: bool = False,
     ):
         super(PLIF, self).__init__(exec_mode=exec_mode)
         self.rest = rest
@@ -505,7 +569,7 @@ class PLIF(BaseNeuron):
         if self.recurrent:
             self.recurrent_weight = nn.Linear(self.neuron_num, self.neuron_num)
 
-        init_w = - math.log(1.)
+        init_w = -math.log(1.0)
         self.w = nn.Parameter(torch.as_tensor(init_w))
 
     def __repr__(self):
@@ -516,8 +580,8 @@ class PLIF(BaseNeuron):
             f"threshold={self.threshold}, "
             f"neuron_num={self.neuron_num}, "
             f"time_step={self.time_step}, "
-            f"surrogate_gradient=\"{self.surro_grad.func_name}\", "
-            f"execution_mode=\"{self.exec_mode}\", "
+            f'surrogate_gradient="{self.surro_grad.func_name}", '
+            f'execution_mode="{self.exec_mode}", '
             f"recurrent={self.recurrent}"
             f")"
         )
@@ -537,7 +601,14 @@ class PLIF(BaseNeuron):
             if self.recurrent:
                 x = x + self.recurrent_weight(y)
             v = self.w.sigmoid() * v * (1.0 - y) + self.rest * y + x
-            y = LIFAct.apply(v, self.rest, self.decay, self.threshold, self.time_step, self.surro_grad)
+            y = LIFAct.apply(
+                v,
+                self.rest,
+                self.decay,
+                self.threshold,
+                self.time_step,
+                self.surro_grad,
+            )
             ty.append(y)
         if return_state:
             return torch.stack(ty), (v, y)
@@ -550,19 +621,19 @@ class PLIF(BaseNeuron):
 
 class ALIF(BaseNeuron):
     """
-        Altered from https://github.com/byin-cwi/Efficient-spiking-networks
+    Altered from https://github.com/byin-cwi/Efficient-spiking-networks
     """
 
     def __init__(
-            self,
-            rest: float = 0.0,
-            decay: float = 0.2,
-            threshold: float = 0.3,
-            neuron_num: int = 1,
-            time_step: int = None,
-            surro_grad: SG = None,  # TODO: Set a default value
-            exec_mode: str = "serial",
-            recurrent: bool = False
+        self,
+        rest: float = 0.0,
+        decay: float = 0.2,
+        threshold: float = 0.3,
+        neuron_num: int = 1,
+        time_step: int = None,
+        surro_grad: SG = None,  # TODO: Set a default value
+        exec_mode: str = "serial",
+        recurrent: bool = False,
     ):
         super(ALIF, self).__init__(exec_mode=exec_mode)
         self.rest = rest
@@ -587,8 +658,8 @@ class ALIF(BaseNeuron):
             f"threshold={self.threshold}, "
             f"neuron_num={self.neuron_num}, "
             f"time_step={self.time_step}, "
-            f"surrogate_gradient=\"{self.surro_grad.func_name}\", "
-            f"execution_mode=\"{self.exec_mode}\", "
+            f'surrogate_gradient="{self.surro_grad.func_name}", '
+            f'execution_mode="{self.exec_mode}", '
             f"recurrent={self.recurrent}"
             f")"
         )
@@ -617,41 +688,43 @@ class ALIF(BaseNeuron):
             return torch.stack(ty)
 
     def mem_update_adp(self, inputs, mem, spike, tau_adp, tau_m, b, dt=1, isAdapt=1):
-
-        alpha = torch.exp(-1. * dt / tau_m).cuda()
-        ro = torch.exp(-1. * dt / tau_adp).cuda()
+        alpha = torch.exp(-1.0 * dt / tau_m).cuda()
+        ro = torch.exp(-1.0 * dt / tau_adp).cuda()
         # tau_adp is tau_adaptative which is learnable # add requiregredients
         if isAdapt:
             beta = 1.8
         else:
-            beta = 0.
+            beta = 0.0
         b = ro * b + (1 - ro) * spike
         # B = 0.01 + beta * b
         # mem = mem * alpha + (1 - alpha) * 1. * inputs - B * spike * dt # the orginal setting is hard to converge
 
         B = self.threshold + beta * b
         mem = mem * alpha + inputs - B * spike * dt
-        spike = LIFAct_thresh.apply(mem, self.rest, self.decay, B, self.time_step, self.surro_grad)
+        spike = LIFAct_thresh.apply(
+            mem, self.rest, self.decay, B, self.time_step, self.surro_grad
+        )
         return mem, spike, B, b
+
     # def _temporal_fused_process(self, tx):
     # else: # todo: add recurrent acceleration
 
 
 class GLIF(BaseNeuron):
     """
-        Altered from https://github.com/Ikarosy/Gated-LIF
+    Altered from https://github.com/Ikarosy/Gated-LIF
     """
 
     def __init__(
-            self,
-            rest: float = 0.0,
-            decay: float = 0.2,
-            threshold: float = 0.3,
-            neuron_num: int = 1,
-            time_step: int = None,
-            surro_grad: SG = None,  # TODO: Set a default value
-            exec_mode: str = "serial",
-            recurrent: bool = False
+        self,
+        rest: float = 0.0,
+        decay: float = 0.2,
+        threshold: float = 0.3,
+        neuron_num: int = 1,
+        time_step: int = None,
+        surro_grad: SG = None,  # TODO: Set a default value
+        exec_mode: str = "serial",
+        recurrent: bool = False,
     ):
         super(GLIF, self).__init__(exec_mode=exec_mode)
         self.rest = rest
@@ -667,17 +740,31 @@ class GLIF(BaseNeuron):
         self.gate = [0.8, 0.2, 0.8]
         self.param = [0.25, 0.5, 0.5 / 8, 0.5]
         self.alpha, self.beta, self.gamma = [
-            nn.Parameter(- math.log(1 / ((i - 0.5) * 0.5 + 0.5) - 1) * torch.ones(self.neuron_num, dtype=torch.float))
-            for i in self.gate]
+            nn.Parameter(
+                -math.log(1 / ((i - 0.5) * 0.5 + 0.5) - 1)
+                * torch.ones(self.neuron_num, dtype=torch.float)
+            )
+            for i in self.gate
+        ]
 
         self.tau, self.Vth, self.leak = [
-            nn.Parameter(- math.log(1 / i - 1) * torch.ones(self.neuron_num, dtype=torch.float))
-            for i in self.param[:-1]]
-        self.reVth = nn.Parameter(- math.log(1 / self.param[1] - 1) * torch.ones(self.neuron_num, dtype=torch.float))
+            nn.Parameter(
+                -math.log(1 / i - 1) * torch.ones(self.neuron_num, dtype=torch.float)
+            )
+            for i in self.param[:-1]
+        ]
+        self.reVth = nn.Parameter(
+            -math.log(1 / self.param[1] - 1)
+            * torch.ones(self.neuron_num, dtype=torch.float)
+        )
         # t, c
-        self.conduct = \
-        [nn.Parameter(- math.log(1 / i - 1) * torch.ones((self.time_step, self.neuron_num), dtype=torch.float))
-         for i in self.param[3:]][0]
+        self.conduct = [
+            nn.Parameter(
+                -math.log(1 / i - 1)
+                * torch.ones((self.time_step, self.neuron_num), dtype=torch.float)
+            )
+            for i in self.param[3:]
+        ][0]
 
     def __repr__(self):
         return (
@@ -687,8 +774,8 @@ class GLIF(BaseNeuron):
             f"threshold={self.threshold}, "
             f"neuron_num={self.neuron_num}, "
             f"time_step={self.time_step}, "
-            f"surrogate_gradient=\"{self.surro_grad.func_name}\", "
-            f"execution_mode=\"{self.exec_mode}\", "
+            f'surrogate_gradient="{self.surro_grad.func_name}", '
+            f'execution_mode="{self.exec_mode}", '
             f"recurrent={self.recurrent}"
             f")"
         )
@@ -708,11 +795,16 @@ class GLIF(BaseNeuron):
         for x in tx:
             if self.recurrent:
                 x = x + self.recurrent_weight(y)
-            v, y = self.extended_state_update(v, y, x, tau=self.tau.sigmoid(),
-                                              Vth=self.Vth.sigmoid(),
-                                              leak=self.leak.sigmoid(),
-                                              conduct=self.conduct[step].sigmoid(),
-                                              reVth=self.reVth.sigmoid())
+            v, y = self.extended_state_update(
+                v,
+                y,
+                x,
+                tau=self.tau.sigmoid(),
+                Vth=self.Vth.sigmoid(),
+                leak=self.leak.sigmoid(),
+                conduct=self.conduct[step].sigmoid(),
+                reVth=self.reVth.sigmoid(),
+            )
             ty.append(y)
             step = step + 1
         if return_state:
@@ -720,33 +812,48 @@ class GLIF(BaseNeuron):
         else:
             return torch.stack(ty)
 
-    def extended_state_update(self, u_t_n1, o_t_n1, W_mul_o_t_n1, tau, Vth, leak, conduct, reVth):
+    def extended_state_update(
+        self, u_t_n1, o_t_n1, W_mul_o_t_n1, tau, Vth, leak, conduct, reVth
+    ):
         # [v: T B C]
-        al, be, ga = self.alpha.view(1, -1).sigmoid(), self.beta.view(1, -1).sigmoid(), self.gamma.view(1, -1).sigmoid()
+        al, be, ga = (
+            self.alpha.view(1, -1).sigmoid(),
+            self.beta.view(1, -1).sigmoid(),
+            self.gamma.view(1, -1).sigmoid(),
+        )
         I_t1 = W_mul_o_t_n1 * (1 - be * (1 - conduct[None, :]))
-        u_t_n1 = ((1 - al * (1 - tau[None, :])) * u_t_n1 * (1 - ga * o_t_n1.clone()) - (1 - al) * leak[None, :]) + \
-                 I_t1 - (1 - ga) * reVth[None, :] * o_t_n1.clone()
-        o_t_n1 = LIFAct_thresh.apply(u_t_n1, self.rest, self.decay, Vth[None, :], self.time_step, self.surro_grad)
+        u_t_n1 = (
+            (
+                (1 - al * (1 - tau[None, :])) * u_t_n1 * (1 - ga * o_t_n1.clone())
+                - (1 - al) * leak[None, :]
+            )
+            + I_t1
+            - (1 - ga) * reVth[None, :] * o_t_n1.clone()
+        )
+        o_t_n1 = LIFAct_thresh.apply(
+            u_t_n1, self.rest, self.decay, Vth[None, :], self.time_step, self.surro_grad
+        )
         return u_t_n1, o_t_n1
+
     # def _temporal_fused_process(self, tx):
     # else: # todo: add recurrent acceleration
 
 
 class CLIF(BaseNeuron):
     """
-        Altered from https://github.com/HuuYuLong/Complementary-LIF
+    Altered from https://github.com/HuuYuLong/Complementary-LIF
     """
 
     def __init__(
-            self,
-            rest: float = 0.0,
-            decay: float = 0.2,
-            threshold: float = 0.3,
-            neuron_num: int = 1,
-            time_step: int = None,
-            surro_grad: SG = None,  # TODO: Set a default value
-            exec_mode: str = "serial",
-            recurrent: bool = False
+        self,
+        rest: float = 0.0,
+        decay: float = 0.2,
+        threshold: float = 0.3,
+        neuron_num: int = 1,
+        time_step: int = None,
+        surro_grad: SG = None,  # TODO: Set a default value
+        exec_mode: str = "serial",
+        recurrent: bool = False,
     ):
         super(CLIF, self).__init__(exec_mode=exec_mode)
         self.rest = rest
@@ -769,8 +876,8 @@ class CLIF(BaseNeuron):
             f"threshold={self.threshold}, "
             f"neuron_num={self.neuron_num}, "
             f"time_step={self.time_step}, "
-            f"surrogate_gradient=\"{self.surro_grad.func_name}\", "
-            f"execution_mode=\"{self.exec_mode}\", "
+            f'surrogate_gradient="{self.surro_grad.func_name}", '
+            f'execution_mode="{self.exec_mode}", '
             f"recurrent={self.recurrent}"
             f")"
         )
@@ -792,34 +899,42 @@ class CLIF(BaseNeuron):
             if self.recurrent:
                 x = x + self.recurrent_weight(y)
             u = self.gamma * u + x
-            y = LIFAct.apply(u, self.rest, self.decay, self.threshold, self.time_step, self.surro_grad)
+            y = LIFAct.apply(
+                u,
+                self.rest,
+                self.decay,
+                self.threshold,
+                self.time_step,
+                self.surro_grad,
+            )
             ty.append(y)
-            m = m * torch.sigmoid_((1. - self.gamma) * u) + y
+            m = m * torch.sigmoid_((1.0 - self.gamma) * u) + y
             u = u - y * (self.threshold + torch.sigmoid_(m))
         if return_state:
             return torch.stack(ty), (u, y, m)
         else:
             return torch.stack(ty)
+
     # def _temporal_fused_process(self, tx):
     # else: # todo: add recurrent acceleration
 
 
 class CELIF(BaseNeuron):
     """
-        Implementation for https://arxiv.org/abs/2308.15150.
+    Implementation for https://arxiv.org/abs/2308.15150.
     """
 
     def __init__(
-            self,
-            rest: float = 0.0,
-            decay: float = 0.2,
-            threshold: float = 0.3,
-            neuron_num: int = 1,
-            time_step: int = None,
-            surro_grad: SG = None,  # TODO: Set a default value
-            exec_mode: str = "serial",
-            recurrent: bool = False,
-            beta: float = 0.02
+        self,
+        rest: float = 0.0,
+        decay: float = 0.2,
+        threshold: float = 0.3,
+        neuron_num: int = 1,
+        time_step: int = None,
+        surro_grad: SG = None,  # TODO: Set a default value
+        exec_mode: str = "serial",
+        recurrent: bool = False,
+        beta: float = 0.02,
     ):
         super(CELIF, self).__init__(exec_mode=exec_mode)
         self.rest = rest
@@ -843,8 +958,8 @@ class CELIF(BaseNeuron):
             f"threshold={self.threshold}, "
             f"neuron_num={self.neuron_num}, "
             f"time_step={self.time_step}, "
-            f"surrogate_gradient=\"{self.surro_grad.func_name}\", "
-            f"execution_mode=\"{self.exec_mode}\", "
+            f'surrogate_gradient="{self.surro_grad.func_name}", '
+            f'execution_mode="{self.exec_mode}", '
             f"recurrent={self.recurrent}"
             f")"
         )
@@ -865,9 +980,15 @@ class CELIF(BaseNeuron):
         for x in tx:
             if self.recurrent:
                 x = x + self.recurrent_weight(y)
-            thresh = thresh + v * self.TE[:self.neuron_num, step] - (thresh - self.threshold) * self.beta
-            v = v * self.decay * (1. - y) + x
-            y = LIFAct_thresh.apply(v, self.rest, self.decay, thresh, self.time_step, self.surro_grad)
+            thresh = (
+                thresh
+                + v * self.TE[: self.neuron_num, step]
+                - (thresh - self.threshold) * self.beta
+            )
+            v = v * self.decay * (1.0 - y) + x
+            y = LIFAct_thresh.apply(
+                v, self.rest, self.decay, thresh, self.time_step, self.surro_grad
+            )
             ty.append(y)
             step = step + 1
         if return_state:
@@ -883,19 +1004,19 @@ class CELIF(BaseNeuron):
 
 class SPSN(BaseNeuron):
     """
-        Altered from Spikingjelly
+    Altered from Spikingjelly
     """
 
     def __init__(
-            self,
-            rest: float = 0.0,
-            decay: float = 0.2,
-            threshold: float = 0.3,
-            neuron_num: int = 1,
-            time_step: int = None,
-            surro_grad: SG = None,  # TODO: Set a default value
-            exec_mode: str = "serial",
-            recurrent: bool = False
+        self,
+        rest: float = 0.0,
+        decay: float = 0.2,
+        threshold: float = 0.3,
+        neuron_num: int = 1,
+        time_step: int = None,
+        surro_grad: SG = None,  # TODO: Set a default value
+        exec_mode: str = "serial",
+        recurrent: bool = False,
     ):
         super(SPSN, self).__init__(exec_mode=exec_mode)
         self.rest = rest
@@ -909,15 +1030,15 @@ class SPSN(BaseNeuron):
 
         # self.register_memory('queue', [])
         self.k = 32
-        self.backend = 'conv'
+        self.backend = "conv"
         self.thresh = torch.tensor([self.threshold]).cuda()
 
         weight = torch.ones([self.k])
         for i in range(self.k - 2, -1, -1):
-            weight[i] = weight[i + 1] / 2.
+            weight[i] = weight[i + 1] / 2.0
 
         self.weight = nn.Parameter(weight)
-        self.bias = nn.Parameter(torch.as_tensor(-0.))
+        self.bias = nn.Parameter(torch.as_tensor(-0.0))
 
     def __repr__(self):
         return (
@@ -927,8 +1048,8 @@ class SPSN(BaseNeuron):
             f"threshold={self.threshold}, "
             f"neuron_num={self.neuron_num}, "
             f"time_step={self.time_step}, "
-            f"surrogate_gradient=\"{self.surro_grad.func_name}\", "
-            f"execution_mode=\"{self.exec_mode}\", "
+            f'surrogate_gradient="{self.surro_grad.func_name}", '
+            f'execution_mode="{self.exec_mode}", '
             f"recurrent={self.recurrent}"
             f")"
         )
@@ -944,9 +1065,14 @@ class SPSN(BaseNeuron):
         x_seq = nn.functional.pad(x_seq, pad=(self.k - 1, 0))
         v = nn.functional.conv1d(x_seq, self.weight.view(1, 1, -1), stride=1)
 
-        v = v.squeeze(1).t().contiguous().view(step_num, -1, self.neuron_num) + self.bias * self.thresh
+        v = (
+            v.squeeze(1).t().contiguous().view(step_num, -1, self.neuron_num)
+            + self.bias * self.thresh
+        )
 
-        ty = LIFAct_thresh.apply(v, self.rest, self.decay, self.thresh, self.time_step, self.surro_grad)
+        ty = LIFAct_thresh.apply(
+            v, self.rest, self.decay, self.thresh, self.time_step, self.surro_grad
+        )
 
         if return_state:
             return ty, (state)
@@ -958,20 +1084,20 @@ class SPSN(BaseNeuron):
 
 class LTC(BaseNeuron):
     """
-        Altered from https://github.com/byin-cwi/sFPTT/blob/main/fptt/fptt_mnist/snn_models_LIF4_save4.py
+    Altered from https://github.com/byin-cwi/sFPTT/blob/main/fptt/fptt_mnist/snn_models_LIF4_save4.py
     """
 
     def __init__(
-            self,
-            rest: float = 0.0,
-            decay: float = 0.2,
-            threshold: float = 0.3,
-            neuron_num: int = 1,
-            time_step: int = None,
-            surro_grad: SG = None,  # TODO: Set a default value
-            exec_mode: str = "serial",
-            recurrent: bool = False,
-            b_j0: float = 0.2
+        self,
+        rest: float = 0.0,
+        decay: float = 0.2,
+        threshold: float = 0.3,
+        neuron_num: int = 1,
+        time_step: int = None,
+        surro_grad: SG = None,  # TODO: Set a default value
+        exec_mode: str = "serial",
+        recurrent: bool = False,
+        b_j0: float = 0.2,
     ):
         super(LTC, self).__init__(exec_mode=exec_mode)
         self.rest = rest
@@ -1006,8 +1132,8 @@ class LTC(BaseNeuron):
             f"threshold={self.threshold}, "
             f"neuron_num={self.neuron_num}, "
             f"time_step={self.time_step}, "
-            f"surrogate_gradient=\"{self.surro_grad.func_name}\", "
-            f"execution_mode=\"{self.exec_mode}\", "
+            f'surrogate_gradient="{self.surro_grad.func_name}", '
+            f'execution_mode="{self.exec_mode}", '
             f"recurrent={self.recurrent}"
             f")"
         )
@@ -1030,17 +1156,21 @@ class LTC(BaseNeuron):
             if self.recurrent:
                 x = x + self.recurrent_weight(y)
 
-            alpha = self.act1(self.layer1_tauM(torch.cat((x, mem), dim=-1)))  # to avoid gradient explosion
+            alpha = self.act1(
+                self.layer1_tauM(torch.cat((x, mem), dim=-1))
+            )  # to avoid gradient explosion
             ro = self.act2(self.layer1_tauAdp(torch.cat((x, b), dim=-1)))
             beta = self.beta
 
             b = ro * b + (1 - ro) * y
             B = self.threshold + beta * b
 
-            d_mem = - mem + x
+            d_mem = -mem + x
             mem = mem + d_mem * alpha
 
-            y = LIFAct_thresh.apply(mem, self.rest, self.decay, B, self.time_step, self.surro_grad)
+            y = LIFAct_thresh.apply(
+                mem, self.rest, self.decay, B, self.time_step, self.surro_grad
+            )
             mem = (1 - y) * mem
             ty.append(y)
             step = step + 1
@@ -1054,17 +1184,16 @@ class LTC(BaseNeuron):
 
 
 class PMSN(BaseNeuron):
-
     def __init__(
-            self,
-            rest: float = 0.0,
-            decay: float = 0.2,
-            threshold: float = 0.3,
-            neuron_num: int = 1,
-            time_step: int = None,
-            surro_grad: SG = None,  # TODO: Set a default value
-            exec_mode: str = "serial",
-            recurrent: bool = False,
+        self,
+        rest: float = 0.0,
+        decay: float = 0.2,
+        threshold: float = 0.3,
+        neuron_num: int = 1,
+        time_step: int = None,
+        surro_grad: SG = None,  # TODO: Set a default value
+        exec_mode: str = "serial",
+        recurrent: bool = False,
     ):
         super(PMSN, self).__init__(exec_mode=exec_mode)
         self.rest = rest
@@ -1091,7 +1220,7 @@ class PMSN(BaseNeuron):
             f"neuron_num={self.neuron_num}, "
             f"time_step={self.time_step}, "
             # f"surrogate_gradient=\"{self.surro_grad.func_name}\", "
-            f"execution_mode=\"{self.exec_mode}\", "
+            f'execution_mode="{self.exec_mode}", '
             f"recurrent={self.recurrent}"
             f")"
         )
@@ -1131,7 +1260,9 @@ class PMSN_kernel(nn.Module):
         super().__init__()
         # Generate dt
         H = d_model
-        log_dt = torch.rand(H).uniform_(0, 1) * (math.log(dt_max) - math.log(dt_min)) + math.log(dt_min)  # [H]
+        log_dt = torch.rand(H).uniform_(0, 1) * (
+            math.log(dt_max) - math.log(dt_min)
+        ) + math.log(dt_min)  # [H]
 
         self.log_dt = nn.Parameter(log_dt)
         diag_indices = torch.arange(N)
@@ -1140,11 +1271,15 @@ class PMSN_kernel(nn.Module):
 
         S = torch.zeros(N, N)
         S[diag_indices, diag_indices] = -0.5
-        S[diag_indices[:-1], sub_diag_indices] = 5. * ((torch.arange(N - 1) + 1))
-        S[diag_indices[1:], super_diag_indices] = -5. * ((torch.arange(N - 1) + 1))  # 超对角线
+        S[diag_indices[:-1], sub_diag_indices] = 5.0 * (torch.arange(N - 1) + 1)
+        S[diag_indices[1:], super_diag_indices] = -5.0 * (
+            torch.arange(N - 1) + 1
+        )  # 超对角线
 
         S_diag = torch.diagonal(S)
-        A_real = (torch.mean(S_diag) * torch.ones_like(S_diag)).unsqueeze(0).repeat(H, 1)
+        A_real = (
+            (torch.mean(S_diag) * torch.ones_like(S_diag)).unsqueeze(0).repeat(H, 1)
+        )
 
         A_imag, V = torch.linalg.eigh(S * -1j)  # [N; N,N]
         A_imag = A_imag.unsqueeze(0).repeat(H, 1)
@@ -1161,8 +1296,8 @@ class PMSN_kernel(nn.Module):
         C = torch.zeros(H, N)
         C[:, -1] = 1
         Vinv = V.conj().T  # [N,N]
-        CV = torch.einsum('hm,mn->hn', C + 0j, V)  # [H,N]
-        VinvB = torch.einsum('mn,hn->hm', Vinv, B + 0j)  # [H,N]
+        CV = torch.einsum("hm,mn->hn", C + 0j, V)  # [H,N]
+        VinvB = torch.einsum("mn,hn->hm", Vinv, B + 0j)  # [H,N]
 
         self.VinvB_real = nn.Parameter(VinvB.real)
         self.VinvB_imag = nn.Parameter(VinvB.imag)
@@ -1180,30 +1315,32 @@ class PMSN_kernel(nn.Module):
         A_bar = torch.exp(A * dt.unsqueeze(-1))  # [H N]
         B_bar = (A_bar - 1) * B / A
         # Vandermonde multiplication
-        logK = (A * dt.unsqueeze(-1)).unsqueeze(-1) * torch.arange(L, device=A.device)  # (H N L)   e-At
+        logK = (A * dt.unsqueeze(-1)).unsqueeze(-1) * torch.arange(
+            L, device=A.device
+        )  # (H N L)   e-At
         K = torch.exp(logK)
-        KB = torch.einsum('hnl,hn->hnl', K, B_bar)  # e-At*B  # (H N L)
-        CKB = torch.einsum('hn, hnl -> hl', C, KB).real  # (H L)
+        KB = torch.einsum("hnl,hn->hnl", K, B_bar)  # e-At*B  # (H N L)
+        CKB = torch.einsum("hn, hnl -> hl", C, KB).real  # (H L)
         return CKB
 
 
 class DHSNN(BaseNeuron):
     """
-        Altered from https://github.com/eva1801/DH-SNN
+    Altered from https://github.com/eva1801/DH-SNN
     """
 
     def __init__(
-            self,
-            rest: float = 0.0,
-            decay: float = 0.2,
-            threshold: float = 0.3,
-            input_features: int = 1,
-            neuron_num: int = 1,
-            time_step: int = None,
-            surro_grad: SG = None,
-            exec_mode: str = "serial",
-            recurrent: bool = False,
-            branch: int = 4
+        self,
+        rest: float = 0.0,
+        decay: float = 0.2,
+        threshold: float = 0.3,
+        input_features: int = 1,
+        neuron_num: int = 1,
+        time_step: int = None,
+        surro_grad: SG = None,
+        exec_mode: str = "serial",
+        recurrent: bool = False,
+        branch: int = 4,
     ):
         super(DHSNN, self).__init__(exec_mode=exec_mode)
         self.rest = rest
@@ -1216,15 +1353,21 @@ class DHSNN(BaseNeuron):
         self.recurrent = recurrent
 
         if self.recurrent:
-            self.pad = ((input_features + neuron_num) // branch * branch + branch - (
-                        input_features + neuron_num)) % branch
-            self.dense = nn.Linear(input_features + neuron_num + self.pad, neuron_num * branch)
+            self.pad = (
+                (input_features + neuron_num) // branch * branch
+                + branch
+                - (input_features + neuron_num)
+            ) % branch
+            self.dense = nn.Linear(
+                input_features + neuron_num + self.pad, neuron_num * branch
+            )
             # bound = 1 / math.sqrt(input_features) + 1 / math.sqrt(neuron_num)
             # nn.init.uniform_(self.dense.bias, -bound, bound)
 
-
         else:
-            self.pad = ((input_features) // branch * branch + branch - (input_features)) % branch
+            self.pad = (
+                (input_features) // branch * branch + branch - (input_features)
+            ) % branch
             self.dense = nn.Linear(input_features + self.pad, neuron_num * branch)
 
         # mask_rate = 1 / branch
@@ -1249,8 +1392,8 @@ class DHSNN(BaseNeuron):
             f"threshold={self.threshold}, "
             f"neuron_num={self.neuron_num}, "
             f"time_step={self.time_step}, "
-            f"surrogate_gradient=\"{self.surro_grad.func_name}\", "
-            f"execution_mode=\"{self.exec_mode}\", "
+            f'surrogate_gradient="{self.surro_grad.func_name}", '
+            f'execution_mode="{self.exec_mode}", '
             f"recurrent={self.recurrent}, "
             f"branch={self.branch}"
             f")"
@@ -1266,7 +1409,9 @@ class DHSNN(BaseNeuron):
         else:
             v = torch.ones(tx.size(1), self.neuron_num, device=tx.device) * self.rest
             y = torch.zeros(tx.size(1), self.neuron_num, device=tx.device)
-            d_input = torch.zeros(tx.size(1), self.neuron_num, self.branch, device=tx.device)
+            d_input = torch.zeros(
+                tx.size(1), self.neuron_num, self.branch, device=tx.device
+            )
             return_state = False
 
         for x in tx:
@@ -1280,16 +1425,27 @@ class DHSNN(BaseNeuron):
 
             # update dendritic currents
 
-            d_input = beta * d_input + (1 - beta) * x.reshape(-1, self.neuron_num, self.branch)
+            d_input = beta * d_input + (1 - beta) * x.reshape(
+                -1, self.neuron_num, self.branch
+            )
             # summation of dendritic currents
 
             l_input = d_input.sum(dim=2, keepdim=False)
 
             alpha = torch.sigmoid(self.tau_m)
 
-            v = v * alpha + l_input - self.threshold * y  # replace orginal to avoid gradient vanishing
+            v = (
+                v * alpha + l_input - self.threshold * y
+            )  # replace orginal to avoid gradient vanishing
             # v = v * alpha + (1 - alpha) * l_input - self.threshold * y
-            y = LIFAct.apply(v, self.rest, self.decay, self.threshold, self.time_step, self.surro_grad)
+            y = LIFAct.apply(
+                v,
+                self.rest,
+                self.decay,
+                self.threshold,
+                self.time_step,
+                self.surro_grad,
+            )
             ty.append(y)
 
         # print('tv',torch.stack(tv).mean())
@@ -1308,7 +1464,13 @@ class DHSNN(BaseNeuron):
             seq = torch.randperm(input_size)
             for j in range(self.branch):
                 self.mask[
-                    i * self.branch + j, seq[j * input_size // self.branch:(j + 1) * input_size // self.branch]] = 1
+                    i * self.branch + j,
+                    seq[
+                        j * input_size // self.branch : (j + 1)
+                        * input_size
+                        // self.branch
+                    ],
+                ] = 1
 
     def apply_mask(self):
         # print('Apply Mask')
@@ -1319,26 +1481,27 @@ class DHSNN(BaseNeuron):
         # else:
 
         self.dense.weight.data = self.dense.weight.data * self.mask
+
     # def _temporal_fused_process(self, tx):
     # else: # todo: add recurrent acceleration
 
 
 class adLIF(BaseNeuron):
     """
-        Altered from https://github.com/idiap/sparch
+    Altered from https://github.com/idiap/sparch
     """
 
     def __init__(
-            self,
-            rest: float = 0.0,
-            decay: float = 0.2,
-            threshold: float = 0.3,
-            input_features: int = 1,
-            neuron_num: int = 1,
-            time_step: int = None,
-            surro_grad: SG = None,
-            exec_mode: str = "serial",
-            recurrent: bool = False
+        self,
+        rest: float = 0.0,
+        decay: float = 0.2,
+        threshold: float = 0.3,
+        input_features: int = 1,
+        neuron_num: int = 1,
+        time_step: int = None,
+        surro_grad: SG = None,
+        exec_mode: str = "serial",
+        recurrent: bool = False,
     ):
         super(adLIF, self).__init__(exec_mode=exec_mode)
         self.rest = rest
@@ -1383,8 +1546,8 @@ class adLIF(BaseNeuron):
             f"threshold={self.threshold}, "
             f"neuron_num={self.neuron_num}, "
             f"time_step={self.time_step}, "
-            f"surrogate_gradient=\"{self.surro_grad.func_name}\", "
-            f"execution_mode=\"{self.exec_mode}\", "
+            f'surrogate_gradient="{self.surro_grad.func_name}", '
+            f'execution_mode="{self.exec_mode}", '
             f"recurrent={self.recurrent}"
             f")"
         )
@@ -1420,34 +1583,43 @@ class adLIF(BaseNeuron):
             wt = beta * wt + a * v + b * y
             v = alpha * (v - y) + (1 - alpha) * (x - wt)
 
-            y = LIFAct.apply(v, self.rest, self.decay, self.threshold, self.time_step, self.surro_grad)
+            y = LIFAct.apply(
+                v,
+                self.rest,
+                self.decay,
+                self.threshold,
+                self.time_step,
+                self.surro_grad,
+            )
             ty.append(y)
 
         if return_state:
             return torch.stack(ty), (v, y, wt)
         else:
             return torch.stack(ty)
+
     # def _temporal_fused_process(self, tx):
     # else: # todo: add recurrent acceleration
 
 
 class TCLIF(BaseNeuron):
     """
-        Shimin Zhang \emph{et al.}, TC-LIF: A Two-Compartment Spiking Neuron Model for Long-Term Sequential Modelling, 2024.
+    Shimin Zhang \emph{et al.}, TC-LIF: A Two-Compartment Spiking Neuron Model for Long-Term Sequential Modelling, 2024.
     """
 
-    def __init__(self,
+    def __init__(
+        self,
         rest: float = 0.0,
         decay: float = 0.2,
         threshold: float = 0.3,
         neuron_num: int = 1,
         time_step: int = None,
-        surro_grad: SG = None,  
+        surro_grad: SG = None,
         exec_mode: str = "serial",
         recurrent: bool = False,
-        beta1: float = 0.,
-        beta2: float = 0.,
-        gamma: float = 0.5
+        beta1: float = 0.0,
+        beta2: float = 0.0,
+        gamma: float = 0.5,
     ):
         super(TCLIF, self).__init__(exec_mode=exec_mode)
         self.rest = rest
@@ -1477,8 +1649,8 @@ class TCLIF(BaseNeuron):
             f"threshold={self.threshold}, "
             f"neuron_num={self.neuron_num}, "
             f"time_step={self.time_step}, "
-            f"surrogate_gradient=\"{self.surro_grad.func_name}\", "
-            f"execution_mode=\"{self.exec_mode}\", "
+            f'surrogate_gradient="{self.surro_grad.func_name}", '
+            f'execution_mode="{self.exec_mode}", '
             f"recurrent={self.recurrent}"
             f")"
         )
@@ -1500,7 +1672,14 @@ class TCLIF(BaseNeuron):
                 x = x + self.recurrent_weight(y)
             v1 = v1 - torch.sigmoid(self.decay_factor[0][0]) * v2 + x
             v2 = v2 + torch.sigmoid(self.decay_factor[0][1]) * v1
-            y = LIFAct.apply(v2, self.rest, self.decay, self.threshold, self.time_step, self.surro_grad)
+            y = LIFAct.apply(
+                v2,
+                self.rest,
+                self.decay,
+                self.threshold,
+                self.time_step,
+                self.surro_grad,
+            )
             ty.append(y)
             v1 = v1 - y * self.gamma
             v2 = v2 - y * self.threshold

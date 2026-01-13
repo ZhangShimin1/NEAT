@@ -7,10 +7,12 @@ import torch
 from typeguard import typechecked
 
 from espnet2.asr.ctc import CTC
+
 # import sys
 # sys.path.insert(0, "/home/zysong/AcouSpike/acouspike")
 from acouspike.ASR.encoder.vgg_rnn_encoder import VGGRNNEncoder
 from espnet2.asr.decoder.abs_decoder import AbsDecoder
+
 # from espnet2.asr.decoder.hugging_face_transformers_decoder import (  # noqa: H301
 #     HuggingFaceTransformersDecoder,
 # )
@@ -25,29 +27,30 @@ from espnet2.asr.decoder.transformer_decoder import (
     LightweightConvolutionTransformerDecoder,
     TransformerDecoder,
 )
+
 # from espnet2.asr.decoder.whisper_decoder import OpenAIWhisperDecoder
 from espnet2.asr.encoder.abs_encoder import AbsEncoder
 # from espnet2.asr.encoder.avhubert_encoder import FairseqAVHubertEncoder
 # from espnet2.asr.encoder.branchformer_encoder import BranchformerEncoder
 # from espnet2.asr.encoder.conformer_encoder import ConformerEncoder
 # from espnet2.asr.encoder.contextual_block_conformer_encoder import (
-    # ContextualBlockConformerEncoder,
+# ContextualBlockConformerEncoder,
 # )
 # from espnet2.asr.encoder.contextual_block_transformer_encoder import (
-    # ContextualBlockTransformerEncoder,
+# ContextualBlockTransformerEncoder,
 # )
 # from espnet2.asr.encoder.e_branchformer_encoder import EBranchformerEncoder
 # from espnet2.asr.encoder.hubert_encoder import (
-    # FairseqHubertEncoder,
-    # FairseqHubertPretrainEncoder,
-    # TorchAudioHuBERTPretrainEncoder,
+# FairseqHubertEncoder,
+# FairseqHubertPretrainEncoder,
+# TorchAudioHuBERTPretrainEncoder,
 # )
 # from espnet2.asr.encoder.longformer_encoder import LongformerEncoder
 # from espnet2.asr.encoder.multiconvformer_encoder import MultiConvConformerEncoder
 # from espnet2.asr.encoder.rnn_encoder import RNNEncoder
 # from espnet2.asr.encoder.transformer_encoder import TransformerEncoder
 # from espnet2.asr.encoder.transformer_encoder_multispkr import (
-    # TransformerEncoder as TransformerEncoderMultiSpkr,
+# TransformerEncoder as TransformerEncoderMultiSpkr,
 # )
 
 # from espnet2.asr.encoder.wav2vec2_encoder import FairSeqWav2Vec2Encoder
@@ -55,6 +58,7 @@ from espnet2.asr.encoder.abs_encoder import AbsEncoder
 from espnet2.asr.espnet_model import ESPnetASRModel
 from espnet2.asr.frontend.abs_frontend import AbsFrontend
 from espnet2.asr.frontend.default import DefaultFrontend
+
 # from espnet2.asr.frontend.fused import FusedFrontends
 # from espnet2.asr.frontend.s3prl import S3prlFrontend
 # from espnet2.asr.frontend.whisper import WhisperFrontend
@@ -62,14 +66,17 @@ from espnet2.asr.frontend.default import DefaultFrontend
 # from espnet2.asr.maskctc_model import MaskCTCModel
 # from espnet2.asr.pit_espnet_model import ESPnetASRModel as PITESPnetModel
 from espnet2.asr.postencoder.abs_postencoder import AbsPostEncoder
+
 # from espnet2.asr.postencoder.hugging_face_transformers_postencoder import (
-    # HuggingFaceTransformersPostEncoder,
+# HuggingFaceTransformersPostEncoder,
 # )
 # from espnet2.asr.postencoder.length_adaptor_postencoder import LengthAdaptorPostEncoder
 from espnet2.asr.preencoder.abs_preencoder import AbsPreEncoder
+
 # from espnet2.asr.preencoder.linear import LinearProjection
 # from espnet2.asr.preencoder.sinc import LightweightSincConvs
 from espnet2.asr.specaug.abs_specaug import AbsSpecAug
+
 # from espnet2.asr.specaug.specaug import SpecAug
 # from espnet2.asr_transducer.joint_network import JointNetwork
 from espnet2.layers.abs_normalize import AbsNormalize
@@ -317,7 +324,7 @@ class ASRTask(AbsTask):
                 "whisper_en",
                 "whisper_multilingual",
             ],
-            help="The text will be tokenized " "in the specified level token",
+            help="The text will be tokenized in the specified level token",
         )
         group.add_argument(
             "--bpemodel",
@@ -409,7 +416,9 @@ class ASRTask(AbsTask):
 
     @classmethod
     @typechecked
-    def build_collate_fn(cls, args: argparse.Namespace, train: bool) -> Callable[
+    def build_collate_fn(
+        cls, args: argparse.Namespace, train: bool
+    ) -> Callable[
         [Collection[Tuple[str, Dict[str, np.ndarray]]]],
         Tuple[List[str], Dict[str, torch.Tensor]],
     ]:
@@ -495,7 +504,7 @@ class ASRTask(AbsTask):
         retval = retval + ["prompt"]
         retval = tuple(retval)
 
-        logging.info(f"Optional Data Names: {retval }")
+        logging.info(f"Optional Data Names: {retval}")
         return retval
 
     @classmethod
@@ -523,7 +532,7 @@ class ASRTask(AbsTask):
             args.token_list = token_list
 
         vocab_size = len(token_list)
-        logging.info(f"Vocabulary size: {vocab_size }")
+        logging.info(f"Vocabulary size: {vocab_size}")
 
         # 1. frontend
         if args.input_size is None:

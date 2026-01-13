@@ -13,14 +13,14 @@ import datetime
 
 def cal_firing_rate(s_seq: torch.Tensor):
     # s_seq.shape = [T, N, *]
-    return s_seq.flatten(2).transpose(1,0).mean([1,2])
+    return s_seq.flatten(2).transpose(1, 0).mean([1, 2])
+
 
 def unpack_len1_tuple(x: Union[tuple, torch.Tensor]):
     if isinstance(x, tuple) and x.__len__() == 1:
         return x[0]
     else:
         return x
-
 
 
 class BaseMonitor:
@@ -65,7 +65,12 @@ class BaseMonitor:
 
 
 class OutputMonitor(BaseMonitor):
-    def __init__(self, net: nn.Module, instance: Optional[Union[type, tuple[type, ...]]] = None, function_on_output: Callable = lambda x: x):
+    def __init__(
+        self,
+        net: nn.Module,
+        instance: Optional[Union[type, tuple[type, ...]]] = None,
+        function_on_output: Callable = lambda x: x,
+    ):
         """
         * :ref:`API in English <OutputMonitor-en>`
 
@@ -81,7 +86,7 @@ class OutputMonitor(BaseMonitor):
         对 ``net`` 中所有类型为 ``instance`` 的模块的输出使用 ``function_on_output`` 作用后，记录到类型为 `list`` 的 ``self.records`` 中。
         可以通过 ``self.enable()`` 和 ``self.disable()`` 来启用或停用这个监视器。
         可以通过 ``self.clear_recorded_data()`` 来清除已经记录的数据。
-        
+
         阅读监视器的教程以获得更多信息。
 
         示例代码：
@@ -192,12 +197,17 @@ class OutputMonitor(BaseMonitor):
             if self.is_enable():
                 self.name_records_index[name].append(self.records.__len__())
                 self.records.append(self.function_on_output(unpack_len1_tuple(y)))
+
         return hook
 
 
-
 class InputMonitor(BaseMonitor):
-    def __init__(self, net: nn.Module, instance: Optional[Union[type, tuple[type, ...]]] = None, function_on_input: Callable = lambda x: x):
+    def __init__(
+        self,
+        net: nn.Module,
+        instance: Optional[Union[type, tuple[type, ...]]] = None,
+        function_on_input: Callable = lambda x: x,
+    ):
         """
         * :ref:`API in English <InputMonitor-en>`
 
@@ -213,7 +223,7 @@ class InputMonitor(BaseMonitor):
         对 ``net`` 中所有类型为 ``instance`` 的模块的输入使用 ``function_on_input`` 作用后，记录到类型为 `list`` 的 ``self.records`` 中。
         可以通过 ``self.enable()`` 和 ``self.disable()`` 来启用或停用这个监视器。
         可以通过 ``self.clear_recorded_data()`` 来清除已经记录的数据。
-        
+
         阅读监视器的教程以获得更多信息。
 
         示例代码：
@@ -338,8 +348,14 @@ class InputMonitor(BaseMonitor):
 
 
 class AttributeMonitor(BaseMonitor):
-    def __init__(self, attribute_name: str, pre_forward: bool, net: nn.Module, instance: Optional[Union[type, tuple[type, ...]]] = None,
-                 function_on_attribute: Callable = lambda x: x):
+    def __init__(
+        self,
+        attribute_name: str,
+        pre_forward: bool,
+        net: nn.Module,
+        instance: Optional[Union[type, tuple[type, ...]]] = None,
+        function_on_attribute: Callable = lambda x: x,
+    ):
         """
         * :ref:`API in English <AttributeMonitor-en>`
 
@@ -359,7 +375,7 @@ class AttributeMonitor(BaseMonitor):
         对 ``net`` 中所有类型为 ``instance`` 的模块 ``m`` 的成员 ``m.attribute_name`` 使用 ``function_on_attribute`` 作用后，记录到类型为 `list`` 的  ``self.records``。
         可以通过 ``self.enable()`` 和 ``self.disable()`` 来启用或停用这个监视器。
         可以通过 ``self.clear_recorded_data()`` 来清除已经记录的数据。
-        
+
         阅读监视器的教程以获得更多信息。
 
         示例代码：
@@ -486,20 +502,26 @@ class AttributeMonitor(BaseMonitor):
                         m.register_forward_pre_hook(self.create_hook(name))
                     )
                 else:
-                    self.hooks.append(
-                        m.register_forward_hook(self.create_hook(name))
-                    )
+                    self.hooks.append(m.register_forward_hook(self.create_hook(name)))
 
     def create_hook(self, name):
         def hook(m, x, y):
             if self.is_enable():
                 self.name_records_index[name].append(self.records.__len__())
-                self.records.append(self.function_on_attribute(m.__getattr__(self.attribute_name)))
+                self.records.append(
+                    self.function_on_attribute(m.__getattr__(self.attribute_name))
+                )
 
         return hook
 
+
 class GradInputMonitor(BaseMonitor):
-    def __init__(self, net: nn.Module, instance: Optional[Union[type, tuple[type, ...]]] = None, function_on_grad_input: Callable = lambda x: x):
+    def __init__(
+        self,
+        net: nn.Module,
+        instance: Optional[Union[type, tuple[type, ...]]] = None,
+        function_on_grad_input: Callable = lambda x: x,
+    ):
         """
         * :ref:`API in English <GradInputMonitor-en>`
 
@@ -515,7 +537,7 @@ class GradInputMonitor(BaseMonitor):
         对 ``net`` 中所有类型为 ``instance`` 的模块的输入的梯度使用 ``function_on_grad_input`` 作用后，记录到类型为 `list`` 的 ``self.records`` 中。
         可以通过 ``self.enable()`` 和 ``self.disable()`` 来启用或停用这个监视器。
         可以通过 ``self.clear_recorded_data()`` 来清除已经记录的数据。
-        
+
         阅读监视器的教程以获得更多信息。
 
         .. Note::
@@ -631,8 +653,10 @@ class GradInputMonitor(BaseMonitor):
             if isinstance(m, instance):
                 self.monitored_layers.append(name)
                 self.name_records_index[name] = []
-                if torch.__version__ >= torch.torch_version.TorchVersion('1.8.0'):
-                    self.hooks.append(m.register_full_backward_hook(self.create_hook(name)))
+                if torch.__version__ >= torch.torch_version.TorchVersion("1.8.0"):
+                    self.hooks.append(
+                        m.register_full_backward_hook(self.create_hook(name))
+                    )
                 else:
                     self.hooks.append(m.register_backward_hook(self.create_hook(name)))
 
@@ -640,13 +664,20 @@ class GradInputMonitor(BaseMonitor):
         def hook(m, grad_input, grad_output):
             if self.is_enable():
                 self.name_records_index[name].append(self.records.__len__())
-                self.records.append(self.function_on_grad_input(unpack_len1_tuple(grad_input)))
+                self.records.append(
+                    self.function_on_grad_input(unpack_len1_tuple(grad_input))
+                )
 
         return hook
 
 
 class GradOutputMonitor(BaseMonitor):
-    def __init__(self, net: nn.Module, instance: Optional[Union[type, tuple[type, ...]]] = None, function_on_grad_output: Callable = lambda x: x):
+    def __init__(
+        self,
+        net: nn.Module,
+        instance: Optional[Union[type, tuple[type, ...]]] = None,
+        function_on_grad_output: Callable = lambda x: x,
+    ):
         """
         * :ref:`API in English <GradOutputMonitor-en>`
 
@@ -662,7 +693,7 @@ class GradOutputMonitor(BaseMonitor):
         对 ``net`` 中所有类型为 ``instance`` 的模块的输出的梯度使用 ``function_on_grad_output`` 作用后，记录到类型为 `list`` 的 ``self.records`` 中。
         可以通过 ``self.enable()`` 和 ``self.disable()`` 来启用或停用这个监视器。
         可以通过 ``self.clear_recorded_data()`` 来清除已经记录的数据。
-        
+
         阅读监视器的教程以获得更多信息。
 
         .. Note::
@@ -785,8 +816,10 @@ class GradOutputMonitor(BaseMonitor):
             if isinstance(m, instance):
                 self.monitored_layers.append(name)
                 self.name_records_index[name] = []
-                if torch.__version__ >= torch.torch_version.TorchVersion('1.8.0'):
-                    self.hooks.append(m.register_full_backward_hook(self.create_hook(name)))
+                if torch.__version__ >= torch.torch_version.TorchVersion("1.8.0"):
+                    self.hooks.append(
+                        m.register_full_backward_hook(self.create_hook(name))
+                    )
                 else:
                     self.hooks.append(m.register_backward_hook(self.create_hook(name)))
 
@@ -794,12 +827,21 @@ class GradOutputMonitor(BaseMonitor):
         def hook(m, grad_input, grad_output):
             if self.is_enable():
                 self.name_records_index[name].append(self.records.__len__())
-                self.records.append(self.function_on_grad_output(unpack_len1_tuple(grad_output)))
+                self.records.append(
+                    self.function_on_grad_output(unpack_len1_tuple(grad_output))
+                )
 
         return hook
 
+
 class GPUMonitor(threading.Thread):
-    def __init__(self, log_dir: Optional[str] = None, gpu_ids: tuple = (0,), interval: float = 600., start_now=True):
+    def __init__(
+        self,
+        log_dir: Optional[str] = None,
+        gpu_ids: tuple = (0,),
+        interval: float = 600.0,
+        start_now=True,
+    ):
         """
         * :ref:`API in English <GPUMonitor.__init__-en>`
 
@@ -876,18 +918,18 @@ class GPUMonitor(threading.Thread):
         self.gpu_ids = gpu_ids
         self.interval = interval
         self.stopped = False
-        self.cmds = 'nvidia-smi --query-gpu=utilization.gpu,memory.used --format=csv'
-        self.cmds += ' -i '
+        self.cmds = "nvidia-smi --query-gpu=utilization.gpu,memory.used --format=csv"
+        self.cmds += " -i "
         id_str = []
         for gpu_id in self.gpu_ids:
             id_str.append(str(gpu_id))
-        self.cmds += ','.join(id_str)
+        self.cmds += ",".join(id_str)
         self.step = 0
 
         if log_dir is None:
             self.writer = None
         else:
-            self.writer = SummaryWriter(os.path.join(log_dir, 'gpu_monitor'))
+            self.writer = SummaryWriter(os.path.join(log_dir, "gpu_monitor"))
 
         if start_now:
             self.start()
@@ -900,24 +942,28 @@ class GPUMonitor(threading.Thread):
             with os.popen(self.cmds) as fp:
                 outputs = fp.read()
                 if self.writer is not None:
-                    outputs = outputs.split('\n')[1:-1]
+                    outputs = outputs.split("\n")[1:-1]
                     # skip the first row 'utilization.gpu [%], memory.used [MiB]' and the last row ('\n')
                     for i in range(outputs.__len__()):
-                        utilization_memory = re.findall(r'\d+', outputs[i])
+                        utilization_memory = re.findall(r"\d+", outputs[i])
                         utilization = int(utilization_memory[0])
                         memory_used = int(utilization_memory[1])
-                        self.writer.add_scalar(f'utilization_{self.gpu_ids[i]}', utilization, self.step)
-                        self.writer.add_scalar(f'memory_used_{self.gpu_ids[i]}', memory_used, self.step)
+                        self.writer.add_scalar(
+                            f"utilization_{self.gpu_ids[i]}", utilization, self.step
+                        )
+                        self.writer.add_scalar(
+                            f"memory_used_{self.gpu_ids[i]}", memory_used, self.step
+                        )
                 else:
                     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
                     print(outputs)
-                    '''
+                    """
                     2022-04-20 18:14:26
                     utilization.gpu [%], memory.used [MiB]
                     4 %, 1816 MiB
                     0 %, 1840 MiB
                     0 %, 1840 MiB
                     0 %, 1720 MiB
-                    '''
+                    """
             time.sleep(self.interval)
             self.step += 1

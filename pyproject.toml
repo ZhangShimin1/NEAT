@@ -33,3 +33,8 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["acouspike"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.14.11",
+]

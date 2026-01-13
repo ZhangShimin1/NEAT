@@ -1,9 +1,10 @@
-
 def _spatio_temporal_backpropagation_based_hard_update(x, v, y, rest, decay, *_, **__):
     return decay * v * (1.0 - y) + rest * y + x
 
 
-def _spatio_temporal_backpropagation_based_soft_update(x, v, y, rest, decay, threshold, *_, **__):
+def _spatio_temporal_backpropagation_based_soft_update(
+    x, v, y, rest, decay, threshold, *_, **__
+):
     return decay * v + (rest - threshold) * y + x
 
 
@@ -11,7 +12,9 @@ def _spatio_domain_backpropagation_based_hard_update(x, v, y, rest, decay, *_, *
     return decay * v.detach() * (1.0 - y.detach()) + rest * y.detach() + x
 
 
-def _spatio_domain_backpropagation_based_soft_update(x, v, y, rest, decay, threshold, *_, **__):
+def _spatio_domain_backpropagation_based_soft_update(
+    x, v, y, rest, decay, threshold, *_, **__
+):
     return decay * v.detach() + (rest - threshold) * y.detach() + x
 
 
@@ -31,14 +34,23 @@ __func_name__ = {
 
 class MembraneUpdate:
     def __init__(self, prop_mode: str, reset_mode, *args, **kwargs):
-        self.prop_mode  = prop_mode
+        self.prop_mode = prop_mode
         self.reset_mode = reset_mode
-        self.args       = args
-        self.kwargs     = kwargs
+        self.args = args
+        self.kwargs = kwargs
 
     def __call__(self, x, v, y, rest, decay, threshold, *args, **kwargs):
         mem_update_func = __func_name__.get(f"{self.prop_mode}_{self.reset_mode}")
         if mem_update_func is not None:
-            return mem_update_func(x, v, y, rest, decay, threshold, *(self.args + args), **{**self.kwargs, **kwargs})
+            return mem_update_func(
+                x,
+                v,
+                y,
+                rest,
+                decay,
+                threshold,
+                *(self.args + args),
+                **{**self.kwargs, **kwargs},
+            )
         else:
             raise ValueError("Invalid membrane update strategy.")

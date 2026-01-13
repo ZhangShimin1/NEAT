@@ -14,7 +14,11 @@ class TensorboardLogger(SummaryWriter):
         super().__init__(log_dir=log_dir, max_queue=5, flush_secs=30)
 
     def log_config(self, config: dict) -> None:
-        self.add_text(tag="Configuration", text_string=f"<pre>  \n{toml.dumps(config)}  \n</pre>", global_step=1)
+        self.add_text(
+            tag="Configuration",
+            text_string=f"<pre>  \n{toml.dumps(config)}  \n</pre>",
+            global_step=1,
+        )
 
 
 def init_logging_logger(output_dir):

@@ -1,16 +1,18 @@
 def reset_states(model):
     for name, m in model.named_modules():
-        if hasattr(m, 'reset'):
+        if hasattr(m, "reset"):
             # print(f'before {name}:  {m.v}')
             # if not isinstance(m, MemoryModule):
             #     print(f'Trying to call `reset()` of {m}, which is not base.MemoryModule')
             m.reset()
 
+
 def count_parameters(net):
-    ''' Count number of parameters in model influenced by global loss. '''
+    """Count number of parameters in model influenced by global loss."""
     total_num = sum(p.numel() for p in net.parameters())
     trainable_num = sum(p.numel() for p in net.parameters() if p.requires_grad)
-    return {'Total': total_num, 'Trainable': trainable_num}
+    return {"Total": total_num, "Trainable": trainable_num}
+
 
 def reset_backward_rnn_state(states):
     """Sets backward BRNN states to zeroes

@@ -2,6 +2,7 @@
 import argparse
 import logging
 import sys
+
 sys.path.insert(0, "/home/zysong/AcouSpike/acouspike")
 from ASR.asr import ASRTask
 from distutils.version import LooseVersion
@@ -20,12 +21,14 @@ from typeguard import typechecked
 # from espnet2.asr.decoder.s4_decoder import S4Decoder
 
 from espnet2.asr.partially_AR_model import PartiallyARInference
+
 # from espnet2.asr.transducer.beam_search_transducer import BeamSearchTransducer
 # from espnet2.asr.transducer.beam_search_transducer import (
 #     ExtendedHypothesis as ExtTransHypothesis,
 # )
 # from espnet2.asr.transducer.beam_search_transducer import Hypothesis as TransHypothesis
 from espnet2.fileio.datadir_writer import DatadirWriter
+
 # from espnet2.tasks.enh_s2t import EnhS2TTask
 from espnet2.tasks.lm import LMTask
 from espnet2.text.build_tokenizer import build_tokenizer
@@ -121,9 +124,8 @@ class Speech2Text:
         max_seq_len: int = 5,
         max_mask_parallel: int = -1,
     ):
-
         if not enh_s2t_task:
-            task = ASRTask 
+            task = ASRTask
         else:
             raise NotImplementedError
 
@@ -400,7 +402,9 @@ class Speech2Text:
 
     @torch.no_grad()
     @typechecked
-    def __call__(self, speech: Union[torch.Tensor, np.ndarray]) -> Union[
+    def __call__(
+        self, speech: Union[torch.Tensor, np.ndarray]
+    ) -> Union[
         ListOfHypothesis,
         List[ListOfHypothesis],
         Tuple[
@@ -476,7 +480,6 @@ class Speech2Text:
     def _decode_interctc(
         self, intermediate_outs: List[Tuple[int, torch.Tensor]]
     ) -> Dict[int, List[str]]:
-
         exclude_ids = [self.asr_model.blank_id, self.asr_model.sos, self.asr_model.eos]
         res = {}
         token_list = self.beam_search.token_list

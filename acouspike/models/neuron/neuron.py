@@ -20,7 +20,7 @@ class LIFCell(nn.Module):
         vmem = self.decay * vmem + psp
         spike = self.surrogate_function(vmem - self.threshold)
         vmem -= self.threshold * spike
-        
+
         return vmem, spike
 
     def _reset_parameters(self):
@@ -33,7 +33,7 @@ class LIFCell(nn.Module):
 class LIFLayer(nn.Module):
     def __init__(self, cell=LIFCell, nb_steps=0, **cell_args):
         super(LIFLayer, self).__init__()
-        assert nb_steps > 0, 'the number of time steps should be specified'
+        assert nb_steps > 0, "the number of time steps should be specified"
         self.cell = cell(**cell_args)
         self.nb_steps = nb_steps
 
@@ -41,7 +41,7 @@ class LIFLayer(nn.Module):
         # vmem = torch.zeros_like(x[0])
         vmem = 0
         spikes = []
-        for step in range(self.nb_steps): 
+        for step in range(self.nb_steps):
             # vmem, spike = self.cell(vmem, x[step])
             current = x[step]
             vmem, spike = self.cell(vmem, current)
@@ -98,7 +98,7 @@ class MemoryModule(nn.Module):
         each calling of ``self.reset()``.
 
         """
-        assert not hasattr(self, name), f'{name} has been set as a member variable!'
+        assert not hasattr(self, name), f"{name} has been set as a member variable!"
         self._memories[name] = value
         self.set_reset_value(name, value)
 
@@ -123,15 +123,15 @@ class MemoryModule(nn.Module):
         self._memories_rv[name] = copy.deepcopy(value)
 
     def __getattr__(self, name: str):
-        if '_memories' in self.__dict__:
-            memories = self.__dict__['_memories']
+        if "_memories" in self.__dict__:
+            memories = self.__dict__["_memories"]
             if name in memories:
                 return memories[name]
 
         return super().__getattr__(name)
 
     def __setattr__(self, name: str, value) -> None:
-        _memories = self.__dict__.get('_memories')
+        _memories = self.__dict__.get("_memories")
         if _memories is not None and name in _memories:
             _memories[name] = value
         else:
@@ -244,18 +244,19 @@ class MemoryModule(nn.Module):
 
 
 class BaseNode(MemoryModule):
-    def __init__(self,
-                 threshold: float = 1.,
-                 surrogate_function=None,
-                 hard_reset: bool = False,
-                 detach_reset: bool = False):
-
+    def __init__(
+        self,
+        threshold: float = 1.0,
+        surrogate_function=None,
+        hard_reset: bool = False,
+        detach_reset: bool = False,
+    ):
         assert isinstance(threshold, float)
         assert isinstance(hard_reset, bool)
         assert isinstance(detach_reset, bool)
         super().__init__()
 
-        self.register_memory('v', 0.)
+        self.register_memory("v", 0.0)
 
         self.threshold = threshold
 
@@ -285,12 +286,12 @@ class BaseNode(MemoryModule):
             spike_d = spike
 
         if self.hard_reset:
-            self.v = self.v * (1. - spike_d)
+            self.v = self.v * (1.0 - spike_d)
         else:
             self.v = self.v - spike_d * self.threshold
 
     def extra_repr(self):
-        return f'threshold={self.threshold}, detach_reset={self.detach_reset}, hard_reset={self.hard_reset}'
+        return f"threshold={self.threshold}, detach_reset={self.detach_reset}, hard_reset={self.hard_reset}"
 
     def v_float_to_tensor(self, x: torch.Tensor):
         if isinstance(self.v, float):
@@ -299,12 +300,9 @@ class BaseNode(MemoryModule):
 
 
 class LIFNode(BaseNode):
-    def __init__(self,
-                 decay_factor=0.5,
-                 threshold=1.,
-                 surrogate_function=None,
-                 detach_mem=False
-                 ):
+    def __init__(
+        self, decay_factor=0.5, threshold=1.0, surrogate_function=None, detach_mem=False
+    ):
         super().__init__(threshold, surrogate_function)
         self.decay_factor = torch.tensor(decay_factor).float()
         self.detach_mem = detach_mem
@@ -313,7 +311,10 @@ class LIFNode(BaseNode):
         #     self.register_memory(f'e_trace_{trace_id}', 0.)
 
     def extra_repr(self):
-        return super().extra_repr() + f', decay_factor={self.decay_factor:.2f}, detach_mem={self.detach_mem}, '
+        return (
+            super().extra_repr()
+            + f", decay_factor={self.decay_factor:.2f}, detach_mem={self.detach_mem}, "
+        )
 
     def neuronal_charge(self, x: torch.Tensor):
         if self.detach_mem:
@@ -330,26 +331,43 @@ class LIFNode(BaseNode):
         spike = self.neuronal_fire()
         self.neuronal_reset(spike)
         return spike
-        
+
 
 class SLTT_LIFNode(LIFNode):
-    def __init__(self,
-                 decay_factor=0.5,
-                 v_threshold=1.,
-                 surrogate_function=None,
-                 hard_reset=False,
-                 ):
-        super().__init__(decay_factor, v_threshold, surrogate_function, hard_reset, detach_reset=True, detach_mem=True)
+    def __init__(
+        self,
+        decay_factor=0.5,
+        v_threshold=1.0,
+        surrogate_function=None,
+        hard_reset=False,
+    ):
+        super().__init__(
+            decay_factor,
+            v_threshold,
+            surrogate_function,
+            hard_reset,
+            detach_reset=True,
+            detach_mem=True,
+        )
+
 
 class OTTT_LIFNode(LIFNode):
-    def __init__(self,
-                 decay_factor=0.5,
-                 v_threshold=1.,
-                 surrogate_function=None,
-                 hard_reset=False,
-                 ):
-        super().__init__(decay_factor, v_threshold, surrogate_function, hard_reset, detach_reset=True, detach_mem=True)
-        self.register_memory('trace', 0.)
+    def __init__(
+        self,
+        decay_factor=0.5,
+        v_threshold=1.0,
+        surrogate_function=None,
+        hard_reset=False,
+    ):
+        super().__init__(
+            decay_factor,
+            v_threshold,
+            surrogate_function,
+            hard_reset,
+            detach_reset=True,
+            detach_mem=True,
+        )
+        self.register_memory("trace", 0.0)
 
     @staticmethod
     def track_trace(spike, trace, decay_factor):
@@ -374,4 +392,3 @@ class OTTT_LIFNode(LIFNode):
             return [spike, self.trace]
         else:
             return spike
-

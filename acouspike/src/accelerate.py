@@ -78,7 +78,9 @@ def broadcast_tensor(tensor: Tensor, src: int = 0) -> Tensor:
         dist.broadcast(tensor, src=src, async_op=False)
         return tensor
     else:
-        logger.warning("Distributed environment not initialized. No broadcast will be performed.")
+        logger.warning(
+            "Distributed environment not initialized. No broadcast will be performed."
+        )
         return tensor
 
 
@@ -101,7 +103,9 @@ def wait_for_everyone():
     if dist.is_available() and dist.is_initialized():
         dist.barrier()
     else:
-        logger.warning("Distributed environment not initialized. No barrier will be performed.")
+        logger.warning(
+            "Distributed environment not initialized. No barrier will be performed."
+        )
 
 
 def gather_object(object, dst=0):
@@ -125,4 +129,6 @@ def gather_object(object, dst=0):
         else:
             return None
     else:
-        raise RuntimeError("Distributed environment not initialized. No gather will be performed.")
+        raise RuntimeError(
+            "Distributed environment not initialized. No gather will be performed."
+        )

@@ -7,6 +7,7 @@ from acouspike.models.network.SSM import SSMNet
 from acouspike.models.network.utils import count_parameters
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
+
 class SNN_encoder(torch.nn.Module):
     """RNN module
 
@@ -18,78 +19,103 @@ class SNN_encoder(torch.nn.Module):
     :param str typ: The RNN type
     """
 
-    def __init__(self, idim, elayers, cdim, hdim, dropout, neuron_type="spiking_lstm", recurrent=False, surrogate='triangle', alpha=1.0, decay=0.5, threshold=0.5, time_window=512, beta=0.1, k=32, ksize=7, lr=0.1, nhead=4):
+    def __init__(
+        self,
+        idim,
+        elayers,
+        cdim,
+        hdim,
+        dropout,
+        neuron_type="spiking_lstm",
+        recurrent=False,
+        surrogate="triangle",
+        alpha=1.0,
+        decay=0.5,
+        threshold=0.5,
+        time_window=512,
+        beta=0.1,
+        k=32,
+        ksize=7,
+        lr=0.1,
+        nhead=4,
+    ):
         super(SNN_encoder, self).__init__()
         bidir = neuron_type[0] == "b"
 
-        
-        if neuron_type == 'spiking_lstm':
-            self.nbrnn = Spiking_LSTM(idim, cdim, elayers, bidirectional=bidir, dropout=dropout)
-        elif neuron_type == 'tcn':
-            self.nbrnn = TCN(input_size=idim, 
-                        hidden_size=cdim, 
-                        num_layers=elayers, 
-                        bidirectional=bidir, 
-                        dropout=0.0, 
-                        batch_first=True, 
-                        spiking_neuron_name=neuron_type, 
-                        recurrent=recurrent,
-                        surrogate=surrogate, 
-                        alpha=alpha, 
-                        decay=decay,
-                        threshold=threshold,
-                        time_window =time_window,
-                        beta=beta,
-                        k=k,
-                        ksize=ksize)
-            
-        elif neuron_type == 'spktransformer':
+        if neuron_type == "spiking_lstm":
+            self.nbrnn = Spiking_LSTM(
+                idim, cdim, elayers, bidirectional=bidir, dropout=dropout
+            )
+        elif neuron_type == "tcn":
+            self.nbrnn = TCN(
+                input_size=idim,
+                hidden_size=cdim,
+                num_layers=elayers,
+                bidirectional=bidir,
+                dropout=0.0,
+                batch_first=True,
+                spiking_neuron_name=neuron_type,
+                recurrent=recurrent,
+                surrogate=surrogate,
+                alpha=alpha,
+                decay=decay,
+                threshold=threshold,
+                time_window=time_window,
+                beta=beta,
+                k=k,
+                ksize=ksize,
+            )
+
+        elif neuron_type == "spktransformer":
             self.nbrnn = SpkTransformerNet(
-                        input_size=idim,
-                        hidden_size=cdim,
-                        nhead=nhead,
-                        num_hidden_layers=elayers,
-                        dropout=0,
-                        surrogate=surrogate,
-                        alpha=alpha,
-                        decay=decay,
-                        threshold=threshold,
-                        recurrent=False,
-                        time_window=512,
-                        T=1,
-                        )
-        elif neuron_type in ['spkbinaryssm', 'gsussm']:
-            self.nbrnn = SSMNet(input_size=idim, 
-                        hidden_size=cdim, 
-                        num_layers=elayers, 
-                        bidirectional=bidir, 
-                        dropout=0.0, 
-                        batch_first=True, 
-                        spiking_neuron_name=neuron_type, 
-                        recurrent=recurrent,
-                        surrogate=surrogate, 
-                        alpha=alpha, 
-                        decay=decay,
-                        threshold=threshold,
-                        time_window =time_window,
-                        lr=lr
-                        )
+                input_size=idim,
+                hidden_size=cdim,
+                nhead=nhead,
+                num_hidden_layers=elayers,
+                dropout=0,
+                surrogate=surrogate,
+                alpha=alpha,
+                decay=decay,
+                threshold=threshold,
+                recurrent=False,
+                time_window=512,
+                T=1,
+            )
+        elif neuron_type in ["spkbinaryssm", "gsussm"]:
+            self.nbrnn = SSMNet(
+                input_size=idim,
+                hidden_size=cdim,
+                num_layers=elayers,
+                bidirectional=bidir,
+                dropout=0.0,
+                batch_first=True,
+                spiking_neuron_name=neuron_type,
+                recurrent=recurrent,
+                surrogate=surrogate,
+                alpha=alpha,
+                decay=decay,
+                threshold=threshold,
+                time_window=time_window,
+                lr=lr,
+            )
         else:
-            self.nbrnn = SpikingNet(input_size=idim, 
-                                    hidden_size=cdim, 
-                                    num_layers=elayers, 
-                                    bidirectional=bidir, 
-                                    dropout=0.0, 
-                                    batch_first=True, 
-                                    spiking_neuron_name=neuron_type, 
-                                    recurrent=recurrent,
-                                    surrogate=surrogate, 
-                                    alpha=alpha, 
-                                    decay=decay,
-                                    threshold=threshold,
-                                    time_window =time_window,
-                                    beta=beta,
-                                    k=k)
+            self.nbrnn = SpikingNet(
+                input_size=idim,
+                hidden_size=cdim,
+                num_layers=elayers,
+                bidirectional=bidir,
+                dropout=0.0,
+                batch_first=True,
+                spiking_neuron_name=neuron_type,
+                recurrent=recurrent,
+                surrogate=surrogate,
+                alpha=alpha,
+                decay=decay,
+                threshold=threshold,
+                time_window=time_window,
+                beta=beta,
+                k=k,
+            )
         if bidir:
             self.l_last = torch.nn.Linear(cdim * 2, hdim)
         else:

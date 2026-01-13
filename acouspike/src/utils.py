@@ -129,11 +129,15 @@ def set_random_seed(seed: Optional[int] = None):
         seed = broadcast_tensor(rand_seed, 0).item()  # sync seed across ranks
 
     if seed < min_val or seed > max_val:
-        raise ValueError(f"Invalid seed value provided: {seed}. Value must be in the range [{min_val}, {max_val}]")
+        raise ValueError(
+            f"Invalid seed value provided: {seed}. Value must be in the range [{min_val}, {max_val}]"
+        )
 
     local_seed = seed + rank
     if rank == 0:
-        logger.info(f"Setting manual seed to local seed {local_seed}. Local seed is seed + rank = {seed} + {rank}")
+        logger.info(
+            f"Setting manual seed to local seed {local_seed}. Local seed is seed + rank = {seed} + {rank}"
+        )
 
     random.seed(seed)
     np.random.seed(seed)
@@ -164,7 +168,9 @@ def prepare_empty_dir(dirs, resume=False):
     for dir_path in dirs:
         if resume:
             if not dir_path.exists():
-                logger.warning(f"In resume mode, you must have an old experiment directory {dir_path}.")
+                logger.warning(
+                    f"In resume mode, you must have an old experiment directory {dir_path}."
+                )
         else:
             dir_path.mkdir(parents=True, exist_ok=True)
 

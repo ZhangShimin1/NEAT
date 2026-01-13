@@ -6,13 +6,23 @@ import torch.nn.functional as F
 import math
 from acouspike.models.layers import base
 from torch import Tensor
-from torch.nn.common_types import _size_any_t, _size_1_t, _size_2_t, _size_3_t, _ratio_any_t
+from torch.nn.common_types import (
+    _size_any_t,
+    _size_1_t,
+    _size_2_t,
+    _size_3_t,
+    _ratio_any_t,
+)
 from typing import Optional, List, Tuple, Union
 from typing import Callable
 from torch.nn.modules.batchnorm import _BatchNorm
 import numpy as np
 
-def seq_to_ann_forward(x_seq: Tensor, stateless_module: nn.Module or list or tuple or nn.Sequential or Callable):
+
+def seq_to_ann_forward(
+    x_seq: Tensor,
+    stateless_module: nn.Module or list or tuple or nn.Sequential or Callable,
+):
     """
     * :ref:`API in English <seq_to_ann_forward-en>`
 
@@ -50,7 +60,14 @@ def seq_to_ann_forward(x_seq: Tensor, stateless_module: nn.Module or list or tup
     return y.view(y_shape)
 
 
-def multi_step_forward(x_seq: Tensor, single_step_module: nn.Module or list[nn.Module] or tuple[nn.Module] or nn.Sequential or Callable):
+def multi_step_forward(
+    x_seq: Tensor,
+    single_step_module: nn.Module
+    or list[nn.Module]
+    or tuple[nn.Module]
+    or nn.Sequential
+    or Callable,
+):
     """
     * :ref:`API in English <multi_step_forward-en>`
 
@@ -92,15 +109,17 @@ def multi_step_forward(x_seq: Tensor, single_step_module: nn.Module or list[nn.M
 
     return torch.stack(y_seq)
 
+
 class MultiStepContainer(nn.Sequential, base.MultiStepModule):
     def __init__(self, *args):
         super().__init__(*args)
         for m in self:
-            assert not hasattr(m, 'step_mode') or m.step_mode == 's'
+            assert not hasattr(m, "step_mode") or m.step_mode == "s"
             if isinstance(m, base.StepModule):
-                if 'm' in m.supported_step_mode():
+                if "m" in m.supported_step_mode():
                     logging.warning(
-                        f"{m} supports for step_mode == 's', which should not be contained by MultiStepContainer!")
+                        f"{m} supports for step_mode == 's', which should not be contained by MultiStepContainer!"
+                    )
 
     def forward(self, x_seq: Tensor):
         """
@@ -116,11 +135,12 @@ class SeqToANNContainer(nn.Sequential, base.MultiStepModule):
     def __init__(self, *args):
         super().__init__(*args)
         for m in self:
-            assert not hasattr(m, 'step_mode') or m.step_mode == 's'
+            assert not hasattr(m, "step_mode") or m.step_mode == "s"
             if isinstance(m, base.StepModule):
-                if 'm' in m.supported_step_mode():
+                if "m" in m.supported_step_mode():
                     logging.warning(
-                        f"{m} supports for step_mode == 's', which should not be contained by SeqToANNContainer!")
+                        f"{m} supports for step_mode == 's', which should not be contained by SeqToANNContainer!"
+                    )
 
     def forward(self, x_seq: Tensor):
         """
@@ -137,17 +157,18 @@ class StepModeContainer(nn.Sequential, base.StepModule):
         super().__init__(*args)
         self.stateful = stateful
         for m in self:
-            assert not hasattr(m, 'step_mode') or m.step_mode == 's'
+            assert not hasattr(m, "step_mode") or m.step_mode == "s"
             if isinstance(m, base.StepModule):
-                if 'm' in m.supported_step_mode():
+                if "m" in m.supported_step_mode():
                     logging.warning(
-                        f"{m} supports for step_mode == 's', which should not be contained by StepModeContainer!")
-        self.step_mode = 's'
+                        f"{m} supports for step_mode == 's', which should not be contained by StepModeContainer!"
+                    )
+        self.step_mode = "s"
 
     def forward(self, x: torch.Tensor):
-        if self.step_mode == 's':
+        if self.step_mode == "s":
             return super().forward(x)
-        elif self.step_mode == 'm':
+        elif self.step_mode == "m":
             if self.stateful:
                 return multi_step_forward(x, super().forward)
             else:
@@ -156,20 +177,21 @@ class StepModeContainer(nn.Sequential, base.StepModule):
 
 class BatchNorm1d(nn.BatchNorm1d):
     def __init__(
-            self,
-            num_features,
-            eps=1e-5,
-            momentum=0.1,
-            affine=True,
-            track_running_stats=True,
+        self,
+        num_features,
+        eps=1e-5,
+        momentum=0.1,
+        affine=True,
+        track_running_stats=True,
     ):
         super().__init__(num_features, eps, momentum, affine, track_running_stats)
 
     def forward(self, x: Tensor):
         if x.dim() != 4 and x.dim() != 3:
-            raise ValueError(f'expected x with shape [T, N, C, L] or [T, N, C], but got x with shape {x.shape}!')
+            raise ValueError(
+                f"expected x with shape [T, N, C, L] or [T, N, C], but got x with shape {x.shape}!"
+            )
         return seq_to_ann_forward(x, super().forward)
-
 
 
 class _ThresholdDependentBatchNormBase(_BatchNorm, base.MultiStepModule):
@@ -224,45 +246,32 @@ class TemporalEffectiveBatchNorm1d(nn.Module):
     bn_instance = BatchNorm1d
 
     def __init__(
-            self,
-            T: int,
-            num_features,
-            eps=1e-5,
-            momentum=0.1,
-            affine=True,
-            track_running_stats=True,
+        self,
+        T: int,
+        num_features,
+        eps=1e-5,
+        momentum=0.1,
+        affine=True,
+        track_running_stats=True,
     ):
         super().__init__()
         self.bn = BatchNorm1d(num_features, eps, momentum, affine, track_running_stats)
         self.scale = nn.Parameter(torch.ones([T]))
+
     def forward(self, x_seq: torch.Tensor):
         # x.shape = [T, B, N]
-        return self.bn(x_seq) * self.scale[:x_seq.size(0)].view(-1, 1, 1)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        return self.bn(x_seq) * self.scale[: x_seq.size(0)].view(-1, 1, 1)
 
 
 class BatchNorm2d(nn.BatchNorm2d, base.StepModule):
     def __init__(
-            self,
-            num_features,
-            eps=1e-5,
-            momentum=0.1,
-            affine=True,
-            track_running_stats=True,
-            step_mode='s'
+        self,
+        num_features,
+        eps=1e-5,
+        momentum=0.1,
+        affine=True,
+        track_running_stats=True,
+        step_mode="s",
     ):
         """
         * :ref:`API in English <BatchNorm2d-en>`
@@ -287,27 +296,29 @@ class BatchNorm2d(nn.BatchNorm2d, base.StepModule):
         self.step_mode = step_mode
 
     def extra_repr(self):
-        return super().extra_repr() + f', step_mode={self.step_mode}'
+        return super().extra_repr() + f", step_mode={self.step_mode}"
 
     def forward(self, x: Tensor):
-        if self.step_mode == 's':
+        if self.step_mode == "s":
             return super().forward(x)
 
-        elif self.step_mode == 'm':
+        elif self.step_mode == "m":
             if x.dim() != 5:
-                raise ValueError(f'expected x with shape [T, N, C, H, W], but got x with shape {x.shape}!')
+                raise ValueError(
+                    f"expected x with shape [T, N, C, H, W], but got x with shape {x.shape}!"
+                )
             return seq_to_ann_forward(x, super().forward)
 
 
 class BatchNorm3d(nn.BatchNorm3d, base.StepModule):
     def __init__(
-            self,
-            num_features,
-            eps=1e-5,
-            momentum=0.1,
-            affine=True,
-            track_running_stats=True,
-            step_mode='s'
+        self,
+        num_features,
+        eps=1e-5,
+        momentum=0.1,
+        affine=True,
+        track_running_stats=True,
+        step_mode="s",
     ):
         """
         * :ref:`API in English <BatchNorm3d-en>`
@@ -332,18 +343,18 @@ class BatchNorm3d(nn.BatchNorm3d, base.StepModule):
         self.step_mode = step_mode
 
     def extra_repr(self):
-        return super().extra_repr() + f', step_mode={self.step_mode}'
+        return super().extra_repr() + f", step_mode={self.step_mode}"
 
     def forward(self, x: Tensor):
-        if self.step_mode == 's':
+        if self.step_mode == "s":
             return super().forward(x)
 
-        elif self.step_mode == 'm':
+        elif self.step_mode == "m":
             if x.dim() != 6:
-                raise ValueError(f'expected x with shape [T, N, C, D, H, W], but got x with shape {x.shape}!')
+                raise ValueError(
+                    f"expected x with shape [T, N, C, D, H, W], but got x with shape {x.shape}!"
+                )
             return seq_to_ann_forward(x, super().forward)
-
-
 
 
 class ThresholdDependentBatchNorm2d(_ThresholdDependentBatchNormBase):
@@ -418,10 +429,8 @@ class ThresholdDependentBatchNorm3d(_ThresholdDependentBatchNormBase):
         assert input.dim() == 6 - 1  # [T * N, C, H, W, D]
 
 
-
-
-
 # OTTT modules
+
 
 class ReplaceforGrad(torch.autograd.Function):
     @staticmethod
@@ -697,8 +706,9 @@ class OTTTSequential(nn.Sequential):
 #         # x.shape = [T, N, C, H, W, D]
 #         return self.bn(x_seq) * self.scale.view(-1, 1, 1, 1, 1, 1)
 
+
 class Dropout(base.MemoryModule):
-    def __init__(self, p=0.5, step_mode='m'):
+    def __init__(self, p=0.5, step_mode="m"):
         """
         * :ref:`API in English <Dropout.__init__-en>`
 
@@ -765,11 +775,11 @@ class Dropout(base.MemoryModule):
         super().__init__()
         self.step_mode = step_mode
         assert 0 <= p < 1
-        self.register_memory('mask', None)
+        self.register_memory("mask", None)
         self.p = p
 
     def extra_repr(self):
-        return f'p={self.p}'
+        return f"p={self.p}"
 
     def create_mask(self, x: Tensor):
         self.mask = F.dropout(torch.ones_like(x.data), self.p, training=True)
@@ -794,7 +804,7 @@ class Dropout(base.MemoryModule):
 
 
 class Dropout2d(Dropout):
-    def __init__(self, p=0.2, step_mode='s'):
+    def __init__(self, p=0.2, step_mode="s"):
         """
         * :ref:`API in English <Dropout2d.__init__-en>`
 

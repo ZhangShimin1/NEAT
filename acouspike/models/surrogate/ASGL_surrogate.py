@@ -5,8 +5,14 @@ import math
 
 
 class MutiStepNoisyRateScheduler:
-
-    def __init__(self, init_p=1, reduce_ratio=0.9, milestones=[0.3, 0.7, 0.9, 0.95], num_epoch=100, start_epoch=0):
+    def __init__(
+        self,
+        init_p=1,
+        reduce_ratio=0.9,
+        milestones=[0.3, 0.7, 0.9, 0.95],
+        num_epoch=100,
+        start_epoch=0,
+    ):
         self.reduce_ratio = reduce_ratio
         self.p = init_p
         self.milestones = [int(m * num_epoch) for m in milestones]
@@ -23,9 +29,10 @@ class MutiStepNoisyRateScheduler:
         for one in self.milestones:
             if one + self.start_epoch == epoch:
                 self.p *= self.reduce_ratio
-                print('change noise rate as ' + str(self.p))
+                print("change noise rate as " + str(self.p))
                 self.set_noisy_rate(self.p, model)
                 break
+
 
 def get_temperatures(net):
     temperatures = []
@@ -48,7 +55,7 @@ class InvSigmoid(nn.Module):
     def forward(self, x):
         if self.learnable and not isinstance(self.alpha, nn.Parameter):
             self.alpha = nn.Parameter(torch.Tensor([self.alpha]).to(x.device))
-        return torch.sigmoid((1/self.alpha) * x) # in original setting, a= 1/alpha.
+        return torch.sigmoid((1 / self.alpha) * x)  # in original setting, a= 1/alpha.
 
 
 class InvRectangle(nn.Module):
@@ -66,11 +73,11 @@ class InvRectangle(nn.Module):
         return torch.clamp(x + 0.5 * self.alpha, 0, 1.0 * self.alpha)
 
 
-
 class EfficientNoisySpike(nn.Module):
     """
     ASGL https://github.com/Windere/ASGL-SNN
     """
+
     def __init__(self, inv_sg=InvRectangle(), p=0.1, spike=True):
         super(EfficientNoisySpike, self).__init__()
         self.inv_sg = inv_sg
@@ -81,7 +88,6 @@ class EfficientNoisySpike(nn.Module):
         return torch.bernoulli(torch.ones_like(x) * (1 - self.p))
 
     def forward(self, x):
-
         sigx = self.inv_sg(x)
         if self.training:
             if self.mask is None:

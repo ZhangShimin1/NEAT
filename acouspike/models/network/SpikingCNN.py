@@ -5,13 +5,25 @@ from functools import partial
 from acouspike.models.network.utils import reset_states
 from acouspike.models.surrogate.surrogate import TriangleSurroGrad
 from acouspike.models.neuron.neuron import LIFLayer
-from torch.nn import Module, Conv2d, MaxPool2d, AdaptiveAvgPool2d, Flatten, Linear, BatchNorm2d, GroupNorm
+from torch.nn import (
+    Module,
+    Conv2d,
+    MaxPool2d,
+    AdaptiveAvgPool2d,
+    Flatten,
+    Linear,
+    BatchNorm2d,
+    GroupNorm,
+)
 from torch.nn import Sequential
+
 
 def conv3x3(in_planes, out_planes, stride=1):
     """3x3 convolution with padding"""
-    return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
-                     padding=1, bias=False)
+    return nn.Conv2d(
+        in_planes, out_planes, kernel_size=3, stride=stride, padding=1, bias=False
+    )
+
 
 class tdLayer(nn.Module):
     # todo: check code
@@ -32,8 +44,8 @@ class tdLayer(nn.Module):
         x = self.layer(x.view(-1, *x.shape[2:]))
         return x.view(self.nb_steps, -1, *x.shape[1:])
 
-def warpBN(channel, nb_steps):
 
+def warpBN(channel, nb_steps):
     return tdLayer(nn.BatchNorm2d(channel), nb_steps)
 
 
@@ -43,22 +55,42 @@ class BasicBlock(nn.Module):
     def __init__(self, in_planes, planes, stride=1, expand=1, **kwargs_spikes):
         super(BasicBlock, self).__init__()
         self.kwargs_spikes = kwargs_spikes
-        self.nb_steps = kwargs_spikes['nb_steps']
+        self.nb_steps = kwargs_spikes["nb_steps"]
         self.expand = expand
-        self.conv1 = tdLayer(nn.Conv2d(in_planes, planes * expand, kernel_size=3, stride=stride, padding=1, bias=False),
-                             self.nb_steps)
+        self.conv1 = tdLayer(
+            nn.Conv2d(
+                in_planes,
+                planes * expand,
+                kernel_size=3,
+                stride=stride,
+                padding=1,
+                bias=False,
+            ),
+            self.nb_steps,
+        )
         self.bn1 = warpBN(planes * expand, self.nb_steps)
         self.spike1 = LIFLayer(**kwargs_spikes)
-        self.conv2 = tdLayer(nn.Conv2d(planes, planes * expand, kernel_size=3, stride=1, padding=1, bias=False),
-                             self.nb_steps)
+        self.conv2 = tdLayer(
+            nn.Conv2d(
+                planes, planes * expand, kernel_size=3, stride=1, padding=1, bias=False
+            ),
+            self.nb_steps,
+        )
         self.bn2 = warpBN(planes * expand, self.nb_steps)
         self.shortcut = nn.Sequential()
         if stride != 1 or in_planes != planes * self.expansion:
             self.shortcut = nn.Sequential(
                 tdLayer(
-                    nn.Conv2d(in_planes, planes * self.expansion * expand, kernel_size=1, stride=stride, bias=False),
-                    self.nb_steps),
-                warpBN(self.expansion * planes * expand, self.nb_steps)
+                    nn.Conv2d(
+                        in_planes,
+                        planes * self.expansion * expand,
+                        kernel_size=1,
+                        stride=stride,
+                        bias=False,
+                    ),
+                    self.nb_steps,
+                ),
+                warpBN(self.expansion * planes * expand, self.nb_steps),
                 # tdBatchNorm(nn.BatchNorm2d(planes * BasicBlock.expansion), alpha=1 / math.sqrt(2.))
             )
         self.spike2 = LIFLayer(**kwargs_spikes)
@@ -73,17 +105,29 @@ class BasicBlock(nn.Module):
         out = self.spike2(out)
         return out
 
+
 class SpikingResNet(nn.Module):
-    def __init__(self, block, num_block_layers, num_classes=10, in_channel=1, **kwargs_spikes):
+    def __init__(
+        self, block, num_block_layers, num_classes=10, in_channel=1, **kwargs_spikes
+    ):
         super(SpikingResNet, self).__init__()
         self.in_planes = 64
         self.kwargs_spikes = kwargs_spikes
-        self.nb_steps = kwargs_spikes['nb_steps']
+        self.nb_steps = kwargs_spikes["nb_steps"]
         self.conv0 = nn.Sequential(
-            tdLayer(nn.Conv2d(in_channel, self.in_planes, kernel_size=7, padding=3, stride=2, bias=False),
-                    nb_steps=self.nb_steps),
+            tdLayer(
+                nn.Conv2d(
+                    in_channel,
+                    self.in_planes,
+                    kernel_size=7,
+                    padding=3,
+                    stride=2,
+                    bias=False,
+                ),
+                nb_steps=self.nb_steps,
+            ),
             warpBN(self.in_planes, self.nb_steps),
-            LIFLayer(**kwargs_spikes)
+            LIFLayer(**kwargs_spikes),
         )
         self.layer1 = self._make_layer(block, 64, num_block_layers[0], stride=1)
         self.layer2 = self._make_layer(block, 128, num_block_layers[1], stride=2)
@@ -91,7 +135,9 @@ class SpikingResNet(nn.Module):
         self.layer4 = self._make_layer(block, 512, num_block_layers[3], stride=2)
 
         self.avg_pool = tdLayer(nn.AdaptiveAvgPool2d((1, 1)), nb_steps=self.nb_steps)
-        self.classifier = tdLayer(nn.Linear(512 * block.expansion, num_classes), nb_steps=self.nb_steps)
+        self.classifier = tdLayer(
+            nn.Linear(512 * block.expansion, num_classes), nb_steps=self.nb_steps
+        )
 
     def _make_layer(self, block, planes, num_blocks, stride):
         strides = [stride] + [1] * (num_blocks - 1)
@@ -114,13 +160,25 @@ class SpikingResNet(nn.Module):
         out = self.classifier(out)
         return out.squeeze(1).permute(1, 0, 2)
 
+
 # User interfaces
 def spiking_resnet18(num_classes, in_channel=1, **kwargs_spikes):
-    return SpikingResNet(block=BasicBlock, num_block_layers=[2, 2, 2, 2], num_classes=num_classes, 
-                         in_channel=in_channel, **kwargs_spikes)
+    return SpikingResNet(
+        block=BasicBlock,
+        num_block_layers=[2, 2, 2, 2],
+        num_classes=num_classes,
+        in_channel=in_channel,
+        **kwargs_spikes,
+    )
+
 
 if __name__ == "__main__":
-    kwargs_spikes = {'nb_steps': 4, 'threshold': 1., 'decay': 1., 'surrogate_function': TriangleSurroGrad.apply}
+    kwargs_spikes = {
+        "nb_steps": 4,
+        "threshold": 1.0,
+        "decay": 1.0,
+        "surrogate_function": TriangleSurroGrad.apply,
+    }
     input_tensor = torch.rand([32, 99, 40])
     model = spiking_resnet18(num_classes=10, in_channel=1, **kwargs_spikes)
     output_tensor = model(input_tensor)

@@ -38,23 +38,36 @@ class VGGRNNEncoder(AbsEncoder):
         dropout: float = 0.0,
         in_channel: int = 1,
         use_recurrent: bool = False,
-        surrogate: str ='triangle', 
-        alpha: float = 1.0, 
-        decay: float = 0.5, 
-        threshold: float = 0.5, 
-        time_window: int = 512, 
+        surrogate: str = "triangle",
+        alpha: float = 1.0,
+        decay: float = 0.5,
+        threshold: float = 0.5,
+        time_window: int = 512,
         beta: float = 0.1,
         k: int = 32,
         ksize: int = 7,
         lr: float = 0.1,
-        nhead: int = 4
+        nhead: int = 4,
     ):
         super().__init__()
         self._output_size = output_size
         self.rnn_type = rnn_type
         self.bidirectional = bidirectional
         self.use_projection = use_projection
-        if rnn_type not in {"lstm", "gru", "spiking_lstm", "lif", "ltc", "pmsn", "spsn", "celif", "tcn", "spkbinaryssm", "gsussm", "spktransformer"}:
+        if rnn_type not in {
+            "lstm",
+            "gru",
+            "spiking_lstm",
+            "lif",
+            "ltc",
+            "pmsn",
+            "spsn",
+            "celif",
+            "tcn",
+            "spkbinaryssm",
+            "gsussm",
+            "spktransformer",
+        }:
             raise ValueError(f"Not supported rnn_type={rnn_type}")
 
         # Subsample is not used for VGGRNN
@@ -91,7 +104,7 @@ class VGGRNNEncoder(AbsEncoder):
                         ),
                     ]
                 )
-                
+
             else:
                 self.enc = torch.nn.ModuleList(
                     [
@@ -103,18 +116,18 @@ class VGGRNNEncoder(AbsEncoder):
                             output_size,
                             dropout,
                             neuron_type=rnn_type,
-                            recurrent=use_recurrent, 
-                            surrogate=surrogate, 
-                            alpha=alpha, 
-                            decay=decay, 
-                            threshold=threshold, 
-                            time_window=time_window, 
+                            recurrent=use_recurrent,
+                            surrogate=surrogate,
+                            alpha=alpha,
+                            decay=decay,
+                            threshold=threshold,
+                            time_window=time_window,
                             beta=beta,
                             k=k,
                             ksize=ksize,
                             lr=lr,
-                            nhead=nhead
-                        )
+                            nhead=nhead,
+                        ),
                     ]
                 )
 
