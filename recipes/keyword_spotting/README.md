@@ -1,4 +1,4 @@
-# Keyword spotting receipt
+# Keyword spotting recipe
 
 ```bash
 # cd to the acouspike root directory

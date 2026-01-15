@@ -1,4 +1,4 @@
-# ASR receipt
+# ASR recipe
 
 
 ## 📦 Installation 

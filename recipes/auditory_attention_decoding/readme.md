@@ -1,4 +1,4 @@
-# Auditory attention decoding receipt
+# Auditory attention decoding recipe
 
 ## Environment activation
 
