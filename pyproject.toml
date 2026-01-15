@@ -5,7 +5,9 @@ description = "A modern, lightweight library for Neuromorphic Audio Processing u
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
-    { name = "Zeyang Song", email = "zeyang_song@u.nus.edu" }
+    { name = "Zeyang Song", email = "zeyang_song@u.nus.edu" },
+    { name = "Shimin Zhang", email = ""},
+    { name = "Xiang HAO", email = "haoxiangsnr@gmail.com"}
 ]
 urls = { Repository = "https://github.com/ZhangShimin1/AcouSpike" }
 dependencies = [

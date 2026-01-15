@@ -2,6 +2,7 @@
 
 ## ==================
 ## Define the GPU IDs
+## You can modify this to use different GPUs
 ## ==================
 gpu_ids="0"
 # gpu_ids="4,5,6,7"
@@ -16,6 +17,8 @@ default_config_name="adLIF"
 exp_name="radlif"
 
 echo "Running on bmi-5 [Training]"
+
+# You may change the path to torchrun if needed
 torchrun_bin="/home/zysong/miniconda3/envs/audiozen/bin/torchrun"
 
 OMP_NUM_THREADS=1 CUDA_VISIBLE_DEVICES="${gpu_ids}" "${torchrun_bin}" \

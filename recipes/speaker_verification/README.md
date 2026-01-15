@@ -1,32 +1,44 @@
 # Speaker verification receipt
 
+## Data preparation
 
-## 📦 Data preparation
-
-Download all archive parts form hugging face:
+Download all archive parts form huggingface. Please first install huggingface-cli if you have not done so: https://huggingface.co/docs/huggingface_hub/en/installation.
+Please make sure you have logged in to huggingface cli (`hf auth login`) before running the command below.
 
 ```bash
-   huggingface-cli download Acouspike/Voxceleb1_archive \
-     --repo-type dataset \
-     --local-dir /path/to/your/dataset
+# Based on your installation of huggingface-cli, you might need to use `hf` instead of `huggingface-cli`
+huggingface-cli download Acouspike/Voxceleb1 \
+    --repo-type dataset \
+    --local-dir </path/to/your/dataset>
+
+hf download Acouspike/Voxceleb1 \
+    --repo-type=dataset \
+    --local-dir </path/to/your/dataset>
 ```
+
 Concate and unzip the data:
-```
+
+```bash
 cat VoxCeleb1_archive.tar.gz.part-* > VoxCeleb1_archive.tar.gz
 tar -xzvf VoxCeleb1_archive.tar.gz
 ```
 
-Build the dataset metadata from the dataset(you need to change VOX_ROOT to the dataset path): 
+Build the dataset metadata from the dataset. you need to change `VOX_ROOT` to the dataset path you just unzipped.
+
 ```bash
-bash data_prep.sh
+bash prep_data.sh
 ```
 
 ## 📦 Training
-Run the following command to train the model:
+Run the following command to train the model. You need to modify `run.sh` to change:
+
+- `gpu_ids`: specify which GPU(s) to use.
+- `torchrun_bin`: path to your `torchrun` binary.
+- Other hyperparameters in `conf/*.yaml` if needed.
+
 ```bash
 bash run.sh
 ```
-
 
 ## 📊 Benchmarking Results
 
