@@ -4,35 +4,38 @@
 
 > A modern, lightweight library for Neuromorphic Audio Processing using Spiking Neural Networks (SNNs).
 
-## 🌟 Overview
+## Overview
 
 AcouSpike is a PyTorch-based framework designed for neuromorphic audio processing using Spiking Neural Networks (SNNs). It provides a flexible and efficient way to build, train, and deploy SNN models for various audio processing tasks.
 
-## 🚀 Features
+## Features
 
-### 🧠 Rich Neuron Models (Already Supported)
+### Rich Neuron Models (Already Supported)
 AcouSpike implements a wide variety of spiking neuron models, ranging from classic to state-of-the-art:
 - [x] **Classic:** LIF (Leaky Integrate-and-Fire), PLIF (Parametric LIF)
 - [x] **Advanced:** ALIF (Adaptive LIF), GLIF (Gated LIF), RLIF (Recurrent LIF)
 - [x] **Specialized:** CLIF, CELIF, TCLIF, adLIF, LTC, PMSN, DHSNN, SPSN
 - [x] **Surrogate Gradients:** Built-in support for various surrogate gradient methods for direct training.
+**Location:** `acouspike/models/neuron/` and `acouspike/models/surrogate/`
 
-### 🏗️ Network Architectures (Already Supported)
+### Network Architectures (Already Supported)
 Easily build and experiment with modern SNN architectures:
 - [x] **Spikeformer:** Spiking Transformer networks
 - [x] **Spiking CNN:** Spiking ResNet and other convolutional backbones
 - [x] **Recurrent:** Spiking LSTM, Recurrent LIF
 - [x] **Sequential:** TCN (Temporal Convolutional Networks), SSM (State Space Models)
+**Location:** `acouspike/models/network/`
 
-### 🎧 Supported Audio Tasks (Recipes, Already Supported)
+### Supported Audio Tasks (Recipes, Already Supported)
 Ready-to-use recipes and training scripts for common audio applications:
 - [x] **Automatic Speech Recognition (ASR):** End-to-end SNN-based speech recognition.
 - [x] **Keyword Spotting (KWS):** Low-power keyword detection (e.g., Google Speech Commands).
 - [x] **Speaker Identification:** Classifying speaker identities (e.g., VoxCeleb).
 - [x] **Speaker Verification:** Verifying claimed speaker identities.
 - [x] **Auditory Attention Decoding (AAD):** Decoding attended speech sources from neural signals.
+**Location:** `recipes/asr/`, `recipes/keyword_spotting/`, `recipes/speaker_identification/`, `recipes/speaker_verification/`, `recipes/auditory_attention_decoding/`
 
-## 📂 Project Structure
+## Project Structure
 
 ```text
 AcouSpike/
@@ -51,7 +54,7 @@ AcouSpike/
 └── utils/                  # General utility functions
 ```
 
-## 🔧 Installation
+## Installation
 
 This project uses **[uv](https://github.com/astral-sh/uv)** for ultra-fast dependency management and packaging.
 
@@ -83,7 +86,7 @@ source .venv/bin/activate
 .venv\Scripts\activate
 ```
 
-## ⚡ Quick Start
+## Quick Start
 
 Each task in the `recipes/` directory comes with its own `run.sh` or instruction set.
 
@@ -105,7 +108,7 @@ cd recipes/keyword_spotting
 bash run.sh
 ```
 
-## 📚 Documentation & Recipes
+## Documentation & Recipes
 
 Detailed documentation for specific tasks can be found in their respective directories:
 
@@ -115,14 +118,14 @@ Detailed documentation for specific tasks can be found in their respective direc
 - [Speaker Verification](./recipes/speaker_verification/README.md)
 - [Auditory Attention Decoding](./recipes/auditory_attention_decoding/readme.md)
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details on setting up your development environment, coding standards, and submission process.
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 📬 Contact
+## Contact
 
 - Issue Tracker: [GitHub Issues](https://github.com/ZhangShimin1/AcouSpike/issues)
