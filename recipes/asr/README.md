@@ -34,6 +34,6 @@ Configure the path of AISHELL dataset in `egs2/aishell/asr1/db.sh`.
 Run the following command to train a model:
 ```bash
 cd egs2/aishell/asr1
-python run_snn.sh
+bash run_snn.sh
 ```
 

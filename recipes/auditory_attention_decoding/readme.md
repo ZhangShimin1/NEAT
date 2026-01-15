@@ -10,9 +10,45 @@ cd AcouSpike
 source .venv/bin/activate
 ```
 
-## 📦 Training
+## Data Preparation
+
+This recipe supports two EEG datasets for auditory attention decoding:
+
+### KULeuven Dataset
+- Source: [KU Leuven EEG Dataset](https://zenodo.org/records/4004271)
+- 16 subjects with EEG recordings during dichotic listening tasks
+
+### DTU Dataset
+- Source: [DTU EEG Dataset](https://zenodo.org/record/1199011)
+- 18 subjects with EEG recordings
+
+### Dataset Structure
+After downloading, organize your data as follows:
+```
+/your/path/to/AAD/
+├── KUL/
+│   └── 1s/
+│       ├── data_1.mat
+│       ├── label_1.mat
+│       ├── data_2.mat
+│       ├── label_2.mat
+│       └── ...
+└── DTU/
+    └── 1s/
+        ├── data_1.mat
+        ├── label_1.mat
+        └── ...
+```
+
+### Configure Dataset Path
+Update the path in `dataloader.py` (line 40):
+```python
+self.path = f"/your/path/to/AAD/{dataset}/1s/"
+```
+
+## Training
 Run the following command to train the model:
-Modify the config file to set the dataset path and other parameters.
+Modify the config file to set the dataset and other parameters.
 ```bash
 bash run.sh
 ```
@@ -38,7 +74,7 @@ Our benchmark implements a simple two-layer feedforward architecture with the Le
         <td>6.092</td>
         <td><b>2</b></td>
         <td>67.22</td>
-        <td><6.472/td>
+        <td>6.472</td>
     </tr>
     <tr>
         <td><b>3</b></td>

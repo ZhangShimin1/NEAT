@@ -7,7 +7,7 @@
 cd AcouSpike
 
 # activate your virtual environment
-source activate .venv/bin/activate
+source .venv/bin/activate
 ```
 
 ## Data preparation

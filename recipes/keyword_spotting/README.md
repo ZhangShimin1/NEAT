@@ -1,5 +1,41 @@
 # Keyword spotting recipe
 
+## Dataset Preparation
+
+We are running our experiments on three datasets:
+
+### Google Speech Commands (GSC)
+The dataset will be automatically downloaded when you run the training script. Before running, update the dataset path in `datasets/gsc.py`:
+```python
+# Line 34: Change the base directory
+data_dir = f"/your/path/to/google_speech_command_{version}"
+
+# Line 199: Update the processed data path accordingly
+self.split_dir = f"/your/path/to/google_speech_command_{version}/processed/{split}"
+```
+
+### SHD (Spiking Heidelberg Digits)
+1. Download from https://zenkelab.org/datasets/
+2. Update paths in `datasets/shd.py`:
+```python
+# Line 26: For spiking version
+self.split_data = f"/your/path/to/spiking_heidelberg_digits/shd_{split}.h5"
+
+# Line 88-95: For non-spiking version
+file_name = f"/your/path/to/spiking_heidelberg_digits/heidelberg_digits/{self.split}_filenames.txt"
+file_path = f"/your/path/to/spiking_heidelberg_digits/heidelberg_digits/audio/{file_name}"
+```
+
+### SSC (Spiking Speech Commands)
+1. Download from https://zenkelab.org/datasets/
+2. Update path in `datasets/ssc.py`:
+```python
+# Line 18
+self.split_data = f"/your/path/to/spiking_speech_commands/ssc_{split}.h5"
+```
+
+## Environment Setup
+
 ```bash
 # cd to the acouspike root directory
 cd AcouSpike
