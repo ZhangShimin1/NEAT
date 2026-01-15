@@ -11,29 +11,36 @@ AcouSpike is a PyTorch-based framework designed for neuromorphic audio processin
 ## Features
 
 ### Rich Neuron Models (Already Supported)
+
+**Location:** `acouspike/models/neuron/` and `acouspike/models/surrogate/`
+
 AcouSpike implements a wide variety of spiking neuron models, ranging from classic to state-of-the-art:
 - [x] **Classic:** LIF (Leaky Integrate-and-Fire), PLIF (Parametric LIF)
 - [x] **Advanced:** ALIF (Adaptive LIF), GLIF (Gated LIF), RLIF (Recurrent LIF)
 - [x] **Specialized:** CLIF, CELIF, TCLIF, adLIF, LTC, PMSN, DHSNN, SPSN
 - [x] **Surrogate Gradients:** Built-in support for various surrogate gradient methods for direct training.
-**Location:** `acouspike/models/neuron/` and `acouspike/models/surrogate/`
 
 ### Network Architectures (Already Supported)
+
+**Location:** `acouspike/models/network/`
+
 Easily build and experiment with modern SNN architectures:
 - [x] **Spikeformer:** Spiking Transformer networks
 - [x] **Spiking CNN:** Spiking ResNet and other convolutional backbones
 - [x] **Recurrent:** Spiking LSTM, Recurrent LIF
 - [x] **Sequential:** TCN (Temporal Convolutional Networks), SSM (State Space Models)
-**Location:** `acouspike/models/network/`
 
 ### Supported Audio Tasks (Recipes, Already Supported)
+
+**Location:** `recipes/asr/`, `recipes/keyword_spotting/`, `recipes/speaker_identification/`, `recipes/speaker_verification/`, `recipes/auditory_attention_decoding/`
+
 Ready-to-use recipes and training scripts for common audio applications:
 - [x] **Automatic Speech Recognition (ASR):** End-to-end SNN-based speech recognition.
 - [x] **Keyword Spotting (KWS):** Low-power keyword detection (e.g., Google Speech Commands).
 - [x] **Speaker Identification:** Classifying speaker identities (e.g., VoxCeleb).
 - [x] **Speaker Verification:** Verifying claimed speaker identities.
 - [x] **Auditory Attention Decoding (AAD):** Decoding attended speech sources from neural signals.
-**Location:** `recipes/asr/`, `recipes/keyword_spotting/`, `recipes/speaker_identification/`, `recipes/speaker_verification/`, `recipes/auditory_attention_decoding/`
+
 
 ## Project Structure
 
