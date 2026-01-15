@@ -10,27 +10,27 @@ AcouSpike is a PyTorch-based framework designed for neuromorphic audio processin
 
 ## 🚀 Features
 
-### 🧠 Rich Neuron Models
+### 🧠 Rich Neuron Models (Already Supported)
 AcouSpike implements a wide variety of spiking neuron models, ranging from classic to state-of-the-art:
-- **Classic:** LIF (Leaky Integrate-and-Fire), PLIF (Parametric LIF)
-- **Advanced:** ALIF (Adaptive LIF), GLIF (Gated LIF), RLIF (Recurrent LIF)
-- **Specialized:** CLIF, CELIF, TCLIF, adLIF, LTC, PMSN, DHSNN, SPSN
-- **Surrogate Gradients:** Built-in support for various surrogate gradient methods for direct training.
+- [x] **Classic:** LIF (Leaky Integrate-and-Fire), PLIF (Parametric LIF)
+- [x] **Advanced:** ALIF (Adaptive LIF), GLIF (Gated LIF), RLIF (Recurrent LIF)
+- [x] **Specialized:** CLIF, CELIF, TCLIF, adLIF, LTC, PMSN, DHSNN, SPSN
+- [x] **Surrogate Gradients:** Built-in support for various surrogate gradient methods for direct training.
 
-### 🏗️ Network Architectures
+### 🏗️ Network Architectures (Already Supported)
 Easily build and experiment with modern SNN architectures:
-- **Spikeformer:** Spiking Transformer networks
-- **Spiking CNN:** Spiking ResNet and other convolutional backbones
-- **Recurrent:** Spiking LSTM, Recurrent LIF
-- **Sequential:** TCN (Temporal Convolutional Networks), SSM (State Space Models)
+- [x] **Spikeformer:** Spiking Transformer networks
+- [x] **Spiking CNN:** Spiking ResNet and other convolutional backbones
+- [x] **Recurrent:** Spiking LSTM, Recurrent LIF
+- [x] **Sequential:** TCN (Temporal Convolutional Networks), SSM (State Space Models)
 
-### 🎧 Supported Audio Tasks (Recipes)
+### 🎧 Supported Audio Tasks (Recipes, Already Supported)
 Ready-to-use recipes and training scripts for common audio applications:
-- **Automatic Speech Recognition (ASR):** End-to-end SNN-based speech recognition.
-- **Keyword Spotting (KWS):** Low-power keyword detection (e.g., Google Speech Commands).
-- **Speaker Identification:** Classifying speaker identities (e.g., VoxCeleb).
-- **Speaker Verification:** Verifying claimed speaker identities.
-- **Auditory Attention Decoding (AAD):** Decoding attended speech sources from neural signals.
+- [x] **Automatic Speech Recognition (ASR):** End-to-end SNN-based speech recognition.
+- [x] **Keyword Spotting (KWS):** Low-power keyword detection (e.g., Google Speech Commands).
+- [x] **Speaker Identification:** Classifying speaker identities (e.g., VoxCeleb).
+- [x] **Speaker Verification:** Verifying claimed speaker identities.
+- [x] **Auditory Attention Decoding (AAD):** Decoding attended speech sources from neural signals.
 
 ## 📂 Project Structure
 
