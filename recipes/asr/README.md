@@ -9,8 +9,10 @@ Install espnet in this directory:
 ```bash
 cd \path\to\this\repo
 git clone https://github.com/espnet/espnet
+cd <espnet-root>
+git checkout v.202412
 
-cd <espnet-root>/tools
+cd tools
 ./setup_miniforge.sh ${CONDA_ROOT} espnet 3.8
 conda activate espnet
 make

@@ -1,5 +1,14 @@
 # Keyword spotting receipt
 
+```bash
+# cd to the acouspike root directory
+cd AcouSpike
+
+# activate your virtual environment
+source .venv/bin/activate
+```
+
+
 ## 📦 Training
 Run the following command to train the model:
 Modify the config file to set the dataset path and other parameters.

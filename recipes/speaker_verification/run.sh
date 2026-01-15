@@ -18,10 +18,7 @@ exp_name="radlif"
 
 echo "Running on bmi-5 [Training]"
 
-# You may change the path to torchrun if needed
-torchrun_bin="/home/zysong/miniconda3/envs/audiozen/bin/torchrun"
-
-OMP_NUM_THREADS=1 CUDA_VISIBLE_DEVICES="${gpu_ids}" "${torchrun_bin}" \
+OMP_NUM_THREADS=1 CUDA_VISIBLE_DEVICES="${gpu_ids}" torchrun \
     --rdzv-backend=c10d \
     --rdzv-endpoint=localhost:0 \
     --nnodes=1 \

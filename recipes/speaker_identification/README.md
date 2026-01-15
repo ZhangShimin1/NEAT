@@ -1,16 +1,34 @@
-# Speaker identification receipt
+# Speaker identification recipe
 
-
-## 📦 Data preparation
-Download all archive parts form hugging face:
+## Environment activation
 
 ```bash
-   huggingface-cli download Acouspike/Voxceleb1_archive \
-     --repo-type dataset \
-     --local-dir /path/to/your/dataset
+# cd to the acouspike root directory
+cd AcouSpike
+
+# activate your virtual environment
+source activate .venv/bin/activate
 ```
+
+## Data preparation
+
+Download all archive parts form huggingface. Please first install huggingface-cli if you have not done so: https://huggingface.co/docs/huggingface_hub/en/installation.
+Please make sure you have logged in to huggingface cli (`hf auth login`) before running the command below.
+
+```bash
+# Based on your installation of huggingface-cli, you might need to use `hf` instead of `huggingface-cli`
+huggingface-cli download Acouspike/Voxceleb1 \
+    --repo-type dataset \
+    --local-dir </path/to/your/dataset>
+
+hf download Acouspike/Voxceleb1 \
+    --repo-type=dataset \
+    --local-dir </path/to/your/dataset>
+```
+
 Concate and unzip the data:
-```
+
+```bash
 cat VoxCeleb1_archive.tar.gz.part-* > VoxCeleb1_archive.tar.gz
 tar -xzvf VoxCeleb1_archive.tar.gz
 ```

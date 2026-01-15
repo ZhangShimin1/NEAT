@@ -2,6 +2,7 @@
 
 ## ==================
 ## Define the GPU IDs
+## You can modify this to use different GPUs
 ## ==================
 gpu_ids="0"
 # gpu_ids="4,5,6,7"
@@ -16,9 +17,8 @@ default_config_name="ltc_grid_8"
 exp_name="debug"
 
 echo "Running experiment with config: ${default_config_name}"
-torchrun_bin="/home/zysong/miniconda3/envs/audiozen/bin/torchrun"
 
-OMP_NUM_THREADS=1 CUDA_VISIBLE_DEVICES="${gpu_ids}" "${torchrun_bin}" \
+OMP_NUM_THREADS=1 CUDA_VISIBLE_DEVICES="${gpu_ids}" torchrun \
     --rdzv-backend=c10d \
     --rdzv-endpoint=localhost:0 \
     --nnodes=1 \

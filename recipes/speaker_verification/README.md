@@ -1,4 +1,14 @@
-# Speaker verification receipt
+# Speaker verification recipe
+
+## Environment activation
+
+```bash
+# cd to the acouspike root directory
+cd AcouSpike
+
+# activate your virtual environment
+source .venv/bin/activate
+```
 
 ## Data preparation
 
@@ -33,7 +43,6 @@ bash prep_data.sh
 Run the following command to train the model. You need to modify `run.sh` to change:
 
 - `gpu_ids`: specify which GPU(s) to use.
-- `torchrun_bin`: path to your `torchrun` binary.
 - Other hyperparameters in `conf/*.yaml` if needed.
 
 ```bash

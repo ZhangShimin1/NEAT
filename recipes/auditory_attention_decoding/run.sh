@@ -1,3 +1,5 @@
+#!/bin/bash
+
 gpu_ids="2"
 
 # Calculate the number of processes based on the number of GPUs
@@ -9,11 +11,7 @@ fi
 dataset="DTU"
 neuron="lif"
 
-echo "Running on bmi-5 [Training]"
-
-torchrun_bin="/home/zysong/miniconda3/envs/audiozen/bin/torchrun"
-
-OMP_NUM_THREADS=1 CUDA_VISIBLE_DEVICES="${gpu_ids}" "${torchrun_bin}" \
+OMP_NUM_THREADS=1 CUDA_VISIBLE_DEVICES="${gpu_ids}" torchrun \
     --rdzv-backend=c10d \
     --rdzv-endpoint=localhost:0 \
     --nnodes=1 \
@@ -25,23 +23,3 @@ OMP_NUM_THREADS=1 CUDA_VISIBLE_DEVICES="${gpu_ids}" "${torchrun_bin}" \
     --do_predict false \
     --output_dir "exp"
 
-# for i in "${!datasets[@]}"; do
-#   dataset="${datasets[$i]}"
-#   neuron="${neurons[$i]}"
-#   config_name="${neuron}_${dataset}"
-  
-#   echo "Running with config: ${config_name}"
-  
-#   OMP_NUM_THREADS=1 CUDA_VISIBLE_DEVICES="${gpu_ids}" "${torchrun_bin}" \
-#       --rdzv-backend=c10d \
-#       --rdzv-endpoint=localhost:0 \
-#       --nnodes=1 \
-#       --nproc-per-node="$num_processes" \
-#       run.py \
-#       --config_path "conf/${config_name}.yaml" \
-#       --do_train true \
-#       --do_eval false \
-#       --do_predict false \
-#       --output_dir "exp/${dataset}/${neuron}"
-
-# done
