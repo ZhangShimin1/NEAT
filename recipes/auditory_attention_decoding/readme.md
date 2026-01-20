@@ -12,18 +12,30 @@ source .venv/bin/activate
 
 ## Data Preparation
 
-This recipe supports two EEG datasets for auditory attention decoding:
+This recipe is compatible with two EEG datasets:
 
-### KULeuven Dataset
-- Source: [KU Leuven EEG Dataset](https://zenodo.org/records/4004271)
-- 16 subjects with EEG recordings during dichotic listening tasks
+1. **KULeuven Dataset**
+   - Source: [KU Leuven](https://zenodo.org/records/4004271)
+   - Includes EEG recordings from 16 subjects during dichotic listening experiments.
 
-### DTU Dataset
-- Source: [DTU EEG Dataset](https://zenodo.org/record/1199011)
-- 18 subjects with EEG recordings
+2. **DTU Dataset**
+   - Source: [Delhi Technological University](https://zenodo.org/record/1199011)
+   - Contains EEG recordings from 18 subjects.
 
-### Dataset Structure
-After downloading, organize your data as follows:
+### Preprocessing
+
+To preprocess the original EEG data, follow these steps:
+```bash
+cd preprocess
+matlab -nodisplay -r "run('preprocess_kul.m'); exit"
+```
+# End of Selection
+```
+In the following experiments, each sample consists of an EEG segment spanning 1 second.
+
+### Dataset Organization
+
+After preprocessing, structure your data in the following way:
 ```
 /your/path/to/AAD/
 ├── KUL/
