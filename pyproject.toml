@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 authors = [
     { name = "Zeyang Song", email = "zeyang_song@u.nus.edu" },
-    { name = "Shimin Zhang", email = ""},
+    { name = "Shimin Zhang", email = "shimin25.zhang@connect.polyu.hk"},
     { name = "Xiang HAO", email = "haoxiangsnr@gmail.com"}
 ]
 urls = { Repository = "https://github.com/ZhangShimin1/AcouSpike" }
@@ -24,6 +24,7 @@ dependencies = [
     "simple-parsing>=0.1.7",
     "soundfile>=0.13.1",
     "spikingjelly>=0.0.0.0.14",
+    "tabulate==0.9.0"
     "tensorboard>=2.20.0",
     "toml>=0.10.2",
     "torch==2.5.1",
