@@ -21,8 +21,7 @@ min() {
   echo "${a}"
 }
 
-HOME_DIR=/home/zysong/NEAT/neat/ASR
-
+HOME_DIR=/path/to/NEAT
 SECONDS=0
 
 # General configuration
