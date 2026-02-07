@@ -8,7 +8,7 @@ from espnet.nets.e2e_asr_common import get_vgg2l_odim
 from espnet.nets.pytorch_backend.nets_utils import make_pad_mask
 from espnet.nets.pytorch_backend.rnn.encoders import RNN, RNNP, VGG2L
 
-from acouspike.ASR.encoder.SRNN import SNN_encoder
+from neat.ASR.encoder.SRNN import SNN_encoder
 
 
 class VGGRNNEncoder(AbsEncoder):

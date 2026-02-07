@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import math
-from acouspike.models.layers import base
+from neat.models.layers import base
 from torch import Tensor
 from torch.nn.common_types import (
     _size_any_t,

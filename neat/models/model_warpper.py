@@ -1,14 +1,14 @@
 import torch
 import torch.nn as nn
-from acouspike.models.network.Spiking_LSTM import Spiking_LSTM
-from acouspike.models.network.TCN import TCN
-from acouspike.models.network.SpikingNet import SpikingNet
-from acouspike.models.network.Spikeformer import SpkTransformerNet
-from acouspike.models.network.SSM import SSMNet
+from neat.models.network.Spiking_LSTM import Spiking_LSTM
+from neat.models.network.TCN import TCN
+from neat.models.network.SpikingNet import SpikingNet
+from neat.models.network.Spikeformer import SpkTransformerNet
+from neat.models.network.SSM import SSMNet
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
-from acouspike.models.network.utils import reset_backward_rnn_state
-from acouspike.models.network.SpikingCNN import spiking_resnet18
-from acouspike.models.surrogate.surrogate import TriangleSurroGrad
+from neat.models.network.utils import reset_backward_rnn_state
+from neat.models.network.SpikingCNN import spiking_resnet18
+from neat.models.surrogate.surrogate import TriangleSurroGrad
 from simple_parsing.helpers import Serializable
 from dataclasses import dataclass, field
 

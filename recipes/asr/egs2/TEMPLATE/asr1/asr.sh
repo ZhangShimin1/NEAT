@@ -21,7 +21,7 @@ min() {
   echo "${a}"
 }
 
-HOME_DIR=/home/zysong/AcouSpike/acouspike
+HOME_DIR=/home/zysong/NEAT/neat
 
 SECONDS=0
 

@@ -1,10 +1,10 @@
 import torch
-from acouspike.models.network.Spiking_LSTM import Spiking_LSTM
-from acouspike.models.network.TCN import TCN
-from acouspike.models.network.SpikingNet import SpikingNet
-from acouspike.models.network.Spikeformer import SpkTransformerNet
-from acouspike.models.network.SSM import SSMNet
-from acouspike.models.network.utils import count_parameters
+from neat.models.network.Spiking_LSTM import Spiking_LSTM
+from neat.models.network.TCN import TCN
+from neat.models.network.SpikingNet import SpikingNet
+from neat.models.network.Spikeformer import SpkTransformerNet
+from neat.models.network.SSM import SSMNet
+from neat.models.network.utils import count_parameters
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 

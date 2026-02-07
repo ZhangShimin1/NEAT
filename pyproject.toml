@@ -1,5 +1,5 @@
 [project]
-name = "acouspike"
+name = "neat"
 version = "0.1.0"
 description = "A modern, lightweight library for Neuromorphic Audio Processing using Spiking Neural Networks."
 readme = "README.md"
@@ -9,7 +9,7 @@ authors = [
     { name = "Shimin Zhang", email = "shimin25.zhang@connect.polyu.hk"},
     { name = "Xiang HAO", email = "haoxiangsnr@gmail.com"}
 ]
-urls = { Repository = "https://github.com/ZhangShimin1/AcouSpike" }
+urls = { Repository = "https://github.com/ZhangShimin1/NEAT" }
 dependencies = [
     "einops>=0.8.1",
     "h5py>=3.15.1",
@@ -48,7 +48,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["acouspike"]
+packages = ["neat"]
 
 [dependency-groups]
 dev = [

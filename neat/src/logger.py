@@ -6,7 +6,7 @@ from pathlib import Path
 import toml
 from torch.utils.tensorboard import SummaryWriter
 
-from acouspike.src.accelerate import is_rank_zero
+from neat.src.accelerate import is_rank_zero
 
 
 class TensorboardLogger(SummaryWriter):

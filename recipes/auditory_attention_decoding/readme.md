@@ -3,8 +3,8 @@
 ## Environment activation
 
 ```bash
-# cd to the acouspike root directory
-cd AcouSpike
+# cd to the root directory
+cd NEAT
 
 # activate your virtual environment
 source .venv/bin/activate

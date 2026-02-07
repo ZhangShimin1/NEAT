@@ -1,6 +1,6 @@
-# Contributing to AcouSpike
+# Contributing to NEAT
 
-We welcome contributions to AcouSpike! This guide will help you set up your development environment and ensure your code meets our project standards.
+We welcome contributions to NEAT! This guide will help you set up your development environment and ensure your code meets our project standards.
 
 ## Development Setup
 
@@ -42,4 +42,4 @@ We use **Ruff** for code formatting and linting. Before submitting your changes,
 4.  Run `ruff format .` to clean up your code.
 5.  Submit a Pull Request.
 
-Thank you for helping improve AcouSpike!
+Thank you for helping improve NEAT!

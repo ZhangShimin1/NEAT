@@ -2,9 +2,8 @@ import torch
 import pytest
 import sys
 
-sys.path.append("/home/zysong/AcouSpike/")
-from acouspike.models.neuron.lif import adLIF
-from acouspike.models.surrogate.surrogate import SurrogateGradient
+from neat.models.neuron.lif import adLIF
+from neat.models.surrogate.surrogate import SurrogateGradient
 
 
 def test_adlif_unused_parameters():

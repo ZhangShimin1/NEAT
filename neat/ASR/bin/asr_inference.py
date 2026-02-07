@@ -3,7 +3,6 @@ import argparse
 import logging
 import sys
 
-sys.path.insert(0, "/home/zysong/AcouSpike/acouspike")
 from ASR.asr import ASRTask
 from distutils.version import LooseVersion
 from itertools import groupby

@@ -8,16 +8,16 @@ try:
     from .kernel import temporal_fusion_kernel
 except BaseException as e:
     temporal_fusion_kernel = None
-from acouspike.models.surrogate.surrogate import SurrogateGradient as SG
-from acouspike.models.surrogate.surrogate import PMSN_surrogate
-from acouspike.models.surrogate.ASGL_surrogate import (
+from neat.models.surrogate.surrogate import SurrogateGradient as SG
+from neat.models.surrogate.surrogate import PMSN_surrogate
+from neat.models.surrogate.ASGL_surrogate import (
     EfficientNoisySpike,
     InvSigmoid,
     InvRectangle,
 )
-from acouspike.models.neuron.base_neuron import BaseNeuron
+from neat.models.neuron.base_neuron import BaseNeuron
 from torch.autograd import Variable
-from acouspike.models.neuron.membrane_update import MembraneUpdate
+from neat.models.neuron.membrane_update import MembraneUpdate
 
 
 class FusedLIF(Function):

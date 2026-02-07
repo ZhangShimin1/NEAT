@@ -6,23 +6,23 @@
 
 ## Overview
 
-AcouSpike is a PyTorch-based framework designed for neuromorphic audio processing using Spiking Neural Networks (SNNs). It provides a flexible and efficient way to build, train, and deploy SNN models for various audio processing tasks.
+NEAT is a PyTorch-based framework designed for neuromorphic audio processing using Spiking Neural Networks (SNNs). It provides a flexible and efficient way to build, train, and deploy SNN models for various audio processing tasks.
 
 ## Features
 
-### Rich Neuron Models (Already Supported)
+### Rich Neuron Models
 
-**Location:** `acouspike/models/neuron/` and `acouspike/models/surrogate/`
+**Location:** `neat/models/neuron/` and `neat/models/surrogate/`
 
-AcouSpike implements a wide variety of spiking neuron models, ranging from classic to state-of-the-art:
+NEAT implements a wide variety of spiking neuron models, ranging from classic to state-of-the-art:
 - [x] **Classic:** LIF (Leaky Integrate-and-Fire), PLIF (Parametric LIF)
 - [x] **Advanced:** ALIF (Adaptive LIF), GLIF (Gated LIF), RLIF (Recurrent LIF)
 - [x] **Specialized:** CLIF, CELIF, TCLIF, adLIF, LTC, PMSN, DHSNN, SPSN
 - [x] **Surrogate Gradients:** Built-in support for various surrogate gradient methods for direct training.
 
-### Network Architectures (Already Supported)
+### Network Architectures
 
-**Location:** `acouspike/models/network/`
+**Location:** `neat/models/network/`
 
 Easily build and experiment with modern SNN architectures:
 - [x] **Spikeformer:** Spiking Transformer networks
@@ -30,7 +30,7 @@ Easily build and experiment with modern SNN architectures:
 - [x] **Recurrent:** Spiking LSTM, Recurrent LIF
 - [x] **Sequential:** TCN (Temporal Convolutional Networks), SSM (State Space Models)
 
-### Supported Audio Tasks (Recipes, Already Supported)
+### Supported Audio Tasks
 
 **Location:** `recipes/asr/`, `recipes/keyword_spotting/`, `recipes/speaker_identification/`, `recipes/speaker_verification/`, `recipes/auditory_attention_decoding/`
 
@@ -45,8 +45,8 @@ Ready-to-use recipes and training scripts for common audio applications:
 ## Project Structure
 
 ```text
-AcouSpike/
-├── acouspike/              # Core library
+NEAT/
+├── neat/              # Core library
 │   ├── models/
 │   │   ├── neuron/         # Neuron implementations (LIF, PLIF, etc.)
 │   │   ├── network/        # Network backbones (Spikeformer, TCN, etc.)
@@ -77,8 +77,8 @@ powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ### 2. Set up the environment
 Clone the repo and sync dependencies.
 ```bash
-git clone https://github.com/ZhangShimin1/AcouSpike
-cd AcouSpike
+git clone https://github.com/ZhangShimin1/NEAT
+cd NEAT
 
 # Creates a .venv folder and installs dependencies from pyproject.toml
 uv sync
@@ -135,4 +135,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
-- Issue Tracker: [GitHub Issues](https://github.com/ZhangShimin1/AcouSpike/issues)
+- Issue Tracker: [GitHub Issues](https://github.com/ZhangShimin1/NEAT/issues)

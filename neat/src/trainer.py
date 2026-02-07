@@ -17,19 +17,19 @@ from torch.utils.data import DataLoader, Dataset, DistributedSampler
 from torchinfo import summary
 from tqdm import tqdm
 
-from acouspike.src.accelerate import (
+from neat.src.accelerate import (
     gather_object,
     get_world_size_and_rank,
     wait_for_everyone,
 )
-from acouspike.src.logger import TensorboardLogger
-from acouspike.src.optimization import (
+from neat.src.logger import TensorboardLogger
+from neat.src.optimization import (
     get_constant_schedule_with_warmup,
     get_cosine_with_min_lr_schedule_with_warmup,
     get_linear_schedule_with_warmup,
 )
-from acouspike.src.trainer_args import TrainingArgs
-from acouspike.src.trainer_utils import (
+from neat.src.trainer_args import TrainingArgs
+from neat.src.trainer_utils import (
     StateName,
     TrainerState,
     load_state_dict_from_checkpoint,
@@ -37,7 +37,7 @@ from acouspike.src.trainer_utils import (
     print_env,
     save_state_dict_to_checkpoint,
 )
-from acouspike.src.utils import (
+from neat.src.utils import (
     cleanup_before_training,
     prepare_empty_dir,
     set_random_seed,

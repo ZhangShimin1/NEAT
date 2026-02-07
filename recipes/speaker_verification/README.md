@@ -3,8 +3,8 @@
 ## Environment activation
 
 ```bash
-# cd to the acouspike root directory
-cd AcouSpike
+# cd to the root directory
+cd NEAT
 
 # activate your virtual environment
 source .venv/bin/activate
@@ -17,11 +17,11 @@ Please make sure you have logged in to huggingface cli (`hf auth login`) before 
 
 ```bash
 # Based on your installation of huggingface-cli, you might need to use `hf` instead of `huggingface-cli`
-huggingface-cli download Acouspike/Voxceleb1 \
+huggingface-cli download NEAT/Voxceleb1 \
     --repo-type dataset \
     --local-dir </path/to/your/dataset>
 
-hf download Acouspike/Voxceleb1 \
+hf download NEAT/Voxceleb1 \
     --repo-type=dataset \
     --local-dir </path/to/your/dataset>
 ```
@@ -120,6 +120,6 @@ Network Architrcture (40-<b>300-300-300-300</b>-256)
     </tr>
 </table>
 
-*Note: The energy consumption is measured with the script in acouspike.utils.energy.py*
+*Note: The energy consumption is measured with the script in neat.utils.energy.py*
 
 

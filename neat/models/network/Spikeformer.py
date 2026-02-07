@@ -3,8 +3,8 @@ import math
 import torch.nn as nn
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence, PackedSequence
 from functools import partial
-from acouspike.models.surrogate.surrogate import SurrogateGradient
-from acouspike.models.neuron.lif import RLIF
+from neat.models.surrogate.surrogate import SurrogateGradient
+from neat.models.neuron.lif import RLIF
 
 
 class PositionalEncoding(nn.Module):

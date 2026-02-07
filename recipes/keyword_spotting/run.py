@@ -9,10 +9,10 @@ from pathlib import Path
 from simple_parsing import Serializable, parse
 from trainer import Trainer
 
-from acouspike.models.model_warpper import ModelWrapper, ModelWrapperArgs
-from acouspike.src.accelerate import init_accelerator
-from acouspike.src.logger import init_logging_logger
-from acouspike.src.trainer_args import TrainingArgs
+from neat.models.model_warpper import ModelWrapper, ModelWrapperArgs
+from neat.src.accelerate import init_accelerator
+from neat.src.logger import init_logging_logger
+from neat.src.trainer_args import TrainingArgs
 
 logger = logging.getLogger(__name__)
 

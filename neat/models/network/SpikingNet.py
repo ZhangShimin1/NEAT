@@ -2,9 +2,9 @@ import torch
 import torch.nn as nn
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence, PackedSequence
 from functools import partial
-from acouspike.models.network.utils import reset_states
-from acouspike.models.surrogate.surrogate import SurrogateGradient
-from acouspike.models.neuron.lif import (
+from neat.models.network.utils import reset_states
+from neat.models.surrogate.surrogate import SurrogateGradient
+from neat.models.neuron.lif import (
     RLIF,
     PLIF,
     LTC,
@@ -17,7 +17,7 @@ from acouspike.models.neuron.lif import (
     TCLIF,
     GLIF,
 )
-from acouspike.models.layers.layer import (
+from neat.models.layers.layer import (
     BatchNorm1d,
     ThresholdDependentBatchNorm1d,
     TemporalEffectiveBatchNorm1d,

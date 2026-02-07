@@ -3,11 +3,11 @@ import logging
 import torch
 from tqdm import tqdm
 
-from acouspike.models.neuron.base_neuron import BaseNeuron
-from acouspike.src.accelerate import gather_object
-from acouspike.src.trainer import Trainer as BaseTrainer
-from acouspike.utils.energy import EnergyCalculator
-from acouspike.utils.monitor import OutputMonitor, cal_firing_rate
+from neat.models.neuron.base_neuron import BaseNeuron
+from neat.src.accelerate import gather_object
+from neat.src.trainer import Trainer as BaseTrainer
+from neat.utils.energy import EnergyCalculator
+from neat.utils.monitor import OutputMonitor, cal_firing_rate
 
 logger = logging.getLogger(__name__)
 

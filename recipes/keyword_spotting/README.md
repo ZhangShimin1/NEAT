@@ -37,8 +37,8 @@ self.split_data = f"/your/path/to/spiking_speech_commands/ssc_{split}.h5"
 ## Environment Setup
 
 ```bash
-# cd to the acouspike root directory
-cd AcouSpike
+# cd to the root directory
+cd NEAT
 
 # activate your virtual environment
 source .venv/bin/activate

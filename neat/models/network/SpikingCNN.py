@@ -2,9 +2,9 @@ import torch
 import torch.nn as nn
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence, PackedSequence
 from functools import partial
-from acouspike.models.network.utils import reset_states
-from acouspike.models.surrogate.surrogate import TriangleSurroGrad
-from acouspike.models.neuron.neuron import LIFLayer
+from neat.models.network.utils import reset_states
+from neat.models.surrogate.surrogate import TriangleSurroGrad
+from neat.models.neuron.neuron import LIFLayer
 from torch.nn import (
     Module,
     Conv2d,
